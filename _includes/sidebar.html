@@ -12,12 +12,14 @@
 </div>
 
 <div class="sidebar well">
-    <h1>Category</h1>
-    <ul>
-        {% for post in site.categorys limit:5 %}
-          <li><a href="{{ site.baseurl}}{{ post.url }}">{{ post.title }}</a></li>
-        {% endfor %}
-    </ul>
+ 	<pre class="html" name="colorcode">
+	 <h1>Category</h1> 
+	 <ul>
+		{\% for category in site.categories %} 
+		<li><a href=”/categories/{{ category | first }}/” title=”view all posts”>{{ category | first }} {{ category | last | size }}</a> </li>
+		{\% endfor %} 
+	 </ul> 
+	</pre>
 </div>
 
 <div class="sidebar well">
