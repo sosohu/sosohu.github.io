@@ -1,6 +1,6 @@
 # sosohu configuration
 
-name: My blog
+name: WordWorth
 description: sosohu
 
 # url is currently only used only for the RSS feed in feed.xml
