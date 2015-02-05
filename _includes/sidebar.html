@@ -12,5 +12,14 @@
 </div>
 
 <div class="sidebar well">
+    <h1>Category</h1>
+    <ul>
+        {% for post in site.categorys limit:5 %}
+          <li><a href="{{ site.baseurl}}{{ post.url }}">{{ post.title }}</a></li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div class="sidebar well">
 {% include links-list.html %}
 </div>
