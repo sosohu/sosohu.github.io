@@ -26,6 +26,7 @@ comments: true
 
 permalink: /:year/:month/:title
 paginate: 3
+safe: false
 
 highlighter: pygments
 markdown: redcarpet
