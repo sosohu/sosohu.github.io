@@ -122,9 +122,8 @@ sosohu
 
 <h4 id="修改仓库变为自己的博客">修改仓库变为自己的博客</h4>
 
-<p>clone完别人的代码之后,我们先来看一下整个仓库代码的结构:
-<code>
-.
+<p>clone完别人的代码之后,我们先来看一下整个仓库代码的结构:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">.
 ├── about.html
 ├── archive.html
 ├── _config.yml
@@ -159,8 +158,8 @@ sosohu
 │   ├── 2014-07-22-Lorem-ipsum-dolor-sit-amet.md
 │   └── 2014-08-22-jekyll-clean-theme.md
 └── README.md
-</code>
-你需要修改一下内容:</p>
+</code></pre></div>
+<p>你需要修改一下内容:</p>
 
 <ul>
 <li>  _config.yml:  url改为你的url(usename.github.io), baseurl改为&#39;&#39;, name和description自定义.</li>
@@ -191,17 +190,15 @@ sosohu
 
 <p>你可以不用搭建,然后每次提交代码到github上再看效果,搭建这个本地环境是为了让你能在本地实时的查看博客效果.</p>
 
-<p>先是安装ruby(最好是1.9.2版本之后的)和rake,然后安装jekyll
-<code>
-    sudo apt-get install ruby rake
-    sudo gem install jekyll
-</code>
-如果安装不了合适的ruby,可以自己到ruby官网下载最新版本,configure &amp;&amp; make &amp;&amp; make install安装,另外,你有可能无法gem install jekyll,那么因为GTW的原因,可以更换source mirror:
-<code>
-    gem sources --remove https://rubygems.org/
-    gem sources -a http://ruby.taobao.org/
-</code>
-其他的,你还需要安装nodejs</p>
+<p>先是安装ruby(最好是1.9.2版本之后的)和rake,然后安装jekyll</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">sudo apt-get install ruby rake
+sudo gem install jekyll
+</code></pre></div>
+<p>如果安装不了合适的ruby,可以自己到ruby官网下载最新版本,configure &amp;&amp; make &amp;&amp; make install安装,另外,你有可能无法gem install jekyll,那么因为GTW的原因,可以更换source mirror:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">gem sources --remove https://rubygems.org/
+gem sources -a http://ruby.taobao.org/
+</code></pre></div>
+<p>其他的,你还需要安装nodejs</p>
 
 <h4 id="使用jekyll本地产生文件">使用jekyll本地产生文件</h4>
 

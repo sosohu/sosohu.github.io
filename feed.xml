@@ -136,9 +136,8 @@ sosohu
 
 &lt;h4 id=&quot;修改仓库变为自己的博客&quot;&gt;修改仓库变为自己的博客&lt;/h4&gt;
 
-&lt;p&gt;clone完别人的代码之后,我们先来看一下整个仓库代码的结构:
-&lt;code&gt;
-.
+&lt;p&gt;clone完别人的代码之后,我们先来看一下整个仓库代码的结构:&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;.
 ├── about.html
 ├── archive.html
 ├── _config.yml
@@ -173,8 +172,8 @@ sosohu
 │   ├── 2014-07-22-Lorem-ipsum-dolor-sit-amet.md
 │   └── 2014-08-22-jekyll-clean-theme.md
 └── README.md
-&lt;/code&gt;
-你需要修改一下内容:&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;你需要修改一下内容:&lt;/p&gt;
 
 &lt;ul&gt;
 &lt;li&gt;  _config.yml:  url改为你的url(usename.github.io), baseurl改为&amp;#39;&amp;#39;, name和description自定义.&lt;/li&gt;
@@ -205,17 +204,15 @@ sosohu
 
 &lt;p&gt;你可以不用搭建,然后每次提交代码到github上再看效果,搭建这个本地环境是为了让你能在本地实时的查看博客效果.&lt;/p&gt;
 
-&lt;p&gt;先是安装ruby(最好是1.9.2版本之后的)和rake,然后安装jekyll
-&lt;code&gt;
-    sudo apt-get install ruby rake
-    sudo gem install jekyll
-&lt;/code&gt;
-如果安装不了合适的ruby,可以自己到ruby官网下载最新版本,configure &amp;amp;&amp;amp; make &amp;amp;&amp;amp; make install安装,另外,你有可能无法gem install jekyll,那么因为GTW的原因,可以更换source mirror:
-&lt;code&gt;
-    gem sources --remove https://rubygems.org/
-    gem sources -a http://ruby.taobao.org/
-&lt;/code&gt;
-其他的,你还需要安装nodejs&lt;/p&gt;
+&lt;p&gt;先是安装ruby(最好是1.9.2版本之后的)和rake,然后安装jekyll&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;sudo apt-get install ruby rake
+sudo gem install jekyll
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;如果安装不了合适的ruby,可以自己到ruby官网下载最新版本,configure &amp;amp;&amp;amp; make &amp;amp;&amp;amp; make install安装,另外,你有可能无法gem install jekyll,那么因为GTW的原因,可以更换source mirror:&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;gem sources --remove https://rubygems.org/
+gem sources -a http://ruby.taobao.org/
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;其他的,你还需要安装nodejs&lt;/p&gt;
 
 &lt;h4 id=&quot;使用jekyll本地产生文件&quot;&gt;使用jekyll本地产生文件&lt;/h4&gt;
 
