@@ -114,11 +114,11 @@ sosohu
 				<title>Github-Jekyll-Markdown开启写作新时代</title>
 				<description>&lt;h2 id=&quot;为什么想到用这几个东西来写博客&quot;&gt;为什么想到用这几个东西来写博客&lt;/h2&gt;
 
-&lt;p&gt;首先markdown用来写作已经是非常流行的了,确实非常方便高效,虽然表达能力没有latex丰富,但是已经算是即轻量级又比较美观的一种方式了,特别是github风格的markdown文章还是比较好看的.其次,我之前的博客要么在博客园这类网站上写,要么是在github的项目仓库中写:sweat:, 但是感觉还是很不方便,而且觉得作为码农还是应该搭建一个自己的博客基地比较geek:smile:, 可是我又想能够快速搭建起来,而且不要太麻烦,几经调研,发现github.io作为搭建平台非常的适合,结果也是很让我满意,大概仅仅只用一天时间,就基本搭建成功一个我觉得还比较满意的博客.&lt;/p&gt;
+&lt;p&gt;首先markdown用来写作已经是非常流行的了,确实非常方便高效,虽然表达能力没有latex丰富,但是已经算是即轻量级又比较美观的一种方式了,特别是github风格的markdown文章还是比较好看的.其次,我之前的博客要么在博客园这类网站上写,要么是在github的项目仓库中写&lt;img class=&#39;emoji&#39; title=&#39;sweat&#39; alt=&#39;sweat&#39; src=&#39;https://github.global.ssl.fastly.net/images/icons/emoji/sweat.png&#39; height=&#39;20&#39; width=&#39;20&#39; align=&#39;absmiddle&#39; &gt;, 但是感觉还是很不方便,而且觉得作为码农还是应该搭建一个自己的博客基地比较geek&lt;img class=&#39;emoji&#39; title=&#39;smile&#39; alt=&#39;smile&#39; src=&#39;https://github.global.ssl.fastly.net/images/icons/emoji/smile.png&#39; height=&#39;20&#39; width=&#39;20&#39; align=&#39;absmiddle&#39; &gt;, 可是我又想能够快速搭建起来,而且不要太麻烦,几经调研,发现github.io作为搭建平台非常的适合,结果也是很让我满意,大概仅仅只用一天时间,就基本搭建成功一个我觉得还比较满意的博客.&lt;/p&gt;
 
 &lt;h2 id=&quot;怎么搭建的&quot;&gt;怎么搭建的&lt;/h2&gt;
 
-&lt;p&gt;前面废话那么多,感觉的是在给你心灵鸡汤一样,但是我不会只给鸡汤不给汤勺的:satisfied:, 下面就来介绍一下我搭建过程中的一些经验总结.&lt;/p&gt;
+&lt;p&gt;前面废话那么多,感觉的是在给你心灵鸡汤一样,但是我不会只给鸡汤不给汤勺的&lt;img class=&#39;emoji&#39; title=&#39;satisfied&#39; alt=&#39;satisfied&#39; src=&#39;https://github.global.ssl.fastly.net/images/icons/emoji/satisfied.png&#39; height=&#39;20&#39; width=&#39;20&#39; align=&#39;absmiddle&#39; &gt;, 下面就来介绍一下我搭建过程中的一些经验总结.&lt;/p&gt;
 
 &lt;h3 id=&quot;准备工作&quot;&gt;准备工作&lt;/h3&gt;
 

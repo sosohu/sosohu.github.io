@@ -24,6 +24,8 @@ gaaccount: ''
 disqus: 'sosohu'
 comments: true
 
+gems: ["emoji_for_jekyll"]
+
 permalink: /:year/:month/:title
 paginate: 3
 safe: false

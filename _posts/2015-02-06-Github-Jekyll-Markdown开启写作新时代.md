@@ -9,20 +9,27 @@ comments: true
 ##为什么想到用这几个东西来写博客
 首先markdown用来写作已经是非常流行的了,确实非常方便高效,虽然表达能力没有latex丰富,但是已经算是即轻量级又比较美观的一种方式了,特别是github风格的markdown文章还是比较好看的.其次,我之前的博客要么在博客园这类网站上写,要么是在github的项目仓库中写:sweat:, 但是感觉还是很不方便,而且觉得作为码农还是应该搭建一个自己的博客基地比较geek:smile:, 可是我又想能够快速搭建起来,而且不要太麻烦,几经调研,发现github.io作为搭建平台非常的适合,结果也是很让我满意,大概仅仅只用一天时间,就基本搭建成功一个我觉得还比较满意的博客.
 
+
+
 ##怎么搭建的
 前面废话那么多,感觉的是在给你心灵鸡汤一样,但是我不会只给鸡汤不给汤勺的:satisfied:, 下面就来介绍一下我搭建过程中的一些经验总结.
+
+
 
 ###准备工作
 ####github账号: 
 这个不用多说了,很简单,去申请一个就行了.
 
 
+
 ####在gitbub上建立一个usename.github.io的仓库: 
   usename是你的github账号名,貌似不一定非要叫这个名字,反正我是起的这个名字
 
 
+
 ####clone一个你喜欢的代码: 
 github上jeklly做出来的各种主题都有很多代码,我这里使用的是[scotte](https://github.com/scotte/jekyll-clean)的jekyll-clean风格的主题,jekyll还有很多其他主题,你可以到它的官网看一看,然后找相应github上的样例代码.
+
 
 
 ####修改仓库变为自己的博客
@@ -74,8 +81,10 @@ clone完别人的代码之后,我们先来看一下整个仓库代码的结构:
 修改完之后,上传到github对应仓库之后,打开usename.github.io网站就可以看到效果啦.
 
 
+
 ####插件的使用
 主要推荐分类插件和评论插件.
+
 
 
 #####category
@@ -86,8 +95,10 @@ clone完别人的代码之后,我们先来看一下整个仓库代码的结构:
 Note: github上的jekyll不支持插件,需要在本地的jekyll环境产生html文件后上传才可以达到效果.
 
 
+
 #####comments
 评论插件很简单,你只需要去[DISQUS](http://disqus.com/)注册一个用户名,然后在_config.yml中disqus改为你的用户名,comments设为true, 最后再修改_includes/comments.ext文件中disqus_shortname为你的用户名就可以了.
+
 
 
 ####本地搭建jekyll环境:	
@@ -104,6 +115,7 @@ Note: github上的jekyll不支持插件,需要在本地的jekyll环境产生html
 	gem sources -a http://ruby.taobao.org/
 
 其他的,你还需要安装nodejs
+
 
 
 ####使用jekyll本地产生文件
