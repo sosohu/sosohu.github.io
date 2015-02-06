@@ -64,9 +64,15 @@ sosohu
 	 <h1>Category</h1> 
 	 <ul>
 		 
+<<<<<<< HEAD:2015/02/Linux下小工具推荐/index.html~HEAD
+		<li><a href="life" title="view all posts">life 1</a> </li>
+		 
+		<li><a href="tool" title="view all posts">tool 1</a> </li>
+=======
 		<li><a href="http://sosohu.github.io/life" title="view all posts">life 1</a> </li>
 		 
 		<li><a href="http://sosohu.github.io/tool" title="view all posts">tool 1</a> </li>
+>>>>>>> source:_site/links.html
 		 
 	 </ul> 
 </div>
