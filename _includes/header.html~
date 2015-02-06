@@ -1,15 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<link rel="stylesheet" href="/js/prettify/prettify.css">
-<script src="/js/prettify/prettify.js"></script>
-<script type="text/javascript">
-  $(function(){
-    $("pre").addClass("prettyprint linenums");
-    prettyPrint();
-  });
-</script>
-
 <head>
     <meta charset="UTF-8">
     <title>{{ site.name }}</title>
