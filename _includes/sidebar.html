@@ -15,7 +15,7 @@
 	 <h1>Category</h1> 
 	 <ul>
 		{% for category in site.categories %} 
-		<li><a href="{{ site.baseurl}}{{ category}}" title="view all posts">{{ category | first }} {{ category | last | (size) }}</a> </li>
+		<li><a href="{{ site.url}}{{ category | first}}" title="view all posts">{{ category | first }} {{ category | last | size }}</a> </li>
 		{% endfor %} 
 	 </ul> 
 </div>
