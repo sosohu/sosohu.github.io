@@ -55,7 +55,7 @@ sosohu
         
           <li><a href="/2015/02/Linux%E4%B8%8B%E5%B0%8F%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90">linux下小工具推荐</a></li>
         
-          <li><a href="/2015/02/Github-Jekyll-Markdown%E5%BC%80%E5%90%AF%E5%86%99%E4%BD%9C%E6%96%B0%E6%97%B6%E4%BB%A3">Github-Jekyll-Markdown开启写作新时代</a></li>
+          <li><a href="/2012/05/Vivamus-porttitor-porta-tortor">Vivamus porttitor porta tortor</a></li>
         
     </ul>
 </div>
@@ -64,7 +64,7 @@ sosohu
 	 <h1>Category</h1> 
 	 <ul>
 		 
-		<li><a href="/experience">experience 1</a> </li>
+		<li><a href="/life">life 1</a> </li>
 		 
 		<li><a href="/tool">tool 1</a> </li>
 		 
@@ -84,14 +84,16 @@ sosohu
         <div class="col-md-9">
           <div class="article">
             <div class="well">
-                <h1><a href="/2015/02/Linux%E4%B8%8B%E5%B0%8F%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90">Feb 25, 2015 - linux下小工具推荐</a></h1>
+                <h1><a href="/2012/05/Vivamus-porttitor-porta-tortor">May 23, 2012 - Vivamus porttitor porta tortor</a></h1>
             
                 <p class="author"><a href="#disqus_thread">Comments</a></p>
             
             <div class="post-content">
-            <h2 id="valgrind">Valgrind</h2>
+            <p>Vivamus porttitor porta tortor at ullamcorper. Proin vel nisi magna. Vivamus vel velit laoreet, malesuada nunc nec, pulvinar velit. Vivamus sollicitudin ex quam, sit amet aliquet velit euismod in. Etiam rutrum augue orci, sed euismod risus vehicula eu. Proin quis velit mattis, sodales erat vitae, condimentum nulla. Vestibulum vitae imperdiet ligula. Etiam venenatis ultrices varius.</p>
 
-<p>Valgrind是一个检测C/C++程序内存问题的强大工具,相关使用介绍和方法请参考<a href="http://www.ibm.com/developerworks/cn/linux/l-cn-valgrind/">IBM某篇博客</a></p>
+<p>Vestibulum vulputate nulla hendrerit velit tempor, et fringilla urna placerat. In hac habitasse platea dictumst. Vestibulum sit amet molestie tortor, eu posuere magna. Donec rhoncus pharetra urna sed tempor. Aliquam erat volutpat. Nulla facilisi. Nam at ante condimentum, egestas massa sed, auctor orci. Aenean tincidunt, turpis et venenatis finibus, orci urna tempor ex, at mattis nisi nisi varius nisl. Pellentesque diam libero, dignissim vel nisl ut, placerat pharetra felis.</p>
+
+<p>Curabitur venenatis neque eget odio tempor, vitae condimentum quam aliquam. Duis dui odio, auctor non ultricies nec, mollis nec elit. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Sed eget elit at nisl auctor egestas. Vivamus nec turpis feugiat, dapibus metus et, fermentum lacus. Curabitur at blandit diam, non rutrum nulla. Quisque eget fermentum libero, in bibendum diam. Vestibulum eget porta est, in scelerisque metus. Donec in elit aliquet sapien ultrices tincidunt.</p>
 
             </div>
             
@@ -104,8 +106,8 @@ sosohu
           </div>
           <div class="pagination">
               
+                <a class="btn btn-default" href="/2015/02/Linux%E4%B8%8B%E5%B0%8F%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90" class="next">Newer Post</a>
               
-                <a class="btn btn-default" href="/2015/02/Github-Jekyll-Markdown%E5%BC%80%E5%90%AF%E5%86%99%E4%BD%9C%E6%96%B0%E6%97%B6%E4%BB%A3" class="previous">Older Post</a>
               
 </div>
 
