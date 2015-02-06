@@ -16,51 +16,54 @@ comments: true
 ####github账号: 
 这个不用多说了,很简单,去申请一个就行了.
 
+
 ####在gitbub上建立一个usename.github.io的仓库: 
   usename是你的github账号名,貌似不一定非要叫这个名字,反正我是起的这个名字
+
 
 ####clone一个你喜欢的代码: 
 github上jeklly做出来的各种主题都有很多代码,我这里使用的是[scotte](https://github.com/scotte/jekyll-clean)的jekyll-clean风格的主题,jekyll还有很多其他主题,你可以到它的官网看一看,然后找相应github上的样例代码.
 
+
 ####修改仓库变为自己的博客
 clone完别人的代码之后,我们先来看一下整个仓库代码的结构:
-```
-.
-├── about.html
-├── archive.html
-├── _config.yml
-├── css
-│   ├── bootstrap.min.css
-│   └── theme.css
-├── feed.xml
-├── images
-│   └── cc_by_88x31.png
-├── _includes
-│   ├── analytics.html
-│   ├── disqus-comments.html
-│   ├── disqus-counts.html
-│   ├── footer.html
-│   ├── header.html
-│   ├── links-list.html
-│   └── sidebar.html
-├── index.html
-├── js
-│   ├── bootstrap.min.js
-│   └── jquery.min.js
-├── _layouts
-│   ├── default.html
-│   └── post.html
-├── LICENSE
-├── links.html
-├── _posts
-│   ├── 2012-05-22-Vivamus-porttitor-porta-tortor.md
-│   ├── 2013-05-22-Nulla-vel-risus-dapibus.md
-│   ├── 2013-06-22-Cum-sociis-natoque-penatibus.md
-│   ├── 2014-06-22-Maecenas-feugiat-fringilla-nibh.md
-│   ├── 2014-07-22-Lorem-ipsum-dolor-sit-amet.md
-│   └── 2014-08-22-jekyll-clean-theme.md
-└── README.md
-```
+
+	.
+	├── about.html
+	├── archive.html
+	├── _config.yml
+	├── css
+	│   ├── bootstrap.min.css
+	│   └── theme.css
+	├── feed.xml
+	├── images
+	│   └── cc_by_88x31.png
+	├── _includes
+	│   ├── analytics.html
+	│   ├── disqus-comments.html
+	│   ├── disqus-counts.html
+	│   ├── footer.html
+	│   ├── header.html
+	│   ├── links-list.html
+	│   └── sidebar.html
+	├── index.html
+	├── js
+	│   ├── bootstrap.min.js
+	│   └── jquery.min.js
+	├── _layouts
+	│   ├── default.html
+	│   └── post.html
+	├── LICENSE
+	├── links.html
+	├── _posts
+	│   ├── 2012-05-22-Vivamus-porttitor-porta-tortor.md
+	│   ├── 2013-05-22-Nulla-vel-risus-dapibus.md
+	│   ├── 2013-06-22-Cum-sociis-natoque-penatibus.md
+	│   ├── 2014-06-22-Maecenas-feugiat-fringilla-nibh.md
+	│   ├── 2014-07-22-Lorem-ipsum-dolor-sit-amet.md
+	│   └── 2014-08-22-jekyll-clean-theme.md
+	└── README.md
+
 你需要修改一下内容:
 
 *	_config.yml:  url改为你的url(usename.github.io), baseurl改为'', name和description自定义.
@@ -70,8 +73,10 @@ clone完别人的代码之后,我们先来看一下整个仓库代码的结构:
 
 修改完之后,上传到github对应仓库之后,打开usename.github.io网站就可以看到效果啦.
 
+
 ####插件的使用
 主要推荐分类插件和评论插件.
+
 
 #####category
 默认代码里面有个archive.html其实就是按照时间进行分类,但是这很难让人满意,我们希望能够堆文章按照自己的要求分类.
@@ -80,23 +85,26 @@ clone完别人的代码之后,我们先来看一下整个仓库代码的结构:
 
 Note: github上的jekyll不支持插件,需要在本地的jekyll环境产生html文件后上传才可以达到效果.
 
+
 #####comments
 评论插件很简单,你只需要去[DISQUS](http://disqus.com/)注册一个用户名,然后在_config.yml中disqus改为你的用户名,comments设为true, 最后再修改_includes/comments.ext文件中disqus_shortname为你的用户名就可以了.
+
 
 ####本地搭建jekyll环境:	
 你可以不用搭建,然后每次提交代码到github上再看效果,搭建这个本地环境是为了让你能在本地实时的查看博客效果.
 
 先是安装ruby(最好是1.9.2版本之后的)和rake,然后安装jekyll
-```
+
 	sudo apt-get install ruby rake
 	sudo gem install jekyll
-```
+
 如果安装不了合适的ruby,可以自己到ruby官网下载最新版本,configure && make && make install安装,另外,你有可能无法gem install jekyll,那么因为GTW的原因,可以更换source mirror:
-```
+
 	gem sources --remove https://rubygems.org/
 	gem sources -a http://ruby.taobao.org/
-```
+
 其他的,你还需要安装nodejs
+
 
 ####使用jekyll本地产生文件
 在项目代码根目录,执行jekyll build . && jekyll serve然后打开网址http://127.0.0.1:4000即可查看效果
