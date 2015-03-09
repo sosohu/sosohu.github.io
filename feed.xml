@@ -139,30 +139,39 @@ sosohu
 
 &lt;h3 id=&quot;鼠标操作&quot;&gt;鼠标操作&lt;/h3&gt;
 
-&lt;p&gt;xdotool支持很多鼠标操作,包括鼠标的移动,左击,右击,滚轮等
-*   鼠标移动到x,y处: xdotool mousemove x y
-*   鼠标点击右键: xdotool click 3
-*   鼠标向上翻滚: xdotool click 4
-*   获取鼠标位置: xdotool getmouselocation
-*   ...&lt;/p&gt;
+&lt;p&gt;xdotool支持很多鼠标操作,包括鼠标的移动,左击,右击,滚轮等&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;  鼠标移动到x,y处: xdotool mousemove x y&lt;/li&gt;
+&lt;li&gt;  鼠标点击右键: xdotool click 3&lt;/li&gt;
+&lt;li&gt;  鼠标向上翻滚: xdotool click 4&lt;/li&gt;
+&lt;li&gt;  获取鼠标位置: xdotool getmouselocation&lt;/li&gt;
+&lt;li&gt;  ...&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;h3 id=&quot;键盘操作&quot;&gt;键盘操作&lt;/h3&gt;
 
-&lt;p&gt;xdotool支持很多键盘操作,常用的使用如下:
-*   按下p键: xdotool key p
-*   按下ctrl+shift+t键: xdotool key ctrl+shift+t
-*   按下p键持续1000ms: xdotool key --delay 1000  p
-*   ...&lt;/p&gt;
+&lt;p&gt;xdotool支持很多键盘操作,常用的使用如下:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;  按下p键: xdotool key p&lt;/li&gt;
+&lt;li&gt;  按下ctrl+shift+t键: xdotool key ctrl+shift+t&lt;/li&gt;
+&lt;li&gt;  按下p键持续1000ms: xdotool key --delay 1000  p&lt;/li&gt;
+&lt;li&gt;  ...&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;h3 id=&quot;窗口操作&quot;&gt;窗口操作&lt;/h3&gt;
 
-&lt;p&gt;xdotool支持很多窗口操作,包括窗口的移动,最小化等等
-*   查询主文件夹窗口id: xdotool search --name &amp;quot;主文件夹&amp;quot;
-*   聚焦到id为WID的窗口: xdotool windowfocus WID
-*   移动id为WID的窗口左上角到x,y处: xdotool windowmove WID x y
-*   改变id为WID的窗口大小为w,h: xdotool windowsize WID w h
-*   最小化id为WID的窗口: xdotool windowminimize WID
-*   ...&lt;/p&gt;
+&lt;p&gt;xdotool支持很多窗口操作,包括窗口的移动,最小化等等&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;  查询主文件夹窗口id: xdotool search --name &amp;quot;主文件夹&amp;quot;&lt;/li&gt;
+&lt;li&gt;  聚焦到id为WID的窗口: xdotool windowfocus WID&lt;/li&gt;
+&lt;li&gt;  移动id为WID的窗口左上角到x,y处: xdotool windowmove WID x y&lt;/li&gt;
+&lt;li&gt;  改变id为WID的窗口大小为w,h: xdotool windowsize WID w h&lt;/li&gt;
+&lt;li&gt;  最小化id为WID的窗口: xdotool windowminimize WID&lt;/li&gt;
+&lt;li&gt;  ...&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;h3 id=&quot;简单示例&quot;&gt;简单示例&lt;/h3&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;#!/bin/bash
@@ -248,7 +257,7 @@ function contineResize(){
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;h2 id=&quot;官方参考手册&quot;&gt;官方参考手册&lt;/h2&gt;
 
-&lt;p&gt;在有些平台,编译安装xdotool之后,只能使用xdotool --help简单的查看命令,不能使用man xdotool查看手册,这里把上面的内容和官方参考手册一起作成&lt;a href=&quot;static/xdotool.pdf&quot;&gt;pdf&lt;/a&gt;,以供下载使用.&lt;/p&gt;
+&lt;p&gt;在有些平台,编译安装xdotool之后,只能使用xdotool --help简单的查看命令,不能使用man xdotool查看手册,这里把上面的内容和官方参考手册一起作成&lt;a href=&quot;http://sosohu.github.io/static/xdotool.pdf&quot;&gt;pdf&lt;/a&gt;,以供下载使用.&lt;/p&gt;
 </description>
 				<pubDate>Mon, 09 Mar 2015 16:44:53 -0600</pubDate>
 				<link>http://sosohu.github.io//2015/03/Xdotool%E6%A8%A1%E6%8B%9F%E5%B7%A5%E5%85%B7</link>
