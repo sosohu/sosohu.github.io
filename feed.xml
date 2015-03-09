@@ -62,9 +62,9 @@ sosohu
     <h1>Recent Posts</h1>
     <ul>
         
-          <li><a href="/2015/02/Linux%E4%B8%8B%E5%B0%8F%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90">linux下小工具推荐</a></li>
-        
           <li><a href="/2015/02/Github-Jekyll-Markdown%E5%BC%80%E5%90%AF%E5%86%99%E4%BD%9C%E6%96%B0%E6%97%B6%E4%BB%A3">Github-Jekyll-Markdown开启写作新时代</a></li>
+        
+          <li><a href="/2015/02/Linux%E4%B8%8B%E5%B0%8F%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90">linux下小工具推荐</a></li>
         
     </ul>
 </div>
@@ -73,9 +73,9 @@ sosohu
 	 <h1>Category</h1> 
 	 <ul>
 		 
-		<li><a href="/experience">experience 1</a> </li>
-		 
 		<li><a href="/tool">tool 1</a> </li>
+		 
+		<li><a href="/experience">experience 1</a> </li>
 		 
 	 </ul> 
 </div>
@@ -98,17 +98,6 @@ sosohu
 		<description>sosohu</description>
 		<link>http://sosohu.github.io/</link>
 		<atom:link href="http://sosohu.github.io//feed.xml" rel="self" type="application/rss+xml" />
-		
-			<item>
-				<title>linux下小工具推荐</title>
-				<description>&lt;h2 id=&quot;valgrind&quot;&gt;Valgrind&lt;/h2&gt;
-
-&lt;p&gt;Valgrind是一个检测C/C++程序内存问题的强大工具,相关使用介绍和方法请参考&lt;a href=&quot;http://www.ibm.com/developerworks/cn/linux/l-cn-valgrind/&quot;&gt;IBM某篇博客&lt;/a&gt;&lt;/p&gt;
-</description>
-				<pubDate>Wed, 25 Feb 2015 10:58:35 -0600</pubDate>
-				<link>http://sosohu.github.io//2015/02/Linux%E4%B8%8B%E5%B0%8F%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90</link>
-				<guid isPermaLink="true">http://sosohu.github.io//2015/02/Linux%E4%B8%8B%E5%B0%8F%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90</guid>
-			</item>
 		
 			<item>
 				<title>Github-Jekyll-Markdown开启写作新时代</title>
@@ -216,11 +205,22 @@ gem sources -a http://ruby.taobao.org/
 
 &lt;h4 id=&quot;使用jekyll本地产生文件&quot;&gt;使用jekyll本地产生文件&lt;/h4&gt;
 
-&lt;p&gt;在项目代码根目录,执行jekyll build . &amp;amp;&amp;amp; jekyll serve然后打开网址&lt;a href=&quot;http://127.0.0.1:4000%E5%8D%B3%E5%8F%AF%E6%9F%A5%E7%9C%8B%E6%95%88%E6%9E%9C&quot;&gt;http://127.0.0.1:4000即可查看效果&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;在项目代码根目录,执行jekyll build . &amp;amp;&amp;amp; jekyll serve然后打开网址&lt;a href=&quot;http://127.0.0.1:4000&quot;&gt;http://127.0.0.1:4000&lt;/a&gt; 即可查看效果&lt;/p&gt;
 </description>
-				<pubDate>Wed, 25 Feb 2015 10:58:35 -0600</pubDate>
+				<pubDate>Fri, 06 Feb 2015 10:58:35 -0600</pubDate>
 				<link>http://sosohu.github.io//2015/02/Github-Jekyll-Markdown%E5%BC%80%E5%90%AF%E5%86%99%E4%BD%9C%E6%96%B0%E6%97%B6%E4%BB%A3</link>
 				<guid isPermaLink="true">http://sosohu.github.io//2015/02/Github-Jekyll-Markdown%E5%BC%80%E5%90%AF%E5%86%99%E4%BD%9C%E6%96%B0%E6%97%B6%E4%BB%A3</guid>
+			</item>
+		
+			<item>
+				<title>linux下小工具推荐</title>
+				<description>&lt;h2 id=&quot;valgrind&quot;&gt;Valgrind&lt;/h2&gt;
+
+&lt;p&gt;Valgrind是一个检测C/C++程序内存问题的强大工具,相关使用介绍和方法请参考&lt;a href=&quot;http://www.ibm.com/developerworks/cn/linux/l-cn-valgrind/&quot;&gt;IBM某篇博客&lt;/a&gt;&lt;/p&gt;
+</description>
+				<pubDate>Thu, 05 Feb 2015 10:58:35 -0600</pubDate>
+				<link>http://sosohu.github.io//2015/02/Linux%E4%B8%8B%E5%B0%8F%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90</link>
+				<guid isPermaLink="true">http://sosohu.github.io//2015/02/Linux%E4%B8%8B%E5%B0%8F%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90</guid>
 			</item>
 		
 	</channel>
