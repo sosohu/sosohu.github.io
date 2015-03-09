@@ -2,7 +2,7 @@
 layout: post
 title: "Github-Jekyll-Markdown开启写作新时代"
 category: experience
-date: 2015-02-25 10:58:35 CST
+date: 2015-02-06 10:58:35 CST
 comments: true
 ---
 
@@ -117,7 +117,6 @@ Note: github上的jekyll不支持插件,需要在本地的jekyll环境产生html
 其他的,你还需要安装nodejs
 
 
-
 ####使用jekyll本地产生文件
-在项目代码根目录,执行jekyll build . && jekyll serve然后打开网址http://127.0.0.1:4000即可查看效果
+在项目代码根目录,执行jekyll build . && jekyll serve然后打开网址http://127.0.0.1:4000 即可查看效果
 
