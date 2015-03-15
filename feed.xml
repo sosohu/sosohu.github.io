@@ -399,57 +399,55 @@ gem sources -a http://ruby.taobao.org/
 &lt;h1 id=&quot;关于this指针的粗浅认识&quot;&gt;关于this指针的粗浅认识&lt;/h1&gt;
 
 &lt;h2 id=&quot;(一)-this指针：&quot;&gt;(一)   this指针：&lt;/h2&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;在对象的任意非static类型的成员函数被调用时候，this指针会作为一个隐藏的参数被秘密的传递给该成员函数．
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;在对象的任意非static类型的成员函数被调用时候，this指针会作为一个隐藏的参数被秘密的传递给该成员函数．&lt;/p&gt;
+
 &lt;h2 id=&quot;(二)-this指针的类型：&quot;&gt;(二)   this指针的类型：&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;首先，this指针本身是一个const类型的指针(注意是指针是const的，不是指向的对象是const的)，例如对于类X，那么它的this指针类型就是X * const&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;#include&amp;lt;iostream&amp;gt;
+using namespace std;
 
-&lt;h1 id=&quot;include&quot;&gt;include&lt;iostream&gt;&lt;/h1&gt;
-
-&lt;p&gt;using namespace std;&lt;/p&gt;
-
-&lt;p&gt;class Test
+class Test
 {
-private:
-  int x;
-public:
-  Test(int x = 0) { this-&amp;gt;x = x; }
-  void change(Test *t) { this = t; } //试图赋值失败，因为this是const类型指针
-  void print() { cout &amp;lt;&amp;lt; &amp;quot;x = &amp;quot; &amp;lt;&amp;lt; x &amp;lt;&amp;lt; endl; }
-};&lt;/p&gt;
+    private:
+        int x;
+    public:
+        Test(int x = 0) { this-&amp;gt;x = x; }
+        void change(Test *t) { this = t; } 
+        //试图赋值失败，因为this是const类型指针
+        void print() { cout &amp;lt;&amp;lt; &amp;quot;x = &amp;quot; &amp;lt;&amp;lt; x &amp;lt;&amp;lt; endl; }
+};
 
-&lt;p&gt;int main()
+int main()
 {
-  Test obj(5);
-  Test *ptr = new Test (10);
-  obj.change(ptr);
-  obj.print();
-  return 0;
-}&lt;/p&gt;&lt;/li&gt;
+    Test obj(5);
+    Test *ptr = new Test (10);
+    obj.change(ptr);
+    obj.print();
+    return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;另外，this指针指向的类型根据成员函数实际的类型确定，例如X有个const类型的成员函数, 那么this指针类型就const X * const&lt;/p&gt;
-
-&lt;h1 id=&quot;include&quot;&gt;include&lt;iostream&gt;&lt;/h1&gt;
-
-&lt;p&gt;class X {
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;#include&amp;lt;iostream&amp;gt;
+class X {
    void fun() const {
     // this is passed as hidden argument to fun(). 
     // Type of this is const X* 
     }
-};&lt;/p&gt;&lt;/li&gt;
+};
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&quot;(三)何时使用this指针&quot;&gt;(三)何时使用this指针&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;当局部变量与类成员变量同名&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;#include&amp;lt;iostream&amp;gt;
+using namespace std;
 
-&lt;h1 id=&quot;include&quot;&gt;include&lt;iostream&gt;&lt;/h1&gt;
-
-&lt;p&gt;using namespace std;&lt;/p&gt;
-
-&lt;p&gt;/* local variable is same as a member&amp;#39;s name */
+/* local variable is same as a member&amp;#39;s name */
 class Test
 {
 private:
@@ -462,24 +460,25 @@ public:
        this-&amp;gt;x = x;
    }
    void print() { cout &amp;lt;&amp;lt; &amp;quot;x = &amp;quot; &amp;lt;&amp;lt; x &amp;lt;&amp;lt; endl; }
-};&lt;/p&gt;
+};
 
-&lt;p&gt;int main()
+int main()
 {
    Test obj;
    int x = 20;
    obj.setX(x);
    obj.print();
    return 0;
-}&lt;/p&gt;&lt;/li&gt;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;返回调用对象的引用时候&lt;/p&gt;
-
-&lt;p&gt;/* Reference to the calling object can be returned */
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;/* Reference to the calling object can be returned */
 Test&amp;amp; Test::func ()
 {
    // Some processing
    return *this;
-}&lt;/p&gt;&lt;/li&gt;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&quot;(四)delete-this指针&quot;&gt;(四)delete this指针&lt;/h2&gt;
@@ -527,6 +526,15 @@ int main()
         </div>
     </div>
 </div>
+
+<!-- hitwebcounter Code START -->
+<a href="http://www.hitwebcounter.com/" target="_blank">
+<img src="http://hitwebcounter.com/counter/counter.php?page=6013407&style=0049&nbdigits=5&type=page&initCount=0" title="m" Alt="m"   border="0" >
+</a><br/>
+<!-- hitwebcounter.com --><a href="http://www.hitwebcounter.com/counterresources.php" title="Visits Total" 
+target="_blank" style="font-family: Arial, Helvetica, sans-serif; 
+font-size: 11px; color: #9C9E94; text-decoration: none ;"><strong>Visits Total</strong>
+</a>   
 
 <div class="container-fluid">
     <div class="row-fluid">
