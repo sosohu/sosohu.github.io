@@ -141,7 +141,7 @@ int main()
 }
 </code></pre></div></li>
 <li><p>另外，this指针指向的类型根据成员函数实际的类型确定，例如X有个const类型的成员函数, 那么this指针类型就const X * const</p>
-<div class="highlight"><pre><code class="language-C++" data-lang="C++"><span class="cp">#include&lt;iostream&gt;</span>
+<div class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#include&lt;iostream&gt;</span>
 <span class="k">class</span> <span class="nc">X</span> <span class="p">{</span>
     <span class="kt">void</span> <span class="n">fun</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
     <span class="c1">// this is passed as hidden argument to fun(). </span>
