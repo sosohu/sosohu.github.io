@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+ 
+ <title>WordWorth</title>
+ <link href="http://sosohu.github.io/atom.xml" rel="self"/>
+ <link href="http://sosohu.github.io"/>
+ <updated>2015-04-11T16:51:55+08:00</updated>
+ <id>http://sosohu.github.io</id>
+ <author>
+   <name>sosohu</name>
+   <email>ustc.sosohu@gmail.com</email>
+ </author>
+
+ 
+ <entry>
+   <title>Xdotool工具</title>
+   <link href="http://sosohu.github.io/tool/2015/03/09/Xdotool%E6%A8%A1%E6%8B%9F%E5%B7%A5%E5%85%B7.html"/>
+   <updated>2015-03-09T00:00:00+08:00</updated>
+   <id>http://sosohu.github.io/tool/2015/03/09/Xdotool模拟工具</id>
+   <content type="html">&lt;h2&gt;什么是Xdotool&lt;/h2&gt;
+
+&lt;p&gt;Xdotool lets you simulate keyboard input and mouse activity, move and resize windows, etc. It does this using X11&#39;s XTEST extension and other Xlib functions.&lt;/p&gt;
+
+&lt;p&gt;Additionally, you can search for windows and move, resize, hide, and modify window properties like the title. If your window manager supports it, you can use xdotool to switch desktops, move windows between desktops, and change the number of desktops.&lt;/p&gt;
+
+&lt;p&gt;For more information, please click &lt;a href=&quot;http://www.semicomplete.com/projects/xdotool/&quot;&gt;Xdotool Website&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2&gt;Xdotool安装方法&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;ubuntu系统下可以直接的使用&lt;code&gt;sudo apt-get install xdotool&lt;/code&gt;安装.&lt;/li&gt;
+&lt;li&gt;除了第一种情况外可以使用直接&lt;a href=&quot;http://semicomplete.googlecode.com/files/xdotool-2.20110530.1.tar.gz&quot;&gt;下载&lt;/a&gt;xdotool源码包,再编译安装.
+
+&lt;ul&gt;
+&lt;li&gt;编译安装过程中会遇到缺少头文件或者依赖库,主要需要安装的有:
+
+&lt;ul&gt;
+&lt;li&gt;libxkbcommon: &lt;a href=&quot;http://xkbcommon.org/download/libxkbcommon-0.3.1.tar.xz&quot;&gt;下载地址&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;libXtst: 可以直接在源中apt-get安装(ferdora使用yum install)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;编译安装方法
+
+&lt;ul&gt;
+&lt;li&gt;make&lt;/li&gt;
+&lt;li&gt;export PREFIX=/usr(设置安装目录,默认在/usr/local)&lt;/li&gt;
+&lt;li&gt;make install&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;h2&gt;Xdotool的使用&lt;/h2&gt;
+
+&lt;h3&gt;鼠标操作&lt;/h3&gt;
+
+&lt;p&gt;xdotool支持很多鼠标操作,包括鼠标的移动,左击,右击,滚轮等&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;鼠标移动到x,y处: xdotool mousemove x y&lt;/li&gt;
+&lt;li&gt;鼠标点击右键: xdotool click 3&lt;/li&gt;
+&lt;li&gt;鼠标向上翻滚: xdotool click 4&lt;/li&gt;
+&lt;li&gt;获取鼠标位置: xdotool getmouselocation&lt;/li&gt;
+&lt;li&gt;...&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;h3&gt;键盘操作&lt;/h3&gt;
+
+&lt;p&gt;xdotool支持很多键盘操作,常用的使用如下:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;按下p键: xdotool key p&lt;/li&gt;
+&lt;li&gt;按下ctrl+shift+t键: xdotool key ctrl+shift+t&lt;/li&gt;
+&lt;li&gt;按下p键持续1000ms: xdotool key --delay 1000  p&lt;/li&gt;
+&lt;li&gt;...&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;h3&gt;窗口操作&lt;/h3&gt;
+
+&lt;p&gt;xdotool支持很多窗口操作,包括窗口的移动,最小化等等&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查询主文件夹窗口id: xdotool search --name &quot;主文件夹&quot;&lt;/li&gt;
+&lt;li&gt;聚焦到id为WID的窗口: xdotool windowfocus WID&lt;/li&gt;
+&lt;li&gt;移动id为WID的窗口左上角到x,y处: xdotool windowmove WID x y&lt;/li&gt;
+&lt;li&gt;改变id为WID的窗口大小为w,h: xdotool windowsize WID w h&lt;/li&gt;
+&lt;li&gt;最小化id为WID的窗口: xdotool windowminimize WID&lt;/li&gt;
+&lt;li&gt;...&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;h3&gt;简单示例&lt;/h3&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span class=&quot;c&quot;&gt;#!/bin/bash&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; open&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i&amp;lt;5&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i++&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+            nautilus &lt;span class=&quot;s2&quot;&gt;&amp;quot;/home/&amp;quot;&lt;/span&gt;
+            &lt;span class=&quot;nb&quot;&gt;kill&lt;/span&gt; -2 &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;ps -A &lt;span class=&quot;p&quot;&gt;|&lt;/span&gt; grep nautilus &lt;span class=&quot;p&quot;&gt;|&lt;/span&gt; cut -f-1 -d&lt;span class=&quot;s1&quot;&gt;&amp;#39; &amp;#39;&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;c&quot;&gt;#测试不断的打开和关闭文件浏览器&lt;/span&gt;
+    open  
+    nautilus &lt;span class=&quot;s2&quot;&gt;&amp;quot;/home/&amp;quot;&lt;/span&gt;
+    sleep 5
+    &lt;span class=&quot;nv&quot;&gt;WID&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;xdotool search --name &lt;span class=&quot;s2&quot;&gt;&amp;quot;文件浏览器&amp;quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;|&lt;/span&gt; tail -1&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$WID&lt;/span&gt;
+    xdotool windowfocus &lt;span class=&quot;nv&quot;&gt;$WID&lt;/span&gt;
+
+    &lt;span class=&quot;c&quot;&gt;#gen the random num in [0, max)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; random&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[[&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$# &lt;/span&gt;-eq &lt;span class=&quot;s2&quot;&gt;&amp;quot;0&amp;quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;]]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;then&lt;/span&gt;
+            &lt;span class=&quot;nv&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1000
+        &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
+            &lt;span class=&quot;nv&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$1&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;fi&lt;/span&gt;
+        &lt;span class=&quot;nv&quot;&gt;rand_value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$[$RANDOM&lt;/span&gt; % &lt;span class=&quot;nv&quot;&gt;$max&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+        &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$rand_value&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; drag&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
+        &lt;span class=&quot;nv&quot;&gt;x0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
+        &lt;span class=&quot;nv&quot;&gt;y0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
+        xdotool windowmove &lt;span class=&quot;nv&quot;&gt;$WID&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$x0&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$y0&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i&amp;lt;500&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i++&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+            &lt;span class=&quot;c&quot;&gt;#xdotool key ctrl+t&lt;/span&gt;
+            &lt;span class=&quot;nv&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$[$x0&lt;/span&gt;+&lt;span class=&quot;nv&quot;&gt;$i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+            &lt;span class=&quot;nv&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$[$y0&lt;/span&gt;+&lt;span class=&quot;nv&quot;&gt;$i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+            xdotool windowmove &lt;span class=&quot;nv&quot;&gt;$WID&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$x&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$y&lt;/span&gt;
+            &lt;span class=&quot;c&quot;&gt;#xdotool windowminimize $WID &lt;/span&gt;
+            &lt;span class=&quot;c&quot;&gt;#sleep 4&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; move&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
+        &lt;span class=&quot;nv&quot;&gt;x1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;random&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+        &lt;span class=&quot;nv&quot;&gt;y1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;random&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+        xdotool windowmove &lt;span class=&quot;nv&quot;&gt;$WID&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$x1&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$y1&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; contineMove&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i&amp;lt;10000&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i++&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+            move
+            &lt;span class=&quot;c&quot;&gt;#sleep 1&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; resize&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
+        &lt;span class=&quot;nv&quot;&gt;x1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;random&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+        &lt;span class=&quot;nv&quot;&gt;y1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;random&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+        xdotool windowsize &lt;span class=&quot;nv&quot;&gt;$WID&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$x1&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$y1&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; contineResize&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i&amp;lt;&lt;span class=&quot;nv&quot;&gt;$1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i++&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+            resize
+        &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+
+    &lt;span class=&quot;c&quot;&gt;#拖拽窗口&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;#drag   &lt;/span&gt;
+
+    &lt;span class=&quot;c&quot;&gt;#移动窗口&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;#contineMove&lt;/span&gt;
+
+    &lt;span class=&quot;c&quot;&gt;#改变窗口大小&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;#contineResize 10000&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;官方参考手册&lt;/h2&gt;
+
+&lt;p&gt;在有些平台,编译安装xdotool之后,只能使用xdotool --help简单的查看命令,不能使用man xdotool查看手册,这里把上面的内容和官方参考手册一起作成&lt;a href=&quot;http://sosohu.github.io/static/xdotool.pdf&quot;&gt;pdf&lt;/a&gt;,以供下载使用.&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Github-Jekyll-Markdown开启写作新时代</title>
+   <link href="http://sosohu.github.io/experience/2015/02/06/Github-Jekyll-Markdown%E5%BC%80%E5%90%AF%E5%86%99%E4%BD%9C%E6%96%B0%E6%97%B6%E4%BB%A3.html"/>
+   <updated>2015-02-06T00:00:00+08:00</updated>
+   <id>http://sosohu.github.io/experience/2015/02/06/Github-Jekyll-Markdown开启写作新时代</id>
+   <content type="html">&lt;h2&gt;为什么想到用这几个东西来写博客&lt;/h2&gt;
+
+&lt;p&gt;首先markdown用来写作已经是非常流行的了,确实非常方便高效,虽然表达能力没有latex丰富,但是已经算是即轻量级又比较美观的一种方式了,特别是github风格的markdown文章还是比较好看的.其次,我之前的博客要么在博客园这类网站上写,要么是在github的项目仓库中写:sweat:, 但是感觉还是很不方便,而且觉得作为码农还是应该搭建一个自己的博客基地比较geek:smile:, 可是我又想能够快速搭建起来,而且不要太麻烦,几经调研,发现github.io作为搭建平台非常的适合,结果也是很让我满意,大概仅仅只用一天时间,就基本搭建成功一个我觉得还比较满意的博客.&lt;/p&gt;
+
+&lt;h2&gt;怎么搭建的&lt;/h2&gt;
+
+&lt;p&gt;前面废话那么多,感觉的是在给你心灵鸡汤一样,但是我不会只给鸡汤不给汤勺的:satisfied:, 下面就来介绍一下我搭建过程中的一些经验总结.&lt;/p&gt;
+
+&lt;h3&gt;准备工作&lt;/h3&gt;
+
+&lt;h4&gt;github账号:&lt;/h4&gt;
+
+&lt;p&gt;这个不用多说了,很简单,去申请一个就行了.&lt;/p&gt;
+
+&lt;h4&gt;在gitbub上建立一个usename.github.io的仓库:&lt;/h4&gt;
+
+&lt;p&gt;  usename是你的github账号名,貌似不一定非要叫这个名字,反正我是起的这个名字&lt;/p&gt;
+
+&lt;h4&gt;clone一个你喜欢的代码:&lt;/h4&gt;
+
+&lt;p&gt;github上jeklly做出来的各种主题都有很多代码,我这里使用的是&lt;a href=&quot;https://github.com/PinkingS/pinkings.github.com&quot;&gt;PinkingS&lt;/a&gt;的jekyll-bootstrap风格的主题,jekyll还有很多其他主题,你可以到它的官网看一看,然后找相应github上的样例代码.&lt;/p&gt;
+
+&lt;h4&gt;修改仓库变为自己的博客&lt;/h4&gt;
+
+&lt;p&gt;你需要修改一下内容:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;_config.yml:  凡是别人的都改成自己的.&lt;/li&gt;
+&lt;li&gt;_posts:   改为自己的博客,注意命名方法要遵循它的规则.&lt;/li&gt;
+&lt;li&gt;about.md:   自我介绍.&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;p&gt;修改完之后,上传到github对应仓库之后,打开usename.github.io网站就可以看到效果啦.&lt;/p&gt;
+
+&lt;h5&gt;评论插件&lt;/h5&gt;
+
+&lt;p&gt;评论插件很简单,你只需要去&lt;a href=&quot;http://disqus.com/&quot;&gt;DISQUS&lt;/a&gt;注册一个用户名,然后在&lt;em&gt;config.yml中disqus改为你的用户名，然后&lt;/em&gt;includes/JB/comments-providers/disqus文件也做对应修改.&lt;/p&gt;
+
+&lt;h4&gt;本地搭建jekyll环境:&lt;/h4&gt;
+
+&lt;p&gt;你可以不用搭建,然后每次提交代码到github上再看效果,搭建这个本地环境是为了让你能在本地实时的查看博客效果.&lt;/p&gt;
+
+&lt;p&gt;先是安装ruby(最好是1.9.2版本之后的)和rake,然后安装jekyll和rdiscount&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;sudo apt-get install ruby rake
+sudo gem install jekyll
+sudo gem install rdiscount&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;如果安装不了合适的ruby,可以自己到ruby官网下载最新版本,&lt;code&gt;configure &amp;amp;&amp;amp; make &amp;amp;&amp;amp; make install&lt;/code&gt;安装,另外,你有可能无法&lt;code&gt;gem install jekyll&lt;/code&gt;,那么因为GFW的原因,可以更换source mirror:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;gem sources --remove https://rubygems.org/
+gem sources -a http://ruby.taobao.org/&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;其他的,你还需要安装nodejs&lt;/p&gt;
+
+&lt;h4&gt;使用jekyll本地产生文件&lt;/h4&gt;
+
+&lt;p&gt;在项目代码根目录,执行&lt;code&gt;jekyll build . &amp;amp;&amp;amp; jekyll serve&lt;/code&gt;然后打开网址&lt;strong&gt;http://127.0.0.1:4000&lt;/strong&gt;即可查看效果&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Linux下小工具推荐</title>
+   <link href="http://sosohu.github.io/tool/2015/02/05/Linux%E4%B8%8B%E5%B0%8F%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90.html"/>
+   <updated>2015-02-05T00:00:00+08:00</updated>
+   <id>http://sosohu.github.io/tool/2015/02/05/Linux下小工具推荐</id>
+   <content type="html">&lt;h2&gt;Valgrind&lt;/h2&gt;
+
+&lt;p&gt;Valgrind是一个检测C/C++程序内存问题的强大工具,相关使用介绍和方法请参考&lt;a href=&quot;http://www.ibm.com/developerworks/cn/linux/l-cn-valgrind/&quot;&gt;IBM某篇博客&lt;/a&gt;&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>C++的this指针</title>
+   <link href="http://sosohu.github.io/c/c++/2014/12/10/C++%E7%9A%84this%E6%8C%87%E9%92%88.html"/>
+   <updated>2014-12-10T00:00:00+08:00</updated>
+   <id>http://sosohu.github.io/c/c++/2014/12/10/C++的this指针</id>
+   <content type="html">&lt;p&gt;这篇博客主要内容翻译自国外著名程序员网站：&lt;a href=&quot;http://www.geeksforgeeks.org&quot;&gt;geekersforgeekers&lt;/a&gt;,经过作者小幅度整理，水平有限，敬请指正.&lt;/p&gt;
+
+&lt;h1&gt;关于this指针的粗浅认识&lt;/h1&gt;
+
+&lt;h2&gt;(一)   this指针：&lt;/h2&gt;
+
+&lt;p&gt;在对象的任意非static类型的成员函数被调用时候，this指针会作为一个隐藏的参数被秘密的传递给该成员函数．&lt;/p&gt;
+
+&lt;h2&gt;(二)   this指针的类型：&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;首先，this指针本身是一个const类型的指针(注意是指针是const的，不是指向的对象是const的)，例如对于类X，那么它的this指针类型就是X * const&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c--&quot; data-lang=&quot;c++&quot;&gt;&lt;span class=&quot;cp&quot;&gt;#include&amp;lt;iostream&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;namespace&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+        &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Test&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;private&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+                &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+                &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;change&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; 
+                &lt;span class=&quot;c1&quot;&gt;//试图赋值失败，因为this是const类型指针&lt;/span&gt;
+                &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;x = &amp;quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;endl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+        &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ptr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;change&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ptr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;另外，this指针指向的类型根据成员函数实际的类型确定，例如X有个const类型的成员函数, 那么this指针类型就const X * const&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c--&quot; data-lang=&quot;c++&quot;&gt;&lt;span class=&quot;cp&quot;&gt;#include&amp;lt;iostream&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;X&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fun&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// this is passed as hidden argument to fun(). &lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// Type of this is const X* &lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;(三)何时使用this指针&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;当局部变量与类成员变量同名&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c--&quot; data-lang=&quot;c++&quot;&gt;&lt;span class=&quot;cp&quot;&gt;#include&amp;lt;iostream&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;namespace&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+     
+        &lt;span class=&quot;cm&quot;&gt;/* local variable is same as a member&amp;#39;s name */&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Test&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;private&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+           &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+           &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;setX&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+           &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+               &lt;span class=&quot;c1&quot;&gt;// The &amp;#39;this&amp;#39; pointer is used to retrieve the object&amp;#39;s x&lt;/span&gt;
+               &lt;span class=&quot;c1&quot;&gt;// hidden by the local variable &amp;#39;x&amp;#39;&lt;/span&gt;
+               &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+           &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+           &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;x = &amp;quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;endl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+ 
+        &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+           &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+           &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;20&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+           &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;setX&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+           &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+           &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;返回调用对象的引用时候&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c--&quot; data-lang=&quot;c++&quot;&gt;&lt;span class=&quot;cm&quot;&gt;/* Reference to the calling object can be returned */&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+           &lt;span class=&quot;c1&quot;&gt;// Some processing&lt;/span&gt;
+           &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;(四)delete this指针&lt;/h2&gt;
+
+&lt;p&gt;什么？要删除this指针？对，你没有看错，就是要删出它，其实这也没什么奇怪的，需要注意的就是：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt; delete函数释放的只能是堆里面的内存，也就是说是new出来的空间&lt;/li&gt;
+&lt;li&gt; delete完this指针之后，对象的所有成员都不能再被访问&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;p&gt;下面代码就会体现出来：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c--&quot; data-lang=&quot;c++&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;A&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fun&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;delete&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+    &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;cm&quot;&gt;/* Following is Valid */&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ptr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;ptr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 没有问题&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;ptr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;NULL&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// make ptr NULL to make sure that things are not accessed using ptr. &lt;/span&gt;
+
+
+      &lt;span class=&quot;cm&quot;&gt;/* And following is Invalid: Undefined Behavior */&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fun&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;　&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;// 释放栈上的空间，会出错&lt;/span&gt;
+
+      &lt;span class=&quot;n&quot;&gt;getchar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+
+</content>
+ </entry>
+ 
+ 
+</feed>
