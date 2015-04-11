@@ -4,7 +4,7 @@
  <title>WordWorth</title>
  <link href="http://sosohu.github.io/atom.xml" rel="self"/>
  <link href="http://sosohu.github.io"/>
- <updated>2015-04-11T16:51:55+08:00</updated>
+ <updated>2015-04-11T16:58:52+08:00</updated>
  <id>http://sosohu.github.io</id>
  <author>
    <name>sosohu</name>
@@ -179,7 +179,7 @@
 
 &lt;h2&gt;官方参考手册&lt;/h2&gt;
 
-&lt;p&gt;在有些平台,编译安装xdotool之后,只能使用xdotool --help简单的查看命令,不能使用man xdotool查看手册,这里把上面的内容和官方参考手册一起作成&lt;a href=&quot;http://sosohu.github.io/static/xdotool.pdf&quot;&gt;pdf&lt;/a&gt;,以供下载使用.&lt;/p&gt;
+&lt;p&gt;在有些平台,编译安装xdotool之后,只能使用xdotool --help简单的查看命令,不能使用man xdotool查看手册,这里把上面的内容和官方参考手册一起作成&lt;a href=&quot;http://sosohu.github.io/assets/doc/xdotool.pdf&quot;&gt;pdf&lt;/a&gt;,以供下载使用.&lt;/p&gt;
 </content>
  </entry>
  

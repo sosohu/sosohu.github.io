@@ -140,4 +140,4 @@ xdotool支持很多窗口操作,包括窗口的移动,最小化等等
 {% endhighlight %}
 
 ##官方参考手册
-在有些平台,编译安装xdotool之后,只能使用xdotool --help简单的查看命令,不能使用man xdotool查看手册,这里把上面的内容和官方参考手册一起作成[pdf](http://sosohu.github.io/static/xdotool.pdf),以供下载使用.
+在有些平台,编译安装xdotool之后,只能使用xdotool --help简单的查看命令,不能使用man xdotool查看手册,这里把上面的内容和官方参考手册一起作成[pdf](http://sosohu.github.io/assets/doc/xdotool.pdf),以供下载使用.
