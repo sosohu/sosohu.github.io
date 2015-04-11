@@ -135,84 +135,84 @@
 
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c">#!/bin/bash</span>
 
-    <span class="k">function</span> open<span class="o">(){</span>
-        <span class="k">for</span><span class="o">((</span><span class="nv">i</span><span class="o">=</span>0<span class="p">;</span>i&lt;5<span class="p">;</span>i++<span class="o">))</span><span class="p">;</span>
-        <span class="k">do</span>
-            nautilus <span class="s2">&quot;/home/&quot;</span>
-            <span class="nb">kill</span> -2 <span class="sb">`</span>ps -A <span class="p">|</span> grep nautilus <span class="p">|</span> cut -f-1 -d<span class="s1">&#39; &#39;</span><span class="sb">`</span>
-        <span class="k">done</span>
-    <span class="o">}</span>
+<span class="k">function</span> open<span class="o">(){</span>
+    <span class="k">for</span><span class="o">((</span><span class="nv">i</span><span class="o">=</span>0<span class="p">;</span>i&lt;5<span class="p">;</span>i++<span class="o">))</span><span class="p">;</span>
+    <span class="k">do</span>
+        nautilus <span class="s2">&quot;/home/&quot;</span>
+        <span class="nb">kill</span> -2 <span class="sb">`</span>ps -A <span class="p">|</span> grep nautilus <span class="p">|</span> cut -f-1 -d<span class="s1">&#39; &#39;</span><span class="sb">`</span>
+    <span class="k">done</span>
+<span class="o">}</span>
 
-    <span class="c">#测试不断的打开和关闭文件浏览器</span>
-    open  
-    nautilus <span class="s2">&quot;/home/&quot;</span>
-    sleep 5
-    <span class="nv">WID</span><span class="o">=</span><span class="sb">`</span>xdotool search --name <span class="s2">&quot;文件浏览器&quot;</span> <span class="p">|</span> tail -1<span class="sb">`</span>
-    <span class="nb">echo</span> <span class="nv">$WID</span>
-    xdotool windowfocus <span class="nv">$WID</span>
+<span class="c">#测试不断的打开和关闭文件浏览器</span>
+open  
+nautilus <span class="s2">&quot;/home/&quot;</span>
+sleep 5
+<span class="nv">WID</span><span class="o">=</span><span class="sb">`</span>xdotool search --name <span class="s2">&quot;文件浏览器&quot;</span> <span class="p">|</span> tail -1<span class="sb">`</span>
+<span class="nb">echo</span> <span class="nv">$WID</span>
+xdotool windowfocus <span class="nv">$WID</span>
 
-    <span class="c">#gen the random num in [0, max)</span>
-    <span class="k">function</span> random<span class="o">(){</span>
-        <span class="k">if</span> <span class="o">[[</span> <span class="nv">$# </span>-eq <span class="s2">&quot;0&quot;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
-            <span class="nv">max</span><span class="o">=</span>1000
-        <span class="k">else</span>
-            <span class="nv">max</span><span class="o">=</span><span class="nv">$1</span>
-        <span class="k">fi</span>
-        <span class="nv">rand_value</span><span class="o">=</span><span class="nv">$[$RANDOM</span> % <span class="nv">$max</span><span class="o">]</span>
-        <span class="nb">echo</span> <span class="nv">$rand_value</span>
-    <span class="o">}</span>
+<span class="c">#gen the random num in [0, max)</span>
+<span class="k">function</span> random<span class="o">(){</span>
+    <span class="k">if</span> <span class="o">[[</span> <span class="nv">$# </span>-eq <span class="s2">&quot;0&quot;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nv">max</span><span class="o">=</span>1000
+    <span class="k">else</span>
+        <span class="nv">max</span><span class="o">=</span><span class="nv">$1</span>
+    <span class="k">fi</span>
+    <span class="nv">rand_value</span><span class="o">=</span><span class="nv">$[$RANDOM</span> % <span class="nv">$max</span><span class="o">]</span>
+    <span class="nb">echo</span> <span class="nv">$rand_value</span>
+<span class="o">}</span>
 
-    <span class="k">function</span> drag<span class="o">(){</span>
-        <span class="nv">x0</span><span class="o">=</span>0
-        <span class="nv">y0</span><span class="o">=</span>0
-        xdotool windowmove <span class="nv">$WID</span> <span class="nv">$x0</span> <span class="nv">$y0</span>
-        <span class="k">for</span><span class="o">((</span><span class="nv">i</span><span class="o">=</span>0<span class="p">;</span>i&lt;500<span class="p">;</span>i++<span class="o">))</span><span class="p">;</span>
-        <span class="k">do</span>
-            <span class="c">#xdotool key ctrl+t</span>
-            <span class="nv">x</span><span class="o">=</span><span class="nv">$[$x0</span>+<span class="nv">$i</span><span class="o">]</span>
-            <span class="nv">y</span><span class="o">=</span><span class="nv">$[$y0</span>+<span class="nv">$i</span><span class="o">]</span>
-            xdotool windowmove <span class="nv">$WID</span> <span class="nv">$x</span> <span class="nv">$y</span>
-            <span class="c">#xdotool windowminimize $WID </span>
-            <span class="c">#sleep 4</span>
-        <span class="k">done</span>
-    <span class="o">}</span>
+<span class="k">function</span> drag<span class="o">(){</span>
+    <span class="nv">x0</span><span class="o">=</span>0
+    <span class="nv">y0</span><span class="o">=</span>0
+    xdotool windowmove <span class="nv">$WID</span> <span class="nv">$x0</span> <span class="nv">$y0</span>
+    <span class="k">for</span><span class="o">((</span><span class="nv">i</span><span class="o">=</span>0<span class="p">;</span>i&lt;500<span class="p">;</span>i++<span class="o">))</span><span class="p">;</span>
+    <span class="k">do</span>
+        <span class="c">#xdotool key ctrl+t</span>
+        <span class="nv">x</span><span class="o">=</span><span class="nv">$[$x0</span>+<span class="nv">$i</span><span class="o">]</span>
+        <span class="nv">y</span><span class="o">=</span><span class="nv">$[$y0</span>+<span class="nv">$i</span><span class="o">]</span>
+        xdotool windowmove <span class="nv">$WID</span> <span class="nv">$x</span> <span class="nv">$y</span>
+        <span class="c">#xdotool windowminimize $WID </span>
+        <span class="c">#sleep 4</span>
+    <span class="k">done</span>
+<span class="o">}</span>
 
-    <span class="k">function</span> move<span class="o">(){</span>
-        <span class="nv">x1</span><span class="o">=</span><span class="sb">`</span>random<span class="sb">`</span>
-        <span class="nv">y1</span><span class="o">=</span><span class="sb">`</span>random<span class="sb">`</span>
-        xdotool windowmove <span class="nv">$WID</span> <span class="nv">$x1</span> <span class="nv">$y1</span>
-    <span class="o">}</span>
+<span class="k">function</span> move<span class="o">(){</span>
+    <span class="nv">x1</span><span class="o">=</span><span class="sb">`</span>random<span class="sb">`</span>
+    <span class="nv">y1</span><span class="o">=</span><span class="sb">`</span>random<span class="sb">`</span>
+    xdotool windowmove <span class="nv">$WID</span> <span class="nv">$x1</span> <span class="nv">$y1</span>
+<span class="o">}</span>
 
-    <span class="k">function</span> contineMove<span class="o">(){</span>
-        <span class="k">for</span><span class="o">((</span><span class="nv">i</span><span class="o">=</span>0<span class="p">;</span>i&lt;10000<span class="p">;</span>i++<span class="o">))</span><span class="p">;</span>
-        <span class="k">do</span>
-            move
-            <span class="c">#sleep 1</span>
-        <span class="k">done</span>
-    <span class="o">}</span>
+<span class="k">function</span> contineMove<span class="o">(){</span>
+    <span class="k">for</span><span class="o">((</span><span class="nv">i</span><span class="o">=</span>0<span class="p">;</span>i&lt;10000<span class="p">;</span>i++<span class="o">))</span><span class="p">;</span>
+    <span class="k">do</span>
+        move
+        <span class="c">#sleep 1</span>
+    <span class="k">done</span>
+<span class="o">}</span>
 
-    <span class="k">function</span> resize<span class="o">(){</span>
-        <span class="nv">x1</span><span class="o">=</span><span class="sb">`</span>random<span class="sb">`</span>
-        <span class="nv">y1</span><span class="o">=</span><span class="sb">`</span>random<span class="sb">`</span>
-        xdotool windowsize <span class="nv">$WID</span> <span class="nv">$x1</span> <span class="nv">$y1</span>
-    <span class="o">}</span>
+<span class="k">function</span> resize<span class="o">(){</span>
+    <span class="nv">x1</span><span class="o">=</span><span class="sb">`</span>random<span class="sb">`</span>
+    <span class="nv">y1</span><span class="o">=</span><span class="sb">`</span>random<span class="sb">`</span>
+    xdotool windowsize <span class="nv">$WID</span> <span class="nv">$x1</span> <span class="nv">$y1</span>
+<span class="o">}</span>
 
-    <span class="k">function</span> contineResize<span class="o">(){</span>
-        <span class="k">for</span><span class="o">((</span><span class="nv">i</span><span class="o">=</span>0<span class="p">;</span>i&lt;<span class="nv">$1</span><span class="p">;</span>i++<span class="o">))</span><span class="p">;</span>
-        <span class="k">do</span>
-            resize
-        <span class="k">done</span>
-    <span class="o">}</span>
+<span class="k">function</span> contineResize<span class="o">(){</span>
+    <span class="k">for</span><span class="o">((</span><span class="nv">i</span><span class="o">=</span>0<span class="p">;</span>i&lt;<span class="nv">$1</span><span class="p">;</span>i++<span class="o">))</span><span class="p">;</span>
+    <span class="k">do</span>
+        resize
+    <span class="k">done</span>
+<span class="o">}</span>
 
 
-    <span class="c">#拖拽窗口</span>
-    <span class="c">#drag   </span>
+<span class="c">#拖拽窗口</span>
+<span class="c">#drag   </span>
 
-    <span class="c">#移动窗口</span>
-    <span class="c">#contineMove</span>
+<span class="c">#移动窗口</span>
+<span class="c">#contineMove</span>
 
-    <span class="c">#改变窗口大小</span>
-    <span class="c">#contineResize 10000</span></code></pre></div>
+<span class="c">#改变窗口大小</span>
+<span class="c">#contineResize 10000</span></code></pre></div>
 
 
 <h2>官方参考手册</h2>
@@ -220,7 +220,7 @@
 <p>在有些平台,编译安装xdotool之后,只能使用xdotool --help简单的查看命令,不能使用man xdotool查看手册,这里把上面的内容和官方参考手册一起作成<a href="http://sosohu.github.io/assets/doc/xdotool.pdf">pdf</a>,以供下载使用.</p>
 
 
-    <!--    2788-->
+    <!--    2520-->
     <div class="eof">-&nbsp;EOF&nbsp;-</div>
     <p class="declare">声明:本文采用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="nofollow" title="署名-非商业性使用-相同方式共享">BY-NC-SA</a>协议进行授权.转载请注明: <a href="/tool/2015/03/09/Xdotool%E6%A8%A1%E6%8B%9F%E5%B7%A5%E5%85%B7.html" title="Xdotool工具 " rel="nofollow">Xdotool工具</a></p>
     <hr>

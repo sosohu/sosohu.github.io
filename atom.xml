@@ -4,7 +4,7 @@
  <title>WordWorth</title>
  <link href="http://sosohu.github.io/atom.xml" rel="self"/>
  <link href="http://sosohu.github.io"/>
- <updated>2015-04-11T16:58:52+08:00</updated>
+ <updated>2015-04-11T17:18:01+08:00</updated>
  <id>http://sosohu.github.io</id>
  <author>
    <name>sosohu</name>
@@ -97,84 +97,84 @@
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span class=&quot;c&quot;&gt;#!/bin/bash&lt;/span&gt;
 
-    &lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; open&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i&amp;lt;5&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i++&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
-            nautilus &lt;span class=&quot;s2&quot;&gt;&amp;quot;/home/&amp;quot;&lt;/span&gt;
-            &lt;span class=&quot;nb&quot;&gt;kill&lt;/span&gt; -2 &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;ps -A &lt;span class=&quot;p&quot;&gt;|&lt;/span&gt; grep nautilus &lt;span class=&quot;p&quot;&gt;|&lt;/span&gt; cut -f-1 -d&lt;span class=&quot;s1&quot;&gt;&amp;#39; &amp;#39;&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; open&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i&amp;lt;5&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i++&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+        nautilus &lt;span class=&quot;s2&quot;&gt;&amp;quot;/home/&amp;quot;&lt;/span&gt;
+        &lt;span class=&quot;nb&quot;&gt;kill&lt;/span&gt; -2 &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;ps -A &lt;span class=&quot;p&quot;&gt;|&lt;/span&gt; grep nautilus &lt;span class=&quot;p&quot;&gt;|&lt;/span&gt; cut -f-1 -d&lt;span class=&quot;s1&quot;&gt;&amp;#39; &amp;#39;&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 
-    &lt;span class=&quot;c&quot;&gt;#测试不断的打开和关闭文件浏览器&lt;/span&gt;
-    open  
-    nautilus &lt;span class=&quot;s2&quot;&gt;&amp;quot;/home/&amp;quot;&lt;/span&gt;
-    sleep 5
-    &lt;span class=&quot;nv&quot;&gt;WID&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;xdotool search --name &lt;span class=&quot;s2&quot;&gt;&amp;quot;文件浏览器&amp;quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;|&lt;/span&gt; tail -1&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
-    &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$WID&lt;/span&gt;
-    xdotool windowfocus &lt;span class=&quot;nv&quot;&gt;$WID&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#测试不断的打开和关闭文件浏览器&lt;/span&gt;
+open  
+nautilus &lt;span class=&quot;s2&quot;&gt;&amp;quot;/home/&amp;quot;&lt;/span&gt;
+sleep 5
+&lt;span class=&quot;nv&quot;&gt;WID&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;xdotool search --name &lt;span class=&quot;s2&quot;&gt;&amp;quot;文件浏览器&amp;quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;|&lt;/span&gt; tail -1&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$WID&lt;/span&gt;
+xdotool windowfocus &lt;span class=&quot;nv&quot;&gt;$WID&lt;/span&gt;
 
-    &lt;span class=&quot;c&quot;&gt;#gen the random num in [0, max)&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; random&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[[&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$# &lt;/span&gt;-eq &lt;span class=&quot;s2&quot;&gt;&amp;quot;0&amp;quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;]]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;then&lt;/span&gt;
-            &lt;span class=&quot;nv&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1000
-        &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
-            &lt;span class=&quot;nv&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$1&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;fi&lt;/span&gt;
-        &lt;span class=&quot;nv&quot;&gt;rand_value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$[$RANDOM&lt;/span&gt; % &lt;span class=&quot;nv&quot;&gt;$max&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-        &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$rand_value&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#gen the random num in [0, max)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; random&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[[&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$# &lt;/span&gt;-eq &lt;span class=&quot;s2&quot;&gt;&amp;quot;0&amp;quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;]]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;then&lt;/span&gt;
+        &lt;span class=&quot;nv&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1000
+    &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
+        &lt;span class=&quot;nv&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$1&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;fi&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;rand_value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$[$RANDOM&lt;/span&gt; % &lt;span class=&quot;nv&quot;&gt;$max&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$rand_value&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 
-    &lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; drag&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
-        &lt;span class=&quot;nv&quot;&gt;x0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
-        &lt;span class=&quot;nv&quot;&gt;y0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
-        xdotool windowmove &lt;span class=&quot;nv&quot;&gt;$WID&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$x0&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$y0&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i&amp;lt;500&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i++&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
-            &lt;span class=&quot;c&quot;&gt;#xdotool key ctrl+t&lt;/span&gt;
-            &lt;span class=&quot;nv&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$[$x0&lt;/span&gt;+&lt;span class=&quot;nv&quot;&gt;$i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-            &lt;span class=&quot;nv&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$[$y0&lt;/span&gt;+&lt;span class=&quot;nv&quot;&gt;$i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-            xdotool windowmove &lt;span class=&quot;nv&quot;&gt;$WID&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$x&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$y&lt;/span&gt;
-            &lt;span class=&quot;c&quot;&gt;#xdotool windowminimize $WID &lt;/span&gt;
-            &lt;span class=&quot;c&quot;&gt;#sleep 4&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; drag&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;x0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
+    &lt;span class=&quot;nv&quot;&gt;y0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
+    xdotool windowmove &lt;span class=&quot;nv&quot;&gt;$WID&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$x0&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$y0&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i&amp;lt;500&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i++&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+        &lt;span class=&quot;c&quot;&gt;#xdotool key ctrl+t&lt;/span&gt;
+        &lt;span class=&quot;nv&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$[$x0&lt;/span&gt;+&lt;span class=&quot;nv&quot;&gt;$i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+        &lt;span class=&quot;nv&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$[$y0&lt;/span&gt;+&lt;span class=&quot;nv&quot;&gt;$i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+        xdotool windowmove &lt;span class=&quot;nv&quot;&gt;$WID&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$x&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$y&lt;/span&gt;
+        &lt;span class=&quot;c&quot;&gt;#xdotool windowminimize $WID &lt;/span&gt;
+        &lt;span class=&quot;c&quot;&gt;#sleep 4&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 
-    &lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; move&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
-        &lt;span class=&quot;nv&quot;&gt;x1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;random&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
-        &lt;span class=&quot;nv&quot;&gt;y1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;random&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
-        xdotool windowmove &lt;span class=&quot;nv&quot;&gt;$WID&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$x1&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$y1&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; move&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;x1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;random&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;y1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;random&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+    xdotool windowmove &lt;span class=&quot;nv&quot;&gt;$WID&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$x1&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$y1&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 
-    &lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; contineMove&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i&amp;lt;10000&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i++&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
-            move
-            &lt;span class=&quot;c&quot;&gt;#sleep 1&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; contineMove&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i&amp;lt;10000&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i++&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+        move
+        &lt;span class=&quot;c&quot;&gt;#sleep 1&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 
-    &lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; resize&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
-        &lt;span class=&quot;nv&quot;&gt;x1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;random&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
-        &lt;span class=&quot;nv&quot;&gt;y1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;random&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
-        xdotool windowsize &lt;span class=&quot;nv&quot;&gt;$WID&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$x1&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$y1&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; resize&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;x1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;random&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;y1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;random&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;
+    xdotool windowsize &lt;span class=&quot;nv&quot;&gt;$WID&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$x1&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$y1&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 
-    &lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; contineResize&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i&amp;lt;&lt;span class=&quot;nv&quot;&gt;$1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i++&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
-            resize
-        &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; contineResize&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i&amp;lt;&lt;span class=&quot;nv&quot;&gt;$1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;i++&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+        resize
+    &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 
 
-    &lt;span class=&quot;c&quot;&gt;#拖拽窗口&lt;/span&gt;
-    &lt;span class=&quot;c&quot;&gt;#drag   &lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#拖拽窗口&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#drag   &lt;/span&gt;
 
-    &lt;span class=&quot;c&quot;&gt;#移动窗口&lt;/span&gt;
-    &lt;span class=&quot;c&quot;&gt;#contineMove&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#移动窗口&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#contineMove&lt;/span&gt;
 
-    &lt;span class=&quot;c&quot;&gt;#改变窗口大小&lt;/span&gt;
-    &lt;span class=&quot;c&quot;&gt;#contineResize 10000&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;span class=&quot;c&quot;&gt;#改变窗口大小&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#contineResize 10000&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;h2&gt;官方参考手册&lt;/h2&gt;
@@ -284,27 +284,27 @@ gem sources -a http://ruby.taobao.org/&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c--&quot; data-lang=&quot;c++&quot;&gt;&lt;span class=&quot;cp&quot;&gt;#include&amp;lt;iostream&amp;gt;&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;namespace&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;namespace&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 
-        &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Test&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-            &lt;span class=&quot;k&quot;&gt;private&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
-                &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-            &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
-                &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-                &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;change&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; 
-                &lt;span class=&quot;c1&quot;&gt;//试图赋值失败，因为this是const类型指针&lt;/span&gt;
-                &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;x = &amp;quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;endl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Test&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;private&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;change&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; 
+        &lt;span class=&quot;c1&quot;&gt;//试图赋值失败，因为this是const类型指针&lt;/span&gt;
+        &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;x = &amp;quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;endl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
 
-        &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-            &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-            &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ptr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-            &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;change&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ptr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-            &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ptr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;change&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ptr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;ul&gt;
@@ -313,12 +313,12 @@ gem sources -a http://ruby.taobao.org/&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c--&quot; data-lang=&quot;c++&quot;&gt;&lt;span class=&quot;cp&quot;&gt;#include&amp;lt;iostream&amp;gt;&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;X&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fun&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;c1&quot;&gt;// this is passed as hidden argument to fun(). &lt;/span&gt;
-        &lt;span class=&quot;c1&quot;&gt;// Type of this is const X* &lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;X&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fun&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// this is passed as hidden argument to fun(). &lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// Type of this is const X* &lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;h2&gt;(三)何时使用this指针&lt;/h2&gt;
@@ -329,31 +329,31 @@ gem sources -a http://ruby.taobao.org/&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c--&quot; data-lang=&quot;c++&quot;&gt;&lt;span class=&quot;cp&quot;&gt;#include&amp;lt;iostream&amp;gt;&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;namespace&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-     
-        &lt;span class=&quot;cm&quot;&gt;/* local variable is same as a member&amp;#39;s name */&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Test&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;private&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
-           &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
-           &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;setX&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-           &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-               &lt;span class=&quot;c1&quot;&gt;// The &amp;#39;this&amp;#39; pointer is used to retrieve the object&amp;#39;s x&lt;/span&gt;
-               &lt;span class=&quot;c1&quot;&gt;// hidden by the local variable &amp;#39;x&amp;#39;&lt;/span&gt;
-               &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-           &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-           &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;x = &amp;quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;endl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
- 
-        &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-           &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-           &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;20&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-           &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;setX&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-           &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-           &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;namespace&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;cm&quot;&gt;/* local variable is same as a member&amp;#39;s name */&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Test&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;private&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+   &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;public&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+   &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;setX&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+   &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+       &lt;span class=&quot;c1&quot;&gt;// The &amp;#39;this&amp;#39; pointer is used to retrieve the object&amp;#39;s x&lt;/span&gt;
+       &lt;span class=&quot;c1&quot;&gt;// hidden by the local variable &amp;#39;x&amp;#39;&lt;/span&gt;
+       &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+   &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+   &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;x = &amp;quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;endl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+   &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+   &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;20&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+   &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;setX&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+   &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+   &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;ul&gt;
@@ -362,11 +362,11 @@ gem sources -a http://ruby.taobao.org/&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c--&quot; data-lang=&quot;c++&quot;&gt;&lt;span class=&quot;cm&quot;&gt;/* Reference to the calling object can be returned */&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-           &lt;span class=&quot;c1&quot;&gt;// Some processing&lt;/span&gt;
-           &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+   &lt;span class=&quot;c1&quot;&gt;// Some processing&lt;/span&gt;
+   &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;h2&gt;(四)delete this指针&lt;/h2&gt;
@@ -382,29 +382,29 @@ gem sources -a http://ruby.taobao.org/&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;下面代码就会体现出来：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c--&quot; data-lang=&quot;c++&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;A&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;public&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fun&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
     &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-      &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
-        &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fun&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-            &lt;span class=&quot;k&quot;&gt;delete&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;delete&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
 
-    &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-      &lt;span class=&quot;cm&quot;&gt;/* Following is Valid */&lt;/span&gt;
-      &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ptr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-      &lt;span class=&quot;n&quot;&gt;ptr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 没有问题&lt;/span&gt;
-      &lt;span class=&quot;n&quot;&gt;ptr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;NULL&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// make ptr NULL to make sure that things are not accessed using ptr. &lt;/span&gt;
+&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;cm&quot;&gt;/* Following is Valid */&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ptr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;ptr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 没有问题&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;ptr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;NULL&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// make ptr NULL to make sure that things are not accessed using ptr. &lt;/span&gt;
 
 
-      &lt;span class=&quot;cm&quot;&gt;/* And following is Invalid: Undefined Behavior */&lt;/span&gt;
-      &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-      &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fun&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;　&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;// 释放栈上的空间，会出错&lt;/span&gt;
+    &lt;span class=&quot;cm&quot;&gt;/* And following is Invalid: Undefined Behavior */&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fun&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;　&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;// 释放栈上的空间，会出错&lt;/span&gt;
 
-      &lt;span class=&quot;n&quot;&gt;getchar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-      &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+    &lt;span class=&quot;n&quot;&gt;getchar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
 
