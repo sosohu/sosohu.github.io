@@ -1,21 +1,231 @@
----
-layout: page
-title: Tags
-header: Posts By Tag
-group: navigation
----
-{% include JB/setup %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Tags | WordWorth</title>
+    
+    <meta name="author" content="sosohu">
+    <meta name="keywords" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/themes/flying/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/themes/flying/css/style.css" rel="stylesheet" type="text/css" media="all">
+    <link href="/assets/themes/flying/css/syntax.css" rel="stylesheet" type="text/css" media="all">
+    <script type="text/javascript" src="/assets/themes/flying/js/jquery-1.9.1.min.js"></script>
+   <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+</head>
+
+  <body>
+
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/">WordWorth</a>
+          <ul class="nav">
+		<li><a href="/about.html">About</a></li>
+		<li><a href="/archive.html">Archive</a></li>
+		<li><a href="/categories.html">Categories</a></li>
+<!--		<li><a href="http://wiki.zhouyichu.com">Wiki</a></li>  -->
+		<li class="offset3"><a href="/atom.xml">Subscribe</a></li>
+		<li><a id="random" href="#">Random</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        
+<div class="page-header">
+  <h1><small class="tagline">宁静淡泊，一任自然</small></h1>
+</div>
+
+<div class="row">
+  <div class="span12">
+    
 
 <ul class="tag_box inline">
-  {% assign tags_list = site.tags %}  
-  {% include JB/tags_list %}
+    
+  
+
+
+  
+     
+    	<li><a href="/tags.html#C++-ref">C++ <span>1</span></a></li>
+     
+    	<li><a href="/tags.html#Valgrind-ref">Valgrind <span>1</span></a></li>
+     
+    	<li><a href="/tags.html#experience-ref">experience <span>1</span></a></li>
+     
+    	<li><a href="/tags.html#X11-ref">X11 <span>1</span></a></li>
+    
+  
+
+
+
 </ul>
 
 
-{% for tag in site.tags %} 
-  <h2 id="{{ tag[0] }}-ref">{{ tag[0] }}</h2>
+ 
+  <h2 id="C++-ref">C++</h2>
   <ul>
-    {% assign pages_list = tag[1] %}  
-    {% include JB/pages_list %}
+      
+    
+
+
+  
+    
+      
+      	
+      	<li><a href="/c/c++/2014/12/10/C++%E7%9A%84this%E6%8C%87%E9%92%88.html">C++的this指针</a></li>
+      	
+      
+    
+  
+
+
+
   </ul>
-{% endfor %}
+ 
+  <h2 id="Valgrind-ref">Valgrind</h2>
+  <ul>
+      
+    
+
+
+  
+    
+      
+      	
+      	<li><a href="/tool/2015/02/05/Linux%E4%B8%8B%E5%B0%8F%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90.html">Linux下小工具推荐</a></li>
+      	
+      
+    
+  
+
+
+
+  </ul>
+ 
+  <h2 id="experience-ref">experience</h2>
+  <ul>
+      
+    
+
+
+  
+    
+      
+      	
+      	<li><a href="/experience/2015/02/06/Github-Jekyll-Markdown%E5%BC%80%E5%90%AF%E5%86%99%E4%BD%9C%E6%96%B0%E6%97%B6%E4%BB%A3.html">Github-Jekyll-Markdown开启写作新时代</a></li>
+      	
+      
+    
+  
+
+
+
+  </ul>
+ 
+  <h2 id="X11-ref">X11</h2>
+  <ul>
+      
+    
+
+
+  
+    
+      
+      	
+      	<li><a href="/tool/2015/03/09/Xdotool%E6%A8%A1%E6%8B%9F%E5%B7%A5%E5%85%B7.html">Xdotool工具</a></li>
+      	
+      
+    
+  
+
+
+
+  </ul>
+
+
+  </div>
+</div>
+
+
+      </div>
+
+      <footer>
+        <p>&copy; sosohu 2012 
+          with help from <a href="http://jekyllbootstrap.com" target="_blank" title="The Definitive Jekyll Blogging Framework">Jekyll Bootstrap</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+	<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1000067280'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s22.cnzz.com/z_stat.php%3Fid%3D1000067280%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+        </p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    
+    
+  </body>
+
+<script type="text/javascript">
+$("a[href^='http://']").each(function(){
+	this.target="_blank";
+
+});
+</script>
+
+  <!--MathJax-->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+       }
+  });
+</script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        TeX: {equationNumbers: {autoNumber: ["AMS"], useLabelIds: true},extensions: ["autobold.js"]},
+        "HTML-CSS": {linebreaks: {automatic: true}},
+        SVG: {linebreaks: {automatic: true}}
+    });
+</script>
+
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<script type="text/javascript" src="/assets/themes/flying/js/default.js"></script>
+ </html>
+
+
+<!-- hitwebcounter Code START -->
+<a href="http://www.hitwebcounter.com/" target="_blank">
+<img src="http://hitwebcounter.com/counter/counter.php?page=6039789&style=0027&nbdigits=6&type=page&initCount=1122" title="" Alt=""   border="0" >
+</a><br/>
+<!-- hitwebcounter.com --><a href="http://www.hitwebcounter.com/" title="Hitwebcounter.com Free" 
+target="_blank" style="font-family: Arial, Helvetica, sans-serif; 
+font-size: 12px; color: #6B706A; text-decoration: underline ;"><strong>Hitwebcounter.com Free</strong>
+</a>   
