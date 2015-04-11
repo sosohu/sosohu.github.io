@@ -9,8 +9,8 @@
     prettyPrint();
   });
 </script>
-<script src="raphael-min.js"><
-<script src="flowchart-latest.js"></script>
+<!--script src="/js/raphael-min.js"></script-->
+<!--script src="/js/flowchart-min.js"></script-->
 
 <head>
     <meta charset="UTF-8">
@@ -64,8 +64,6 @@ sosohu
     <h1>Recent Posts</h1>
     <ul>
         
-          <li><a href="/2015/04/%E6%9C%80%E6%96%B0%E6%94%AF%E6%8C%81%E6%B5%81%E7%A8%8B%E5%9B%BE">最新支持流程图</a></li>
-        
           <li><a href="/2015/03/Xdotool%E6%A8%A1%E6%8B%9F%E5%B7%A5%E5%85%B7">Xdotool工具</a></li>
         
           <li><a href="/2015/02/Github-Jekyll-Markdown%E5%BC%80%E5%90%AF%E5%86%99%E4%BD%9C%E6%96%B0%E6%97%B6%E4%BB%A3">Github-Jekyll-Markdown开启写作新时代</a></li>
@@ -83,7 +81,7 @@ sosohu
 		 
 		<li><a href="/c&c++">c&c++ 1</a> </li>
 		 
-		<li><a href="/tool">tool 3</a> </li>
+		<li><a href="/tool">tool 2</a> </li>
 		 
 		<li><a href="/experience">experience 1</a> </li>
 		 
@@ -109,29 +107,6 @@ sosohu
 		<description>sosohu</description>
 		<link>http://sosohu.github.io/</link>
 		<atom:link href="http://sosohu.github.io//feed.xml" rel="self" type="application/rss+xml" />
-		
-			<item>
-				<title>最新支持流程图</title>
-				<description>&lt;p&gt;st=&amp;gt;start: Start|past:&amp;gt;&lt;a href=&quot;http://www.google.com%5Bblank%5D&quot;&gt;http://www.google.com[blank]&lt;/a&gt;
-e=&amp;gt;end: Ende|future:&amp;gt;&lt;a href=&quot;http://www.google.com&quot;&gt;http://www.google.com&lt;/a&gt;
-op1=&amp;gt;operation: My Operation|past
-op2=&amp;gt;operation: Stuff|current
-sub1=&amp;gt;subroutine: My Subroutine|invalid
-cond=&amp;gt;condition: Yes 
-or No?|approved:&amp;gt;&lt;a href=&quot;http://www.google.com&quot;&gt;http://www.google.com&lt;/a&gt;
-c2=&amp;gt;condition: Good idea|rejected
-io=&amp;gt;inputoutput: catch something...|future&lt;/p&gt;
-
-&lt;p&gt;st-&amp;gt;op1(right)-&amp;gt;cond
-cond(yes, right)-&amp;gt;c2
-cond(no)-&amp;gt;sub1(left)-&amp;gt;op1
-c2(yes)-&amp;gt;io-&amp;gt;e
-c2(no)-&amp;gt;op2-&amp;gt;e&lt;/p&gt;
-</description>
-				<pubDate>Sat, 11 Apr 2015 11:02:22 -0600</pubDate>
-				<link>http://sosohu.github.io//2015/04/%E6%9C%80%E6%96%B0%E6%94%AF%E6%8C%81%E6%B5%81%E7%A8%8B%E5%9B%BE</link>
-				<guid isPermaLink="true">http://sosohu.github.io//2015/04/%E6%9C%80%E6%96%B0%E6%94%AF%E6%8C%81%E6%B5%81%E7%A8%8B%E5%9B%BE</guid>
-			</item>
 		
 			<item>
 				<title>Xdotool工具</title>
