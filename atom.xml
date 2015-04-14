@@ -4,7 +4,7 @@
  <title>WordWorth</title>
  <link href="http://sosohu.github.io/atom.xml" rel="self"/>
  <link href="http://sosohu.github.io"/>
- <updated>2015-04-14T09:37:03+08:00</updated>
+ <updated>2015-04-14T09:43:22+08:00</updated>
  <id>http://sosohu.github.io</id>
  <author>
    <name>sosohu</name>
@@ -66,7 +66,7 @@
 
 &lt;p&gt;下面以链表数据4，2，1，5，6，9，7，8，10为例分析这个迭代版的代码过程&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;https://github.com/sosohu/sosohu.github.io/assets/image/posts/2015-4-14-Merge/example.png&quot; alt=&quot;example&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://sosohu.github.io/assets/image/posts/2015-4-14-Merge/example.png&quot; alt=&quot;example&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;在while循环里面每次都是从原链表里取出一个节点，然后往counter数组里面归并，fill值表明目前counter数组中存有数据的最大的那个数组标号+1,比如说，我们首先取出４，此时&lt;code&gt;fill = 0&lt;/code&gt;, 直接就把４放在counter[0]链表上，fill变为1，然后取出1，就拿2与counter[0]进行merge，得到结果放到count[1],fill变为2，此时counter数组的情况是counter[0]为空，counter[1]存放2，4，再加入1时候直接放到counter[0], 再加入5时候，1与5merge，得到1，5再继续向上和couter[1]中的2,4,merge得到1，2，4，5，如果此时counter[2]不为空，那么继续merge，这里为空则1，2，4，5存到counter[2],于是就这样一步步的向上merge，每次merge链表长度都是加倍&lt;/p&gt;
 
