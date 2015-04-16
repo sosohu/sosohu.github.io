@@ -295,7 +295,7 @@
 
 <p>我们可以初始化时候为每个free_list[i]申请连续20个相应块空间，作为备用，初始化之后的内存使用情形如下图:</p>
 
-<p><img src="sosohu.github.io/assets/image/posts/2015-4-15-Alloc/free_lst.jpg" alt="free_list" /></p>
+<p><img src="http://sosohu.github.io/assets/image/posts/2015-4-15-Alloc/free_lst.jpg" alt="free_list" /></p>
 
 <p>上图的free_lst指针数组中的指针指向其对应第一个空闲块，然后后续空闲块通过神奇的obj*连接而成，这里就可以体现到obj设计的精妙了，它一点也不浪费空间，而且还是非常精简的.</p>
 
