@@ -6,7 +6,7 @@ html, body {
   margin-bottom: 0;
 }
 .container > footer {
-  margin-top: 20px;
+  margin-top: 0px; /*20 -> 0 sosohu*/
 }
 .container > footer p {
   text-align: center; /* center align it with the container */
@@ -171,7 +171,7 @@ img:hover{
 }
 
 .highlight code{
- 	font-size:15px;
+ 	font-size:13px;
 	color:#D0D0D0;
 }
 .H1_Date{

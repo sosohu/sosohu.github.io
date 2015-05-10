@@ -8,9 +8,11 @@ http://sosohu.github.io/pages.html
 http://sosohu.github.io/sitemap.txt
 http://sosohu.github.io/tags.html
 
+http://sosohu.github.io/c/c++/2015/05/10/%E6%B5%85%E8%B0%88%E5%AF%B9SGI-STL%E8%BF%AD%E4%BB%A3%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3%E7%9A%84%E7%90%86%E8%A7%A3.html
 http://sosohu.github.io/c/c++/2015/04/15/%E4%BB%BF%E7%85%A7%E5%AE%9E%E7%8E%B0SGI-STL%E7%A9%BA%E9%97%B4%E9%85%8D%E7%BD%AE%E5%99%A8.html
 http://sosohu.github.io/algorithm/2015/04/14/%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F%E7%9A%84%E8%BF%AD%E4%BB%A3%E5%86%99%E6%B3%95.html
 http://sosohu.github.io/tool/2015/03/09/Xdotool%E6%A8%A1%E6%8B%9F%E5%B7%A5%E5%85%B7.html
 http://sosohu.github.io/experience/2015/02/06/Github-Jekyll-Markdown%E5%BC%80%E5%90%AF%E5%86%99%E4%BD%9C%E6%96%B0%E6%97%B6%E4%BB%A3.html
 http://sosohu.github.io/tool/2015/02/05/Linux%E4%B8%8B%E5%B0%8F%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90.html
 http://sosohu.github.io/c/c++/2014/12/10/C++%E7%9A%84this%E6%8C%87%E9%92%88.html
+http://sosohu.github.io/ubuntu/2014/12/07/Ubuntu14.10%E4%B8%8B%E8%A7%A3%E5%86%B3chromium%E6%B5%8F%E8%A7%88%E5%99%A8%E6%97%A0%E6%B3%95%E5%AE%89%E8%A3%85adobe_flash%E7%9A%84%E9%97%AE%E9%A2%98.html
