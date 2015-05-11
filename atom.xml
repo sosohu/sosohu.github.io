@@ -4,7 +4,7 @@
  <title>WordWorth</title>
  <link href="http://sosohu.github.io/atom.xml" rel="self"/>
  <link href="http://sosohu.github.io"/>
- <updated>2015-05-11T22:23:55+08:00</updated>
+ <updated>2015-05-11T22:34:12+08:00</updated>
  <id>http://sosohu.github.io</id>
  <author>
    <name>sosohu</name>
@@ -282,11 +282,15 @@ Note: It is intended &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; the proble
 
 &lt;p&gt;这里我推荐先根据题意,写出正则表达式,然后根据正则表达式画出NFA,然后根据NFA的状态转移编写代码,你就会发现此题就异常的清晰.&lt;/p&gt;
 
-&lt;p&gt;&lt;strong&gt;正则表达式:&lt;/strong&gt;     &lt;img src=&quot;http://www.forkosh.com/mathtex.cgi? s^*(+|−)?((d^+.?)|(.d))d^*(e(+|−)?d^+)?&quot;&gt;, s为空格 ,d为数字&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;正则表达式:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://sosohu.github.io/assets/image/posts/2015-5-1-LeetCode/RegExp.png&quot; alt=&quot;RegExp.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;s为空格 ,d为数字&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;状态转移图(NFA):&lt;/strong&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;sosohu.github.io/assets/image/posts/2015-5-1-LeetCode/NFA.png&quot; alt=&quot;NFA.png&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://sosohu.github.io/assets/image/posts/2015-5-1-LeetCode/NFA.png&quot; alt=&quot;NFA.png&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;其中0代表开始状态,2,4,7,8都是合法状态.&lt;/p&gt;
 

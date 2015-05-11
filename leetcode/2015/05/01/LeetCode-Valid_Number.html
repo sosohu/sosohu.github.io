@@ -75,11 +75,15 @@ Note: It is intended <span class="k">for</span> the problem statement to be ambi
 
 <p>这里我推荐先根据题意,写出正则表达式,然后根据正则表达式画出NFA,然后根据NFA的状态转移编写代码,你就会发现此题就异常的清晰.</p>
 
-<p><strong>正则表达式:</strong>     <img src="http://www.forkosh.com/mathtex.cgi? s^*(+|−)?((d^+.?)|(.d))d^*(e(+|−)?d^+)?">, s为空格 ,d为数字</p>
+<p><strong>正则表达式:</strong></p>
+
+<p><img src="http://sosohu.github.io/assets/image/posts/2015-5-1-LeetCode/RegExp.png" alt="RegExp.png" /></p>
+
+<p>s为空格 ,d为数字</p>
 
 <p><strong>状态转移图(NFA):</strong></p>
 
-<p><img src="sosohu.github.io/assets/image/posts/2015-5-1-LeetCode/NFA.png" alt="NFA.png" /></p>
+<p><img src="http://sosohu.github.io/assets/image/posts/2015-5-1-LeetCode/NFA.png" alt="NFA.png" /></p>
 
 <p>其中0代表开始状态,2,4,7,8都是合法状态.</p>
 
@@ -126,7 +130,7 @@ Note: It is intended <span class="k">for</span> the problem statement to be ambi
 
 
 
-    <!--    1596-->
+    <!--    1589-->
     <div class="eof">-&nbsp;EOF&nbsp;-</div>
     <p class="declare">声明:本文采用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="nofollow" title="署名-非商业性使用-相同方式共享">BY-NC-SA</a>协议进行授权.转载请注明: <a href="/leetcode/2015/05/01/LeetCode-Valid_Number.html" title="LeetCode --- Valid Number " rel="nofollow">LeetCode --- Valid Number</a></p>
     <hr>
