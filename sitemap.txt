@@ -8,6 +8,7 @@ http://sosohu.github.io/pages.html
 http://sosohu.github.io/sitemap.txt
 http://sosohu.github.io/tags.html
 
+http://sosohu.github.io/mips/2015/05/30/Mips%E4%B8%8B%E4%BB%BF%E7%85%A7%E7%BC%96%E8%AF%91%E5%99%A8%E5%AE%9E%E7%8E%B0C%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8.html
 http://sosohu.github.io/c/c++/2015/05/10/%E6%B5%85%E8%B0%88%E5%AF%B9SGI-STL%E8%BF%AD%E4%BB%A3%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3%E7%9A%84%E7%90%86%E8%A7%A3.html
 http://sosohu.github.io/leetcode/2015/05/01/LeetCode-Valid_Number.html
 http://sosohu.github.io/c/c++/2015/04/15/%E4%BB%BF%E7%85%A7%E5%AE%9E%E7%8E%B0SGI-STL%E7%A9%BA%E9%97%B4%E9%85%8D%E7%BD%AE%E5%99%A8.html

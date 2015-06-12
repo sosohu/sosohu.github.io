@@ -4,13 +4,189 @@
  <title>WordWorth</title>
  <link href="http://sosohu.github.io/atom.xml" rel="self"/>
  <link href="http://sosohu.github.io"/>
- <updated>2015-05-11T22:34:12+08:00</updated>
+ <updated>2015-06-12T20:14:14+08:00</updated>
  <id>http://sosohu.github.io</id>
  <author>
    <name>sosohu</name>
    <email>ustc.sosohu@gmail.com</email>
  </author>
 
+ 
+ <entry>
+   <title>Mips下仿照编译器实现C++成员函数调用</title>
+   <link href="http://sosohu.github.io/mips/2015/05/30/Mips%E4%B8%8B%E4%BB%BF%E7%85%A7%E7%BC%96%E8%AF%91%E5%99%A8%E5%AE%9E%E7%8E%B0C%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8.html"/>
+   <updated>2015-05-30T00:00:00+08:00</updated>
+   <id>http://sosohu.github.io/mips/2015/05/30/Mips下仿照编译器实现C函数调用</id>
+   <content type="html">&lt;h2&gt;环境&lt;/h2&gt;
+
+&lt;p&gt;32位MIPS平台，采用O32的ABI,linux操作系统，GCC编译器&lt;/p&gt;
+
+&lt;h2&gt;需求&lt;/h2&gt;
+
+&lt;p&gt;我们准备好C++对象的this指针，对象成员函数指针,对象的参数，然后模拟编译器来填充好参数并调用该对象成员函数. 需要注意，对象不固定，成员函数不固定，成员函数的参数个数以及类型都不固定.&lt;/p&gt;
+
+&lt;h2&gt;MIPS的一些约定&lt;/h2&gt;
+
+&lt;h3&gt;MIPS寄存器的约定&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://sosohu.github.io/assets/image/posts/2015-5-30-MIPS/reg_mips.png&quot; alt=&quot;Reg_MIPS&quot; /&gt;&lt;/p&gt;
+
+&lt;h3&gt;MIPS的O32标准ABI函数调用的约定&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;输入参数要依次填充寄存器a0, a1, a2, a3,如果还有参数则需要填充到栈上&lt;/li&gt;
+&lt;li&gt;调用函数在调用被调用函数时候,需要为被调函数预留16字节的栈上空间以备被调函数存储a0,a1,a2和a3的值,所以a0,a1,a2,a3寄存器放不下的参数需要放在被调函数的栈帧+16字节以上的空间&lt;/li&gt;
+&lt;li&gt;输入参数的填充时候要遵守对齐原则,比如参数依次为int, long long那么int放在a0,long long放在a2,a3寄存器而不是a1, a2寄存器&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;h2&gt;实现&lt;/h2&gt;
+
+&lt;p&gt;我们这里的实现机制是，把所有参数按照４字节分割，比如long long需要分割成两个4字节，然后我们把这个一一个分割后的4字节的数据按照MIPS O32的ABI的约定填充到指定寄存器和栈上，然后再调用该函数即可.&lt;/p&gt;
+
+&lt;h3&gt;处理对齐&lt;/h3&gt;
+
+&lt;p&gt;我们需要分析每种参数类型到底是4字节对齐还是8字节对齐等等，然后根据不同的对齐确定参数寄存器和栈的对齐&lt;/p&gt;
+
+&lt;h3&gt;代码实现&lt;/h3&gt;
+
+&lt;p&gt;我们以一个&lt;code&gt;VARIANT&lt;/code&gt;结构体为例，对于其他类型可以做同样的处理&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c--&quot; data-lang=&quot;c++&quot;&gt;&lt;span class=&quot;cp&quot;&gt;#define DWORD 4&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;#define __ASM_CFI(str) str&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;#define __ASM_DEFINE_FUNC(name,suffix,code) asm(&amp;quot;.text\n\t.align 4\n\t.globl &amp;quot; #name suffix &amp;quot;\n\t.type &amp;quot; #name suffix &amp;quot;,@function\n&amp;quot; #name suffix &amp;quot;:\n\t.cfi_startproc\n\t&amp;quot; code &amp;quot;\n\t.cfi_endproc\n\t.previous&amp;quot;);&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;#define __ASM_GLOBAL_FUNC(name,code) __ASM_DEFINE_FUNC(name,&amp;quot;&amp;quot;,code)&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;typedef&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;intptr_t&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;CALLBACK&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;FARPROC&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)();&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;extern&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;C&amp;quot;&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;uintptr_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;CDECL&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;call_method&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nb_args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;unsigned&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nb_fargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;double&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;__ASM_GLOBAL_FUNC&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;call_method&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;.set noreorder&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;.set arch=mips3&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;sw $16,-28($29)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// $16压栈&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;sw $17,-32($29)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// $16压栈&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;move $16, $29&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// store $29&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;sll $17, $5, 2&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;and $17, $17,0xffffff80&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;addiu $17, $17, 256&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;// stack size&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;subu $29,$29,$17&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;sw $31,-4($16)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;   &lt;span class=&quot;c1&quot;&gt;//将返回地址压入堆栈&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;sw $30,-8($16)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;   &lt;span class=&quot;c1&quot;&gt;//将fp压入堆栈&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;sdc1 $f12,-16($16)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;//将f12到f15寄存器保存到堆栈中&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;sdc1 $f14,-24($16)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;move $30,$29&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;       &lt;span class=&quot;c1&quot;&gt;//将$29保存到fp&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;sw $4,0($16)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;       &lt;span class=&quot;c1&quot;&gt;//将参数＊func压栈&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;sw $5,4($16)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;       &lt;span class=&quot;c1&quot;&gt;//将参数nb_args压栈&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;sw $6,8($16)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;       &lt;span class=&quot;c1&quot;&gt;//将参数*args压栈&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;sw $7,12($16)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;      &lt;span class=&quot;c1&quot;&gt;//将参数nb_fargs压栈&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;move $11,$7&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;        &lt;span class=&quot;c1&quot;&gt;//将nb_fargs存入$11&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;lw $10,16($29)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;     &lt;span class=&quot;c1&quot;&gt;//将*fargs存入$10&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;addu $11,$11,-2&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;     &lt;span class=&quot;c1&quot;&gt;//nb_fargs-2&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;bltz $11, 1f&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;       &lt;span class=&quot;c1&quot;&gt;//如果nb_fargs-2&amp;lt;0,跳转到1&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;nop &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;ldc1 $f14,8($10)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;   &lt;span class=&quot;c1&quot;&gt;//将*fargs[1]移入$f14(高位隐含存入$f15)&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;1: addu $11,$11,1&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;bltz $11,2f&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;        &lt;span class=&quot;c1&quot;&gt;//如果nb_fargs-1&amp;lt;0,跳转到2&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;nop &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;ldc1 $f12,0($10)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;   &lt;span class=&quot;c1&quot;&gt;//将*fargs[2]移入$f12,$f13&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;2: move $8,$5&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;      &lt;span class=&quot;c1&quot;&gt;//将nb_args 移入$8&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;move $9,$6&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;         &lt;span class=&quot;c1&quot;&gt;//将＊args移入$9&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;blez $8, 4f&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;        &lt;span class=&quot;c1&quot;&gt;//如$8小于等于0调转到call func&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;nop&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;lw $4,($9)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;         &lt;span class=&quot;c1&quot;&gt;//将args[0]移入$4&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;addu $8,$8,-1&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;      &lt;span class=&quot;c1&quot;&gt;//$8=$8-1&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;blez $8,4f&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;         &lt;span class=&quot;c1&quot;&gt;//如$8小于等于0跳转到call func&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;nop&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;lw $5,4($9)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;        &lt;span class=&quot;c1&quot;&gt;//将args[1]移入$5&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;addu $8,$8,-1&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;      &lt;span class=&quot;c1&quot;&gt;//$8=$8-1&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;blez $8, 4f&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;        &lt;span class=&quot;c1&quot;&gt;//如$8小于等于0跳转到call func&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;nop&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;lw $6,8($9)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;        &lt;span class=&quot;c1&quot;&gt;//将args[2]移入$6&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;addu $8,$8,-1&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;      &lt;span class=&quot;c1&quot;&gt;//$8=$8-1&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;blez $8,4f&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;         &lt;span class=&quot;c1&quot;&gt;//如$8小于等于0跳转到call func&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;nop &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;lw $7,12($9)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;       &lt;span class=&quot;c1&quot;&gt;//将args[3]移入$7&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;addu $9,$9,16&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;      &lt;span class=&quot;c1&quot;&gt;//将指针移到args[4]&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;addu $11,$29,16&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;     &lt;span class=&quot;c1&quot;&gt;//$11=$29+16&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;3: addu $8,$8,-1&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;   &lt;span class=&quot;c1&quot;&gt;//$8=$8-1&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;blez $8,4f&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;         &lt;span class=&quot;c1&quot;&gt;//如$8小于等于0跳转到call func&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;nop&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;lw $10,($9)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;        &lt;span class=&quot;c1&quot;&gt;//将args[n]移入$10&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;sw $10,($11)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;        &lt;span class=&quot;c1&quot;&gt;//将$10存入$29+16+m&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;addu $9,$9,4&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;       &lt;span class=&quot;c1&quot;&gt;//指向args[n+1]&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;addu $11,$11,4&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;      &lt;span class=&quot;c1&quot;&gt;//指向$29+16+m&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;b 3b&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;               &lt;span class=&quot;c1&quot;&gt;//跳转到&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;nop&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;4: lw $25,0($16)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;   &lt;span class=&quot;c1&quot;&gt;//将*func存入$25&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;nop&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;jalr $25&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;             &lt;span class=&quot;c1&quot;&gt;//call func&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;nop&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;ldc1 $f14,-24($16)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;ldc1 $f12,-16($16)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;lw $30,-8($16)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;lw $31,-4($16)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;lw $16, -28($16)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;addu  $29,$29,$17&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;lw $17, -32($29)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;jr $31&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;nop&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;.set reorder&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;VARIANT&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;WORD&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//２　字节&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;WORD&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;WORD&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;WORD&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;INT64&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 8 字节&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;public&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fun1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;VARIANT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;12345&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;argc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;char&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;argv&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[])&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;VARIANT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;vector&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;uint32&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;argspos&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;//this指针作为第一个参数&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;argspos&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;unsigned&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;//准备第二个参数,注意对齐&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;argspos&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  &lt;span class=&quot;n&quot;&gt;argspos&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;memcpy&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;argspos&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;sizeof&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;argspos&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;sizeof&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;sizeof&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;DWORD&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;//准备第三和第四个参数&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;argspos&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3333&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;argspos&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4444&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        
+        &lt;span class=&quot;c1&quot;&gt;//调用汇编编写的模拟调用&lt;/span&gt;
+        &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ret&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;call_method2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fun1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;argspos&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;NULL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这个只是简单的以&lt;code&gt;VARIANT&lt;/code&gt;举例，为了更加通用的处理各种参数类型，需要对参数类型进行分类讨论然后采用与此类似的操作.&lt;/p&gt;
+
+&lt;p&gt;其实，这段实现也可以完全C语言化，那么我们就需要根据参数个数写一个大switch...case针对每种参数个数显示的调用func:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c--&quot; data-lang=&quot;c++&quot;&gt;&lt;span class=&quot;k&quot;&gt;switch&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;num_args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;n&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]);&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;n&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]);&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;n&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]);&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这样做很简单清楚，不过就难度太小了...&lt;/p&gt;
+</content>
+ </entry>
  
  <entry>
    <title>浅谈对SGI-STL迭代器设计思想的理解</title>
