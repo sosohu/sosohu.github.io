@@ -485,8 +485,10 @@
 
 <span class="k">template</span><span class="o">&lt;</span><span class="kt">int</span> <span class="n">inst</span><span class="o">&gt;</span>
 <span class="kt">void</span> <span class="n">junior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">deallocate</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">sz</span><span class="p">){</span>
-    <span class="k">if</span><span class="p">(</span><span class="n">sz</span> <span class="o">&gt;</span> <span class="n">LARGE_SIZE</span><span class="p">)</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">sz</span> <span class="o">&gt;</span> <span class="n">LARGE_SIZE</span><span class="p">){</span>
         <span class="n">superior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">deallocate</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">sz</span><span class="p">);</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
     <span class="kt">size_t</span> <span class="n">node_march</span> <span class="o">=</span> <span class="n">march_node</span><span class="p">(</span><span class="n">sz</span><span class="p">);</span>
     <span class="n">obj</span><span class="o">*</span> <span class="n">pos</span> <span class="o">=</span> <span class="p">(</span><span class="n">obj</span><span class="o">*</span><span class="p">)</span><span class="n">ptr</span><span class="p">;</span>
     <span class="n">pos</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">free_list</span><span class="p">[</span><span class="n">node_march</span><span class="p">];</span>
@@ -501,7 +503,7 @@
 <p>另外，上面的代码只是笔者简单的模仿实现，SGI的源码则是更加的完整和健壮，并且对多线程情况也做出处理.</p>
 
 
-    <!--    12015-->
+    <!--    12036-->
     <div class="eof">-&nbsp;EOF&nbsp;-</div>
     <p class="declare">声明:本文采用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="nofollow" title="署名-非商业性使用-相同方式共享">BY-NC-SA</a>协议进行授权.转载请注明: <a href="/c/c++/2015/04/15/%E4%BB%BF%E7%85%A7%E5%AE%9E%E7%8E%B0SGI-STL%E7%A9%BA%E9%97%B4%E9%85%8D%E7%BD%AE%E5%99%A8.html" title="仿照实现SGI-STL空间配置器 " rel="nofollow">仿照实现SGI-STL空间配置器</a></p>
     <hr>
