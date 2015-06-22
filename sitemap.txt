@@ -3,7 +3,9 @@ http://sosohu.github.io/about.html
 http://sosohu.github.io/archive.html
 http://sosohu.github.io/atom.xml
 http://sosohu.github.io/categories.html
+http://sosohu.github.io/download.html
 http://sosohu.github.io/index.html
+http://sosohu.github.io/link.html
 http://sosohu.github.io/pages.html
 http://sosohu.github.io/sitemap.txt
 http://sosohu.github.io/tags.html
