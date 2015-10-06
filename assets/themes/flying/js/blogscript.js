@@ -66,7 +66,7 @@ $(document).ready(function(){
     }//end of the if
 
 //边注设置的代码
-    var bianzhu = '<span class="bz"><span class="bz_back"><span class="bz_content">flyaway</span></span></span>';
+    var bianzhu = '<span class="bz"><span class="bz_back"><span class="bz_content">sosohu</span></span></span>';
     var sup='<span class="bz_sup"></span>'
     var footcontents = new Array()
     var i = 0
