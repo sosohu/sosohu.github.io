@@ -4,13 +4,134 @@
  <title>WordWorth</title>
  <link href="http://sosohu.github.io/atom.xml" rel="self"/>
  <link href="http://sosohu.github.io"/>
- <updated>2015-06-22T18:16:51+08:00</updated>
+ <updated>2015-10-06T21:28:05+08:00</updated>
  <id>http://sosohu.github.io</id>
  <author>
    <name>sosohu</name>
    <email>ustc.sosohu@gmail.com</email>
  </author>
 
+ 
+ <entry>
+   <title>Linux内核源代码情景分析之存储管理</title>
+   <link href="http://sosohu.github.io/linux/2015/07/16/Linux%E5%86%85%E6%A0%B8%E6%BA%90%E4%BB%A3%E7%A0%81%E6%83%85%E6%99%AF%E5%88%86%E6%9E%90%E4%B9%8B%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86.html"/>
+   <updated>2015-07-16T00:00:00+08:00</updated>
+   <id>http://sosohu.github.io/linux/2015/07/16/Linux内核源代码情景分析之存储管理</id>
+   <content type="html">&lt;p&gt;一直以来对Linux内核的内存管理很是不解，最近在读毛德操老师和胡希明老师的&lt;code&gt;&amp;lt;&amp;lt;Linux内核源代码情景分析&amp;gt;&amp;gt;&lt;/code&gt;，有所收获，借此机会写一篇小文权作读书笔记，以供日后不断反思学习之用&lt;/p&gt;
+
+&lt;h3&gt;Linux虚拟地址空间和物理地址空间&lt;/h3&gt;
+
+&lt;p&gt;在32位的Linux系统里面每个进程都有自己独立的大约3GB的虚拟地址空间,而真实的物理内存是硬件固定的，所以就需要页表建立虚拟地址空间到物理地址空间
+的对应.&lt;/p&gt;
+
+&lt;p&gt;在Linux中物理地址空间被划分为大小为4KB的一个个页框，这个页框在内核中通过Page结构体表示.并且物理内存也被划分为ZONE_DMA, ZONE_NORMAL, ZONE_HIGH三个区块，其中ZONE_DMA是为IO提供DMA通道的地址区域，一般进程使用的物理内存是属于ZONE_NORMAL/ZONE_HIGH区域.&lt;/p&gt;
+
+&lt;p&gt;可以使用的物理内存被划分成一个个页框后，被放入到11个free_area_strcut链表中，这11个链表分别管理着1, 2, ...., 2&lt;sup&gt;10&lt;/sup&gt;大小的连续的空闲页框链表，并且通过伙伴算法进程管理,具体可以&lt;a href=&quot;http://blog.csdn.net/hs794502825/article/details/7887915&quot;&gt;戳这里&lt;/a&gt;,以后所有的物理页获取与释放都是通过伙伴算法来管理的&lt;/p&gt;
+
+&lt;h3&gt;进程的内存管理&lt;/h3&gt;
+
+&lt;p&gt;首先介绍一下几个重要的数据结构: task_struct, mm_struct, vm_area_struct. 这里task_struct可以看做是进程的档案，每个进程内核都会为它维护一个task_struct,在task_struct里面有很多进程的信息，其中就包括虚拟地址空间这块的mm_strcut成员,这这个成员它记录这进程的pgd,以及通过链表和AVL树管理的vm_area_struct节点，这里首先解释pgd的作用: pgd就是指向该进程在页全局目录表的位置，用来MMU地址转换的,一般进程切换时候会把它加载到cr3寄存器用来MMU转换; 其次vm_area_struct是进程虚拟地址空间的一个区间，因为虚拟地址空间很大，所以一般都是分段使用的，比如代码段，数据段，堆栈段，共享段等等，这些都是一个个vm_area_struct记录的，每个段的读写权限不同&lt;/p&gt;
+
+&lt;p&gt;我们进程在使用一个虚拟地址时候，一般是先会通过MMU进程地址映射，如果发现存在则验证读写权限，如果不存在则触发缺页异常然后进入到内核态，接着会在mm_strcut里面的vm_area_struct的AVL树里面查找是否存在并验证权限是否正确，比如读写权限不一致，比如找不到一个合法的vm_area_struct区包含该虚拟地址等等，这些都会使得内核将SIGSEGV信号放入到进程的task_struct里面，待进程从内核态切换到用户态时候检查到这个信号就会终止运行出现Segment Fault这个臭名昭著的信息. 当然，进程栈的扩张是这个流程的意外情况，这时候会根据所需修改相应栈的vm_area_struct终止地址，然后申请物理页并且然进程对应页表项上填写映射信息&lt;/p&gt;
+
+&lt;p&gt;另外进程在用户空间通常会使用malloc进程内存申请，这个malloc实质上会调用brk或者mmap系统调用,一般来说当malloc的空间小于128K时候调用brk使得堆的虚拟地址空间扩大一下，即通过修改对应vm_area_struct节点，而大于128K时候则调用mmap从进程虚拟地址空间中找出一块出来建立一个vm_area_struct,这时候只是分配的虚拟地址并没有对应物理页框，这是因为申请的不一定会用，之后使用时候才会触发缺页异常然后分配对应物理页&lt;/p&gt;
+
+&lt;p&gt;这里需要单独说明一下mmap系统调用，mmap一般来说是将磁盘上一个文件映射到进程虚拟地址空间上，以方便读写文件，这里只是会为该文件建立一个vm_area_struct然后设置好file_ops调用方便在进程读写该文件时候引起缺页异常时候指引找到对应文件，然后将文件内容读入到某个物理页上再在页表上建立好映射关系&lt;/p&gt;
+
+&lt;h3&gt;内核的内存管理&lt;/h3&gt;
+
+&lt;p&gt;内核也同样需要使用物理内存，内核的内存通常是通过slab分配器获得的，这个slab分配器分为两种，一种是管理专属对象的缓冲，比如task_struct这些常见的对象，另一种则是通用的对象缓冲，根据空间的大小分类管理&lt;/p&gt;
+
+&lt;p&gt;kmem_cache结构体可以想象成一个对象缓冲的分配入口，一般它有三个指针指向三种slab,分别是满．部分满和空闲slab,每个slab使用一个或者多个页框并且在里面分配一个个具体对象，我们以task_struct的kmem_cache为例，那么每个slab都可以存放多个task_struct对象，我们当需要申请一个task_struct时候则会从对应kmem_cache里面的部分满slab链表里面找一个task_struct对象返回，如果这是该slab最后一个没使用的task_struct则将此slab移动到满链表中.通用对象的slab也是一样，只不过根据所需空间大小找对应kmem_cache&lt;/p&gt;
+
+&lt;p&gt;slab分配器的优点在于可以减少内存空洞，以及缓存对象通过在kmem_cache里面设定的初始化函数一次初始化所有对象，避免不必要的不断的初始化工作,kmalloc就是通过slab分配器获得一个通用的空间大小&lt;/p&gt;
+
+&lt;h3&gt;页面调度&lt;/h3&gt;
+
+&lt;p&gt;物理内存是有限的，所以就需要不断的换进和换出物理页，内核使用的页框一般来说是背会被换出的，进程的页框则通过LRU调度算法换出, 页面换出时候是将页面换到磁盘的交换区部分，然后原先使用该物理页的进程的页表映射也要改为磁盘的页面&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>码农面试基础准备总结</title>
+   <link href="http://sosohu.github.io/job/2015/07/03/%E7%A0%81%E5%86%9C%E9%9D%A2%E8%AF%95%E5%9F%BA%E7%A1%80%E5%87%86%E5%A4%87%E6%80%BB%E7%BB%93.html"/>
+   <updated>2015-07-03T00:00:00+08:00</updated>
+   <id>http://sosohu.github.io/job/2015/07/03/码农面试基础准备总结</id>
+   <content type="html">&lt;h3&gt;背景&lt;/h3&gt;
+
+&lt;p&gt;每次要面试之前都需要临时抱佛脚，可是该抱哪些佛脚呢?　为了避免我每次都忘记，这就专门写一篇博客简单总结一下吧．&lt;/p&gt;
+
+&lt;h3&gt;算法和数据结构&lt;/h3&gt;
+
+&lt;h4&gt;算法&lt;/h4&gt;
+
+&lt;p&gt;算法这一块都是一些基本的算法，需要能够快速的写出算法代码，对算法的优缺点心知肚明&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;各种排序: 快速，归并，堆，插入，冒泡，选择排序等.&lt;/li&gt;
+&lt;li&gt;字符串相关: KMP, strlen, memcpy, strcmp等&lt;/li&gt;
+&lt;li&gt;图相关: dfs, bfs, 拓扑排序，关节点，单源最短路径,最短生成路径&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;h4&gt;数据结构&lt;/h4&gt;
+
+&lt;p&gt;基本需要了解的数据结构，熟悉基本实现和相关数据结构时间复杂度&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;二叉树:  前序/中序/后序非递归遍历&lt;/li&gt;
+&lt;li&gt;线段树/字典树:    基本实现&lt;/li&gt;
+&lt;li&gt;最小/最大堆:   实现&lt;/li&gt;
+&lt;li&gt;链表: 链表反转，链表找环&lt;/li&gt;
+&lt;li&gt;哈希表:  开链法实现&lt;/li&gt;
+&lt;li&gt;Map:    红黑树基本概念&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;h4&gt;操作系统&lt;/h4&gt;
+
+&lt;p&gt;这里主要以Linux为研究对象&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;进程和线程,进程fork, vfork, clone, execve, exit, wait&lt;/li&gt;
+&lt;li&gt;Linux进程调度策略, FIFO, RR, OTHER&lt;/li&gt;
+&lt;li&gt;Linux内存管理策略, task_struct -&gt; mm_struct -&gt; vm_area_struct&lt;/li&gt;
+&lt;li&gt;Linux进程IPC实现原理,　Pipe, Signal, Semphore, Shared Memory, Socket, Message Queue&lt;/li&gt;
+&lt;li&gt;互斥: Mutex, Semphore, Spin_lock&lt;/li&gt;
+&lt;li&gt;死锁: 死锁条件，死锁检测，死锁避免&lt;/li&gt;
+&lt;li&gt;生产者消费者问题，哲学家问题&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;h4&gt;计算机网络&lt;/h4&gt;
+
+&lt;p&gt;这里主要以TCP/IP为研究对象&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;TCP/IP状态转移图，三次握手，四次握手&lt;/li&gt;
+&lt;li&gt;拥塞控制，慢启动，滑动窗口，拥塞窗口, 傻窗口, 快速重传，快速恢复,超时重传&lt;/li&gt;
+&lt;li&gt;TCP与UDP区别&lt;/li&gt;
+&lt;li&gt;ARP/RARP, DNS, ICMP, IGMP, HTTP等协议&lt;/li&gt;
+&lt;li&gt;tcpdump, ping, traceroute命令&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;h4&gt;C++&lt;/h4&gt;
+
+&lt;p&gt;C++内容很多，就简单说说常见的&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;虚函数实现原理&lt;/li&gt;
+&lt;li&gt;C++对象内存布局，虚继承与多继承&lt;/li&gt;
+&lt;li&gt;C++各个容器的实现原理&lt;/li&gt;
+&lt;li&gt;C++内存分配原理&lt;/li&gt;
+&lt;li&gt;C++11新标准&lt;/li&gt;
+&lt;li&gt;const, static, 四种cast, inline等关键字&lt;/li&gt;
+&lt;li&gt;指针和数组，指针和引用区别&lt;/li&gt;
+&lt;/ul&gt;
+
+</content>
+ </entry>
  
  <entry>
    <title>仿照SGI-STL实现Hash表</title>

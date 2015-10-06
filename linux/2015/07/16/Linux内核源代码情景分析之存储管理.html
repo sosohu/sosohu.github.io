@@ -3,10 +3,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Github-Jekyll-Markdown开启写作新时代 | WordWorth</title>
-    <meta name="description" content="使用GJM配置个人网站">
+    <title>Linux内核源代码情景分析之存储管理 | WordWorth</title>
+    <meta name="description" content="Linux内核源代码情景分析之存储管理">
     <meta name="author" content="sosohu">
-    <meta name="keywords" content="写作">
+    <meta name="keywords" content="Kernel">
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
     <!--[if lt IE 9]>
@@ -52,77 +52,48 @@
       <div class="content">
         
 <div class="page-header">
-  <h1>Github-Jekyll-Markdown开启写作新时代 <small class="H1_Date">--06 February 2015</small></h1>
+  <h1>Linux内核源代码情景分析之存储管理 <small class="H1_Date">--16 July 2015</small></h1>
 </div>
 
 <div class="row">
   <div class="span8">
-    <h2>为什么想到用这几个东西来写博客</h2>
+    <p>一直以来对Linux内核的内存管理很是不解，最近在读毛德操老师和胡希明老师的<code>&lt;&lt;Linux内核源代码情景分析&gt;&gt;</code>，有所收获，借此机会写一篇小文权作读书笔记，以供日后不断反思学习之用</p>
 
-<p>首先markdown用来写作已经是非常流行的了,确实非常方便高效,虽然表达能力没有latex丰富,但是已经算是即轻量级又比较美观的一种方式了,特别是github风格的markdown文章还是比较好看的.其次,我之前的博客要么在博客园这类网站上写,要么是在github的项目仓库中写:sweat:, 但是感觉还是很不方便,而且觉得作为码农还是应该搭建一个自己的博客基地比较geek:smile:, 可是我又想能够快速搭建起来,而且不要太麻烦,几经调研,发现github.io作为搭建平台非常的适合,结果也是很让我满意,大概仅仅只用一天时间,就基本搭建成功一个我觉得还比较满意的博客.</p>
+<h3>Linux虚拟地址空间和物理地址空间</h3>
 
-<h2>怎么搭建的</h2>
+<p>在32位的Linux系统里面每个进程都有自己独立的大约3GB的虚拟地址空间,而真实的物理内存是硬件固定的，所以就需要页表建立虚拟地址空间到物理地址空间
+的对应.</p>
 
-<p>前面废话那么多,感觉的是在给你心灵鸡汤一样,但是我不会只给鸡汤不给汤勺的:satisfied:, 下面就来介绍一下我搭建过程中的一些经验总结.</p>
+<p>在Linux中物理地址空间被划分为大小为4KB的一个个页框，这个页框在内核中通过Page结构体表示.并且物理内存也被划分为ZONE_DMA, ZONE_NORMAL, ZONE_HIGH三个区块，其中ZONE_DMA是为IO提供DMA通道的地址区域，一般进程使用的物理内存是属于ZONE_NORMAL/ZONE_HIGH区域.</p>
 
-<h3>准备工作</h3>
+<p>可以使用的物理内存被划分成一个个页框后，被放入到11个free_area_strcut链表中，这11个链表分别管理着1, 2, ...., 2<sup>10</sup>大小的连续的空闲页框链表，并且通过伙伴算法进程管理,具体可以<a href="http://blog.csdn.net/hs794502825/article/details/7887915">戳这里</a>,以后所有的物理页获取与释放都是通过伙伴算法来管理的</p>
 
-<h4>github账号:</h4>
+<h3>进程的内存管理</h3>
 
-<p>这个不用多说了,很简单,去申请一个就行了.</p>
+<p>首先介绍一下几个重要的数据结构: task_struct, mm_struct, vm_area_struct. 这里task_struct可以看做是进程的档案，每个进程内核都会为它维护一个task_struct,在task_struct里面有很多进程的信息，其中就包括虚拟地址空间这块的mm_strcut成员,这这个成员它记录这进程的pgd,以及通过链表和AVL树管理的vm_area_struct节点，这里首先解释pgd的作用: pgd就是指向该进程在页全局目录表的位置，用来MMU地址转换的,一般进程切换时候会把它加载到cr3寄存器用来MMU转换; 其次vm_area_struct是进程虚拟地址空间的一个区间，因为虚拟地址空间很大，所以一般都是分段使用的，比如代码段，数据段，堆栈段，共享段等等，这些都是一个个vm_area_struct记录的，每个段的读写权限不同</p>
 
-<h4>在gitbub上建立一个usename.github.io的仓库:</h4>
+<p>我们进程在使用一个虚拟地址时候，一般是先会通过MMU进程地址映射，如果发现存在则验证读写权限，如果不存在则触发缺页异常然后进入到内核态，接着会在mm_strcut里面的vm_area_struct的AVL树里面查找是否存在并验证权限是否正确，比如读写权限不一致，比如找不到一个合法的vm_area_struct区包含该虚拟地址等等，这些都会使得内核将SIGSEGV信号放入到进程的task_struct里面，待进程从内核态切换到用户态时候检查到这个信号就会终止运行出现Segment Fault这个臭名昭著的信息. 当然，进程栈的扩张是这个流程的意外情况，这时候会根据所需修改相应栈的vm_area_struct终止地址，然后申请物理页并且然进程对应页表项上填写映射信息</p>
 
-<p>  usename是你的github账号名,貌似不一定非要叫这个名字,反正我是起的这个名字</p>
+<p>另外进程在用户空间通常会使用malloc进程内存申请，这个malloc实质上会调用brk或者mmap系统调用,一般来说当malloc的空间小于128K时候调用brk使得堆的虚拟地址空间扩大一下，即通过修改对应vm_area_struct节点，而大于128K时候则调用mmap从进程虚拟地址空间中找出一块出来建立一个vm_area_struct,这时候只是分配的虚拟地址并没有对应物理页框，这是因为申请的不一定会用，之后使用时候才会触发缺页异常然后分配对应物理页</p>
 
-<h4>clone一个你喜欢的代码:</h4>
+<p>这里需要单独说明一下mmap系统调用，mmap一般来说是将磁盘上一个文件映射到进程虚拟地址空间上，以方便读写文件，这里只是会为该文件建立一个vm_area_struct然后设置好file_ops调用方便在进程读写该文件时候引起缺页异常时候指引找到对应文件，然后将文件内容读入到某个物理页上再在页表上建立好映射关系</p>
 
-<p>github上jeklly做出来的各种主题都有很多代码,我这里使用的是<a href="https://github.com/PinkingS/pinkings.github.com">PinkingS</a>的jekyll-bootstrap风格的主题,jekyll还有很多其他主题,你可以到它的官网看一看,然后找相应github上的样例代码.</p>
+<h3>内核的内存管理</h3>
 
-<h4>修改仓库变为自己的博客</h4>
+<p>内核也同样需要使用物理内存，内核的内存通常是通过slab分配器获得的，这个slab分配器分为两种，一种是管理专属对象的缓冲，比如task_struct这些常见的对象，另一种则是通用的对象缓冲，根据空间的大小分类管理</p>
 
-<p>你需要修改一下内容:</p>
+<p>kmem_cache结构体可以想象成一个对象缓冲的分配入口，一般它有三个指针指向三种slab,分别是满．部分满和空闲slab,每个slab使用一个或者多个页框并且在里面分配一个个具体对象，我们以task_struct的kmem_cache为例，那么每个slab都可以存放多个task_struct对象，我们当需要申请一个task_struct时候则会从对应kmem_cache里面的部分满slab链表里面找一个task_struct对象返回，如果这是该slab最后一个没使用的task_struct则将此slab移动到满链表中.通用对象的slab也是一样，只不过根据所需空间大小找对应kmem_cache</p>
 
-<ul>
-<li>_config.yml:  凡是别人的都改成自己的.</li>
-<li>_posts:   改为自己的博客,注意命名方法要遵循它的规则.</li>
-<li>about.md:   自我介绍.</li>
-</ul>
+<p>slab分配器的优点在于可以减少内存空洞，以及缓存对象通过在kmem_cache里面设定的初始化函数一次初始化所有对象，避免不必要的不断的初始化工作,kmalloc就是通过slab分配器获得一个通用的空间大小</p>
 
+<h3>页面调度</h3>
 
-<p>修改完之后,上传到github对应仓库之后,打开usename.github.io网站就可以看到效果啦.</p>
-
-<h5>评论插件</h5>
-
-<p>评论插件很简单,你只需要去<a href="http://disqus.com/">DISQUS</a>注册一个用户名,然后在<em>config.yml中disqus改为你的用户名，然后</em>includes/JB/comments-providers/disqus文件也做对应修改.</p>
-
-<h4>本地搭建jekyll环境:</h4>
-
-<p>你可以不用搭建,然后每次提交代码到github上再看效果,搭建这个本地环境是为了让你能在本地实时的查看博客效果.</p>
-
-<p>先是安装ruby(最好是1.9.2版本之后的)和rake,然后安装jekyll和rdiscount</p>
-
-<div class="highlight"><pre><code class="language-sh" data-lang="sh">sudo apt-get install ruby rake
-sudo gem install jekyll
-sudo gem install rdiscount</code></pre></div>
+<p>物理内存是有限的，所以就需要不断的换进和换出物理页，内核使用的页框一般来说是背会被换出的，进程的页框则通过LRU调度算法换出, 页面换出时候是将页面换到磁盘的交换区部分，然后原先使用该物理页的进程的页表映射也要改为磁盘的页面</p>
 
 
-<p>如果安装不了合适的ruby,可以自己到ruby官网下载最新版本,<code>configure &amp;&amp; make &amp;&amp; make install</code>安装,另外,你有可能无法<code>gem install jekyll</code>,那么因为GFW的原因,可以更换source mirror:</p>
-
-<div class="highlight"><pre><code class="language-sh" data-lang="sh">gem sources --remove https://rubygems.org/
-gem sources -a http://ruby.taobao.org/</code></pre></div>
-
-
-<p>其他的,你还需要安装nodejs</p>
-
-<h4>使用jekyll本地产生文件</h4>
-
-<p>在项目代码根目录,执行<code>jekyll build . &amp;&amp; jekyll serve</code>然后打开网址<strong>http://127.0.0.1:4000</strong>即可查看效果</p>
-
-
-    <!--    1403-->
+    <!--    2245-->
     <div class="eof">-&nbsp;EOF&nbsp;-</div>
-    <p class="declare">声明:本文采用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="nofollow" title="署名-非商业性使用-相同方式共享">BY-NC-SA</a>协议进行授权.转载请注明: <a href="/experience/2015/02/06/Github-Jekyll-Markdown%E5%BC%80%E5%90%AF%E5%86%99%E4%BD%9C%E6%96%B0%E6%97%B6%E4%BB%A3.html" title="Github-Jekyll-Markdown开启写作新时代 " rel="nofollow">Github-Jekyll-Markdown开启写作新时代</a></p>
+    <p class="declare">声明:本文采用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="nofollow" title="署名-非商业性使用-相同方式共享">BY-NC-SA</a>协议进行授权.转载请注明: <a href="/linux/2015/07/16/Linux%E5%86%85%E6%A0%B8%E6%BA%90%E4%BB%A3%E7%A0%81%E6%83%85%E6%99%AF%E5%88%86%E6%9E%90%E4%B9%8B%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86.html" title="Linux内核源代码情景分析之存储管理 " rel="nofollow">Linux内核源代码情景分析之存储管理</a></p>
     <hr>
 	<!-- bdshare provider -->	
 	<style>
@@ -147,11 +118,11 @@ gem sources -a http://ruby.taobao.org/</code></pre></div>
     <div class="pagination">
       <ul>
       
-        <li class="prev"><a href="/tool/2015/02/05/Linux%E4%B8%8B%E5%B0%8F%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90.html" title="Linux下小工具推荐">&larr; Previous</a></li>
+        <li class="prev"><a href="/job/2015/07/03/%E7%A0%81%E5%86%9C%E9%9D%A2%E8%AF%95%E5%9F%BA%E7%A1%80%E5%87%86%E5%A4%87%E6%80%BB%E7%BB%93.html" title="码农面试基础准备总结">&larr; Previous</a></li>
       
         <li><a href="/archive.html">Archive</a></li>
       
-        <li class="next"><a href="/tool/2015/03/09/Xdotool%E6%A8%A1%E6%8B%9F%E5%B7%A5%E5%85%B7.html" title="Xdotool工具">Next &rarr;</a></li>
+        <li class="next disabled"><a>Next &rarr;</a>
       
       </ul>
     </div>
@@ -192,7 +163,11 @@ gem sources -a http://ruby.taobao.org/</code></pre></div>
 
   
      
-    	<li><a href="/tags.html#experience-ref">experience <span>1</span></a></li>
+    	<li><a href="/tags.html#Linux-ref">Linux <span>1</span></a></li>
+     
+    	<li><a href="/tags.html#Kernel,-ref">Kernel, <span>1</span></a></li>
+     
+    	<li><a href="/tags.html#读书笔记-ref">读书笔记 <span>1</span></a></li>
     
   
 
@@ -202,8 +177,6 @@ gem sources -a http://ruby.taobao.org/</code></pre></div>
     
   <h4>相关文章</h4>
   <ul>
-  
-  <li><a href="/linux/2015/07/16/Linux%E5%86%85%E6%A0%B8%E6%BA%90%E4%BB%A3%E7%A0%81%E6%83%85%E6%99%AF%E5%88%86%E6%9E%90%E4%B9%8B%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86.html ">Linux内核源代码情景分析之存储管理</a></li>
   
   <li><a href="/job/2015/07/03/%E7%A0%81%E5%86%9C%E9%9D%A2%E8%AF%95%E5%9F%BA%E7%A1%80%E5%87%86%E5%A4%87%E6%80%BB%E7%BB%93.html ">码农面试基础准备总结</a></li>
   
@@ -216,6 +189,8 @@ gem sources -a http://ruby.taobao.org/</code></pre></div>
   <li><a href="/c/c++/2015/05/10/%E6%B5%85%E8%B0%88%E5%AF%B9SGI-STL%E8%BF%AD%E4%BB%A3%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3%E7%9A%84%E7%90%86%E8%A7%A3.html ">浅谈对SGI-STL迭代器设计思想的理解</a></li>
   
   <li><a href="/leetcode/2015/05/01/LeetCode-Valid_Number.html ">LeetCode --- Valid Number</a></li>
+  
+  <li><a href="/c/c++/2015/04/15/%E4%BB%BF%E7%85%A7%E5%AE%9E%E7%8E%B0SGI-STL%E7%A9%BA%E9%97%B4%E9%85%8D%E7%BD%AE%E5%99%A8.html ">仿照实现SGI-STL空间配置器</a></li>
   
   </ul>
   </div>
