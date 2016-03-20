@@ -1,0 +1,577 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>仿照SGI-STL实现Vector容器 | WordWorth</title>
+    <meta name="description" content="简单的STL Vector实现">
+    <meta name="author" content="sosohu">
+    <meta name="keywords" content="STL, Vector">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/themes/flying//bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/themes/flying//css/style.css" rel="stylesheet" type="text/css" media="all">
+    <link href="/assets/themes/flying//css/syntax.css" rel="stylesheet" type="text/css" media="all">
+    <script type="text/javascript" src="/assets/themes/flying//js/jquery-1.9.1.min.js"></script>
+   <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+</head>
+
+  <body>
+
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/">WordWorth</a>
+          <ul class="nav">
+		<li><a href="/about.html">About</a></li>
+		<li><a href="/archive.html">Archive</a></li>
+		<li><a href="/categories.html">Categories</a></li>
+      	<li><a href="/link.html">Link</a></li>
+      	<li><a href="/download.html">Download</a></li>
+<!--		<li><a href="http://wiki.zhouyichu.com">Wiki</a></li>  -->
+		<li class="offset3"><a href="/atom.xml">Subscribe</a></li>
+		<li><a id="random" href="#">Random</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        
+<div class="page-header">
+  <h1>仿照SGI-STL实现Vector容器 <small class="H1_Date">--16 May 2015</small></h1>
+</div>
+
+<div class="row">
+  <div class="span8">
+    <h2>vector容器</h2>
+
+<p>vector容器是一种动态数组的实现，它将数据连续存储在内存空间中并且支持动态增长，在C++中是一个十分常用的容器</p>
+
+<h2>vector容器的设计总体思路</h2>
+
+<h3>内存管理</h3>
+
+<p>由于vector容器需要确保数据是在内存中连续存储，所以一般需要预先申请一片连续的空间来顺序的存储数据，当这块空间填满之后就需要申请一块更大的空间，然后把原来的数据重新拷贝到新的空间上以确保数据存储的连续性.</p>
+
+<p>我们的内存预分配策略就是，对于空的vector起始预分配1个数据大小，然后不够的时候翻倍，即2,4,8，....之所以这样分配是为了和前面说的Allocator对应起来，因为freelist指向的都是2的指数次的空间. 另外，如果初始化vector容器时候就有一定个数的数据，比如有k个,那么预留的数据个数就是最小的那个大于等于k且是2的整数次幂的数.</p>
+
+<p>从上面的内存策略可以看到我们需要维持三个指针，一个指针指向目前申请空间的起始地址，一个指向结束地址，一个指向可用的剩余空间的地址.至于空间的申请，则完全交给前面说到的Allocator来处理.</p>
+
+<h3>迭代器</h3>
+
+<p>vector容器也需要一个迭代器以支持很多基于迭代器的算法或者成员函数，一般来说容器的迭代器都是很容器的存储方式有关，由于vector的数据是类似数组一样的顺序存储，所以可以直接用指针来作为迭代器，不必单独定义一个迭代器类.</p>
+
+<h2>vector容器具体代码实现</h2>
+
+<p>下面只是vector容器的代码展示，其中还有依赖一些其他函数，具体细节可以查看我的github上Tiny-STL项目的<a href="https://github.com/sosohu/Tiny-Stl/blob/master/include/vector.h">全部代码</a>．</p>
+
+<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;typename T, typename Alloc = alloc&gt;
+class vector{
+private:
+    typedef simple_alloc&lt;T, alloc&gt; data_alloc;</p>
+
+<p>public:
+    typedef T value_type;
+    typedef T<em> poniter;
+    typedef const T</em> const_pointer;
+    typedef T&amp; reference;
+    typedef const T&amp; const_reference;
+    typedef size_t size_type;
+    typedef ptrdiff_t difference_type;</p>
+
+<pre><code>typedef poniter iterator;
+
+//基本的构造析构函数
+explicit vector();
+explicit vector(size_type n);
+vector(size_type n, const_reference x);
+vector(const vector&amp;lt;T&amp;gt;&amp;amp; rhs);
+
+template&amp;lt;typename InputIterator&amp;gt;
+vector(InputIterator begin, InputIterator end);
+
+~vector();
+
+//迭代器函数
+iterator begin(){ return start;}
+iterator end(){ return finish; }
+
+//属性函数
+size_type size() const{     return finish - start; }
+size_type max_size() const{     return UINT_MAX / sizeof(T);    }
+size_type capacity() const{ return end_of_storage - start;  }
+bool empty() const{ return finish == start; }
+void resize(size_type n){
+    if(capacity() &amp;lt; n){
+        reserve(n);
+    }else{
+        finish = start + n;
+    }
+}
+void reserve(size_type n){
+    size_type old_sz = capacity();
+    if(old_sz &amp;lt; n){
+        iterator new_start = data_alloc::allocate(n);
+        uninitialized_copy(start, finish, new_start);
+        data_alloc::deallocate(start, old_sz);
+        start = new_start;
+        finish = start + old_sz;
+        end_of_storage = start + n;
+    }
+}
+
+//访问函数
+const_reference operator[](size_type pos) const;
+reference operator[](size_type pos);
+value_type at(size_type pos) const;
+value_type front() const;
+value_type back() const;
+
+//修改函数
+void assign(size_type n, const_reference value);
+template&amp;lt;typename InputIterator&amp;gt;
+void assign(InputIterator begin, InputIterator end);
+
+void push_back(const const_reference value);
+void pop_back();
+
+template&amp;lt;typename InputIterator&amp;gt;//pos之前插入
+void insert(iterator pos, InputIterator begin, InputIterator end);
+
+iterator insert(iterator pos, const_reference value);
+void insert(iterator pos, size_type n, const_reference value);
+
+iterator erase(iterator pos);
+iterator erase(iterator begin, iterator end);
+
+void swap(vector&amp;lt;T, Alloc&amp;gt; &amp;amp;rhs);
+void clear();
+</code></pre>
+
+<p>private:
+    template&lt;typename InputIterator&gt;
+    void vector_aux(InputIterator begin, InputIterator end, Is_Int);</p>
+
+<pre><code>template&amp;lt;typename InputIterator&amp;gt;
+void vector_aux(InputIterator begin, InputIterator end, Not_Int);
+
+template&amp;lt;typename InputIterator&amp;gt;
+void assign_aux(InputIterator begin, InputIterator end, Is_Int);
+
+template&amp;lt;typename InputIterator&amp;gt;
+void assign_aux(InputIterator begin, InputIterator end, Not_Int);
+
+template&amp;lt;typename InputIterator&amp;gt;
+void insert_aux(iterator pos, InputIterator begin, InputIterator end, Is_Int);
+
+template&amp;lt;typename InputIterator&amp;gt;
+void insert_aux(iterator pos, InputIterator begin, InputIterator end, Not_Int);
+</code></pre>
+
+<p>private:
+    iterator start;
+    iterator finish;
+    iterator end_of_storage;
+};</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+vector&lt;T,Alloc&gt;::vector(){
+    start = data_alloc::allocate();
+    finish = start;
+    end_of_storage = start + 1;
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+vector&lt;T,Alloc&gt;::vector(size_type n){
+    start = data_alloc::allocate(n);
+    finish = start;
+    end_of_storage = finish;
+}</p>
+
+<p>/<em>
+ * Alloc负责为对象分配内存，uninitialized系列函数负责构造对象
+ </em>/
+template&lt;typename T, typename Alloc&gt;
+vector&lt;T, Alloc&gt;::vector(size_type n, const_reference x){
+    start = data_alloc::allocate(n);
+    cout&lt;&lt;n&lt;&lt;&quot;,&quot;&lt;&lt;x&lt;&lt;&quot;,&quot;&lt;&lt;start&lt;&lt;endl;
+    hu::uninitialized_fill_n(start, n, x);
+    finish = start + n;
+    end_of_storage = finish;
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+template&lt;typename InputIterator&gt;
+void vector&lt;T,Alloc&gt;::vector_aux(InputIterator begin, InputIterator end, Is_Int){
+    size_type n = static_cast&lt;size_type&gt;(begin);
+    value_type x = static_cast&lt;value_type&gt;(end);
+    start = data_alloc::allocate(n);
+    uninitialized_fill_n(start, n, x);
+    finish = start + n;
+    end_of_storage = finish;
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+template&lt;typename InputIterator&gt;
+void vector&lt;T,Alloc&gt;::vector_aux(InputIterator begin, InputIterator end, Not_Int){
+    difference_type n = distance(begin, end);
+    start = data_alloc::allocate(n);
+    uninitialized_copy(begin, end, start);
+    finish = start + n;
+    end_of_storage = finish;
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+template&lt;typename InputIterator&gt;
+vector&lt;T,Alloc&gt;::vector(InputIterator begin, InputIterator end){
+    typedef typename traits_int&lt;InputIterator&gt;::is_int Judge;
+    vector_aux(begin, end, Judge());
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+vector&lt;T,Alloc&gt;::~vector(){
+    data_alloc::deallocate(start, capacity());
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+typename vector&lt;T,Alloc&gt;::reference vector&lt;T,Alloc&gt;::operator<a href="size_type%20pos"></a> {
+    return *(start + pos);
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+typename vector&lt;T,Alloc&gt;::const_reference vector&lt;T,Alloc&gt;::operator<a href="size_type%20pos"></a> const{
+    return (const_cast&lt;vector&lt;T, Alloc&gt; &gt;(*this))[pos];
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+typename vector&lt;T,Alloc&gt;::value_type vector&lt;T,Alloc&gt;::at(size_type pos) const{
+    if(pos &gt;= size())    THROW_OUT_OF_RANGE;
+    return *(start + pos);
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+typename vector&lt;T,Alloc&gt;::value_type vector&lt;T, Alloc&gt;::front() const{
+    if(empty()) THROW_OUT_OF_RANGE;
+    return *start;
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+typename vector&lt;T,Alloc&gt;::value_type vector&lt;T, Alloc&gt;::back() const{
+    if(empty()) THROW_OUT_OF_RANGE;
+    return *(finish - 1);
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+void vector&lt;T, Alloc&gt;::assign(size_type n, const_reference value){
+    resize(n);
+    clear();
+    uninitialized_fill_n(start, n, value);
+    finish = start + n;
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+template&lt;typename InputIterator&gt;
+void vector&lt;T,Alloc&gt;::assign_aux(InputIterator begin, InputIterator end, Is_Int){
+    assign(size_type(begin), end);
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+template&lt;typename InputIterator&gt;
+void vector&lt;T,Alloc&gt;::assign_aux(InputIterator begin, InputIterator end, Not_Int){
+    size_type dis = distance(begin, end);
+    resize(dis);
+    clear();
+    uninitialized_copy(begin, end, start);
+    finish = start + dis;
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+template&lt;typename InputIterator&gt;
+void vector&lt;T, Alloc&gt;::assign(InputIterator begin, InputIterator end){
+    //需要判断InputIterator是否为Integer,也采用traits技术
+    typedef typename traits_int&lt;InputIterator&gt;::is_int Judge;
+    assign_aux(begin, end, Judge());
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+void vector&lt;T, Alloc&gt;::push_back(const const_reference value){
+    if(finish == end_of_storage){
+        size_type old_sz = size();
+        size_type new_sz = old_sz == 0? 1 : 2<em>old_sz;
+        resize(new_sz);
+    }
+    _construct(&amp;</em>finish, value);
+    finish++;
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+void vector&lt;T, Alloc&gt;::pop_back(){
+    if(empty())
+        THROW_OUT_OF_RANGE;
+    finish--;
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+template&lt;typename InputIterator&gt;
+void vector&lt;T, Alloc&gt;::insert_aux(iterator pos, InputIterator begin, InputIterator end, Is_Int){
+    insert(pos, static_cast&lt;size_type&gt;(begin), static_cast&lt;value_type&gt;(end));
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+template&lt;typename InputIterator&gt;
+void vector&lt;T, Alloc&gt;::insert_aux(iterator pos, InputIterator begin, InputIterator end, Not_Int){
+    size_type dif = distance(start, pos);
+    size_type dis = distance(begin, end);
+    reserve(dis + size());
+    pos = start + dif;
+    //copy from back to front
+    _copy_backward(pos, finish, pos + dis);
+    uninitialized_copy(begin, end, pos);
+    finish = finish + dis;
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+template&lt;typename InputIterator&gt;
+void vector&lt;T, Alloc&gt;::insert(iterator pos, InputIterator begin, InputIterator end){
+    typedef typename traits_int&lt;InputIterator&gt;::is_int Judge;
+    insert_aux(pos, begin, end, Judge());
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+typename vector&lt;T, Alloc&gt;::iterator vector&lt;T, Alloc&gt;::insert(iterator pos, const_reference value){
+    return insert(pos, 1, value);
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+void vector&lt;T, Alloc&gt;::insert(iterator pos, size_type n, const_reference value){
+    size_type dif = distance(start, pos);
+    reserve(size() + n);
+    pos = start + dif;
+    //copy from back to front
+    _copy_backward(pos, finish, pos + n);
+    uninitialized_fill_n(pos, n , value);
+    finish = finish + n;
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+typename vector&lt;T, Alloc&gt;::iterator vector&lt;T, Alloc&gt;::erase(iterator pos){
+    return erase(pos, pos+1);
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+typename vector&lt;T,Alloc&gt;::iterator vector&lt;T, Alloc&gt;::erase(iterator begin, iterator end){
+    iterator pos;
+    // copy from front to back
+    _copy_forward(end, finish, begin);
+    finish = finish - (end - begin);
+    return pos;
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+void vector&lt;T, Alloc&gt;::swap(vector&lt;T, Alloc&gt; &amp;rhs){
+    std::swap(start, rhs.start);
+    std::swap(finish, rhs.finish);
+    std::swap(end_of_storage, rhs.end_of_storage);
+}</p>
+
+<p>template&lt;typename T, typename Alloc&gt;
+void vector&lt;T, Alloc&gt;::clear(){
+    finish = start;
+}</code></pre></figure></p>
+
+<h3>注意</h3>
+
+<p>这里需要重点介绍一下代码中出现的几个*_aux私有成员函数，可以看到它们的意义就是为了实现int trait(int类型萃取)</p>
+
+<p>以assign成员函数为例,我们可以看到有两个重载的assign成员函数:</p>
+
+<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">void assign(size_type n, const_reference value);
+template&lt;typename InputIterator&gt;
+void assign(InputIterator begin, InputIterator end);</code></pre></figure></p>
+
+<p>一个为当前vector assign n个value,一个是将[begin, end)里的数据assign给当前vector,它们两个似乎没有什么冲突，但是会有什么问题呢？</p>
+
+<p>我们可以看到第一个assign函数的第一个参数是size_type即unsigned int，第二个参数是const T; 我们可以想一下，如果这个T是int,那么我们如果使用assgin(3, 3)本意调用第一个assgin函数，那么就是形参都是int,所以会将InputIterator解释为int,<strong>然后匹配第二个assgin函数!!!</strong>除非我们assgin((unsigned int)3, 3)这样调用才会匹配到第一个assgin函数，这当然是不方便的.所以我们需要针对这种情况判断InputIterator是否是int类型，如果是则再调用第一个assgin函数. 同理，我们可以看到vector的迭代器构造函数，以及insert函数都有这样的问题，也需要这样解决.</p>
+
+
+    <!--    10726-->
+    <div class="eof">-&nbsp;EOF&nbsp;-</div>
+    <p class="declare">声明:本文采用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="nofollow" title="署名-非商业性使用-相同方式共享">BY-NC-SA</a>协议进行授权.转载请注明: <a href="/c/c++/2015/05/16/%E4%BB%BF%E7%85%A7SGI-STL%E5%AE%9E%E7%8E%B0Vector%E5%AE%B9%E5%99%A8.html" title="仿照SGI-STL实现Vector容器 " rel="nofollow">仿照SGI-STL实现Vector容器</a></p>
+    <hr>
+	<!-- bdshare provider -->	
+	<style>
+		.bdsharebuttonbox{
+			float:right;
+		}
+	</style>
+	<div class="bdsharebuttonbox">
+		<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+		<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+		<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+		<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+		<a href="#" class="bds_more" data-cmd="more"></a>
+	</div>
+	<script>
+		window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+	</script>
+	<!--- end bdshare -->
+	<!--- 
+ -->
+	
+    <div class="pagination">
+      <ul>
+      
+        <li class="prev"><a href="/2015/05/01/Valid-Number.html" title="Valid Number">&larr; Previous</a></li>
+      
+        <li><a href="/archive.html">Archive</a></li>
+      
+        <li class="next"><a href="/mips/2015/05/30/Mips%E4%B8%8B%E4%BB%BF%E7%85%A7%E7%BC%96%E8%AF%91%E5%99%A8%E5%AE%9E%E7%8E%B0C++%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8.html" title="Mips下仿照编译器实现C++成员函数调用">Next &rarr;</a></li>
+      
+      </ul>
+    </div>
+    <hr>
+    
+
+
+      <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'sosohu'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+    
+
+
+
+
+
+  </div>
+  
+  <div class="span4">
+
+  
+    <h4>Tags</h4>
+    <ul class="tag_box">
+    
+    
+
+
+  
+     
+    	<li><a href="/tags.html#STL-ref">STL <span>4</span></a></li>
+    
+  
+
+
+
+    </ul>
+    
+  <h4>相关文章</h4>
+  <ul>
+  
+  <li><a href="/job/2016/03/20/%E6%89%BE%E5%B7%A5%E4%BD%9C%E6%80%BB%E7%BB%93.html ">找工作总结</a></li>
+  
+  <li><a href="/book/2015/07/31/%E6%88%91%E7%9A%84%E8%AF%BB%E4%B9%A6%E5%8D%95.html ">我的读书单</a></li>
+  
+  <li><a href="/linux/2015/07/16/Linux%E5%86%85%E6%A0%B8%E6%BA%90%E4%BB%A3%E7%A0%81%E6%83%85%E6%99%AF%E5%88%86%E6%9E%90%E4%B9%8B%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86.html ">Linux内核源代码情景分析之存储管理</a></li>
+  
+  <li><a href="/job/2015/07/03/%E7%A0%81%E5%86%9C%E9%9D%A2%E8%AF%95%E5%9F%BA%E7%A1%80%E5%87%86%E5%A4%87%E6%80%BB%E7%BB%93.html ">码农面试基础准备总结</a></li>
+  
+  <li><a href="/c/c++/2015/06/16/%E4%BB%BF%E7%85%A7SGI-STL%E5%AE%9E%E7%8E%B0Hash%E8%A1%A8.html ">仿照SGI-STL实现Hash表</a></li>
+  
+  <li><a href="/mips/2015/05/30/Mips%E4%B8%8B%E4%BB%BF%E7%85%A7%E7%BC%96%E8%AF%91%E5%99%A8%E5%AE%9E%E7%8E%B0C++%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8.html ">Mips下仿照编译器实现C++成员函数调用</a></li>
+  
+  <li><a href="/2015/05/01/Valid-Number.html ">Valid Number</a></li>
+  
+  </ul>
+  </div>
+</div>
+<script type="text/javascript" src="/assets/themes/flying//js/blogscript.js"></script>
+
+
+      </div>
+
+      <footer>
+        <p>&copy; sosohu 2012 
+          with help from <a href="http://jekyllbootstrap.com" target="_blank" title="The Definitive Jekyll Blogging Framework">Jekyll Bootstrap</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+	<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1000067280'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s22.cnzz.com/z_stat.php%3Fid%3D1000067280%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+        </p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    
+    
+  </body>
+
+<script type="text/javascript">
+$("a[href^='http://']").each(function(){
+	this.target="_blank";
+
+});
+</script>
+
+  <!--MathJax-->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+       }
+  });
+</script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        TeX: {equationNumbers: {autoNumber: ["AMS"], useLabelIds: true},extensions: ["autobold.js"]},
+        "HTML-CSS": {linebreaks: {automatic: true}},
+        SVG: {linebreaks: {automatic: true}}
+    });
+</script>
+
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<script type="text/javascript" src="/assets/themes/flying//js/default.js"></script>
+ </html>
+
+
+<!-- hitwebcounter Code START -->
+<a href="http://www.hitwebcounter.com/" target="_blank">
+<img src="http://hitwebcounter.com/counter/counter.php?page=6039789&style=0027&nbdigits=6&type=page&initCount=1122" title="" Alt=""   border="0" >
+</a><br/>
+<!-- hitwebcounter.com --><a href="http://www.hitwebcounter.com/" title="Hitwebcounter.com Free" 
+target="_blank" style="font-family: Arial, Helvetica, sans-serif; 
+font-size: 12px; color: #6B706A; text-decoration: underline ;"><strong>Hitwebcounter.com Free</strong>
+</a>   

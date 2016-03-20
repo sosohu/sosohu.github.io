@@ -1,0 +1,736 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>仿照SGI-STL实现Hash表 | WordWorth</title>
+    <meta name="description" content="简单的STL Hash Table实现">
+    <meta name="author" content="sosohu">
+    <meta name="keywords" content="STL, Hash Table">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/themes/flying//bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/themes/flying//css/style.css" rel="stylesheet" type="text/css" media="all">
+    <link href="/assets/themes/flying//css/syntax.css" rel="stylesheet" type="text/css" media="all">
+    <script type="text/javascript" src="/assets/themes/flying//js/jquery-1.9.1.min.js"></script>
+   <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+</head>
+
+  <body>
+
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/">WordWorth</a>
+          <ul class="nav">
+		<li><a href="/about.html">About</a></li>
+		<li><a href="/archive.html">Archive</a></li>
+		<li><a href="/categories.html">Categories</a></li>
+      	<li><a href="/link.html">Link</a></li>
+      	<li><a href="/download.html">Download</a></li>
+<!--		<li><a href="http://wiki.zhouyichu.com">Wiki</a></li>  -->
+		<li class="offset3"><a href="/atom.xml">Subscribe</a></li>
+		<li><a id="random" href="#">Random</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        
+<div class="page-header">
+  <h1>仿照SGI-STL实现Hash表 <small class="H1_Date">--16 June 2015</small></h1>
+</div>
+
+<div class="row">
+  <div class="span8">
+    <h2>Hash Table</h2>
+
+<p>Hash表是一个特点很突出的底层容器，虽然STL中没有专门的叫做Hash表的容器，但是像unordered_map和unordered_set这些标准容器都是以Hash表为底层容器实现的．Hash表具有平均O(1)的元素访问能力，包括存取数据和查找数据，相比于vector容器它的有点就是O(1)的时间复杂度查找数据．Hash表的缺点也就是存放的数据与存入的顺序没有关系而且无法获得存放的数据之间的大小关系.</p>
+
+<p>Hash表的实现主要就是通过将键值key通过hash函数映射成存放位置的坐标然后存放数据，这里可能会出现不同的key映射到同一个坐标的情况，对于这种情况的处理方式一般有线性检测，二次检测以及开链法等手段，我们这里SGI中的冲突避免策略就是采用的开链法，即hash出来的相同key按照链表的组织方式挂载到对应位置的槽上.</p>
+
+<h2>Hash Table设计思路</h2>
+
+<h3>Hash Table类的原型</h3>
+
+<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;typename Key, typename Value, typename HashFunc = hash_function&lt;Key&gt;,
+        typename ExtractKey = extract_key_single&lt;Key&gt;,
+        typename EqualKey = equal_key&lt;Key&gt;, typename Alloc = alloc&gt;
+class hash_table{
+    ...
+}</code></pre></figure></p>
+
+<p>这里需要解释一下,Key指的就是键的类型,Value指的是存储的数据类型，对于<code>unordered_set&lt;int&gt;</code>这种，对应过来的Value就是int,而对于<code>unordered_map&lt;int, double&gt;</code>这种对应过来的Value就是<code>pair&lt;int,double&gt;</code>. HashFunc即hash仿函数类.EqualKey也是一个仿函数类，它的作用就是从Value类型中提取出Key类型对应的值,比如Value如果是int,那么提取出int,如果Value是<code>pair&lt;int,double&gt;</code>那么就是提取出int,这在后面的unordered_map类可以再仔细看一下.EqualKey也是一个仿函数类，用来判断两个key是否相等．Alloc类即是负责空间分配的类</p>
+
+<h3>数据组织形式</h3>
+
+<p>由于我们采用开链法，所以我们需要先预申请k个(一般是个素数)顺序存储的槽(bucket),然后每个槽存放一个链表指针用来索引hash到该槽的所有数据.然后每次添加数据时候都是先hash到对应的槽然后加入到该槽链表的尾端；如果是查找某个key也是同样hash到对应的槽然后遍历该槽的链表查看是否存在该key的数据.</p>
+
+<p>这里贴一下链表和槽的数据结构代码实现:</p>
+
+<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">//链表节点
+template&lt;typename Value&gt;
+struct hash_node{
+    hash_node <em>next;
+    Value val;
+    hash_node(hash_node </em>next, Value val) : next(next), val(val){}
+    hash_node() = default;
+};</p>
+
+<p>template&lt;typename Key, typename Value, typename HashFunc = hash_function&lt;Key&gt;,
+        typename ExtractKey = extract_key_single&lt;Key&gt;,
+        typename EqualKey = equal_key&lt;Key&gt;, typename Alloc = alloc&gt;
+class hash_table{
+...
+typedef hash_table&lt;Key, Value, HashFunc, ExtractKey, EqualKey, Alloc&gt; hash_table_type;
+...
+//槽
+vector&lt;hash_node_type*, Alloc&gt; buckets;
+...
+}</code></pre></figure></p>
+
+<p>另外，为了避免冲突发生率太高,当hash表的<strong>负载因子</strong>(表中存放的数据总数/槽的个数)超过一定阀值(通常是1)就需要扩大槽的数目(一般是原槽数的2倍左右的一个素数).具体扩大的方法就是，申请新的槽，然后把原来槽中存放的数据全部重新hash到新槽对应的链表中，然后释放原来的槽及数据.</p>
+
+<h3>迭代器设计</h3>
+
+<p>根据上面的数据组织形式，我们可以让迭代器关联到槽中链表上的链表节点，然后根据需要后移所在链表中的位置或者转移到下一个槽中的链表头部.所以迭代器类需要两个信息，一个是Hash Table对象指针以便更换槽;另一个是当前所在的链表节点.</p>
+
+<p>这里贴上迭代器的设计代码:</p>
+
+<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;typename Key, typename Value, typename HashFunc,
+            typename ExtractKey, typename EqualKey, typename Alloc = alloc&gt;
+struct hash_table_iterator{
+public:
+    typedef Key key_type;
+    typedef Value value_type;
+    typedef Value* pointer;
+    typedef Value &amp;reference;
+    typedef hash_table_iterator&lt;Key, Value, HashFunc, ExtractKey, EqualKey, Alloc&gt; iterator;
+    typedef const iterator const_iterator;
+    typedef hash_table&lt;Key, Value, HashFunc, ExtractKey, EqualKey, Alloc&gt; hash_table_type;
+    typedef hash_node&lt;Value&gt; hash_node_type;
+    typedef forward_iterator_tag iterator_category;</p>
+
+<p>public:
+    hash_table_iterator() = default;
+    hash_table_iterator(hash_node_type <em>cur, hash_table_type</em> ht) : cur(cur), ht(ht){}</p>
+
+<pre><code>reference operator*(){
+    return cur-&amp;gt;val;
+}
+
+pointer operator-&amp;gt;(){
+    return &amp;amp;(cur-&amp;gt;val);
+}
+
+iterator operator++(){
+    hash_node_type *old = cur;
+    cur = cur-&amp;gt;next;
+    if(cur == NULL){
+        size_t id = ht-&amp;gt;getBucketId(old-&amp;gt;val);
+        id++;
+        while(id &amp;lt; ht-&amp;gt;getBucketSize()){
+            cur = ht-&amp;gt;buckets[id++];
+            if(cur) break;
+        }
+    }
+    return *this;
+}
+iterator operator++(int){
+    iterator tmp = *this;
+    ++*this;
+    return tmp;
+}
+bool operator==(const_iterator &amp;amp;rhs) const{
+    return  cur == rhs.cur;
+}
+bool operator!=(const_iterator &amp;amp;rhs) const{
+    return cur != rhs.cur;
+}
+</code></pre>
+
+<p>public:
+    hash_table_type <em>ht; //Hash Table对象指针
+    hash_node_type  </em>cur; //当前链表节点
+};</code></pre></figure></p>
+
+<h2>Hash Table具体设计</h2>
+
+<p>具体代码如下面所示，其实完整的工程代码请查看我的github上的<a href="https://github.com/sosohu/Tiny-Stl/blob/master/include/hash_table.h">Tiny-STL</a>项目.</p>
+
+<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">static const int prime_table_size = 28;
+static const unsigned int prime_table[prime_table_size] = {
+        53, 97, 193, 389, 769,
+        1543, 3079, 6151, 12289, 24593,
+        49157, 98317, 196613, 393241, 786433,
+        1572869, 3145739, 6291469, 12582917, 25165843,
+        50331653, 100663319, 201326611, 402653189, 805306457,
+        1610612741, 3221225473ul, 4294967291ul
+};</p>
+
+<p>/<em>
+ * ExtractKey tells you how to get the key from the value. For example, Value type is pair&lt;int, int&gt; hash_map and
+ * the ExtractKey is select the first one of the pair.
+ </em>/
+template&lt;typename Key, typename Value, typename HashFunc = hash_function&lt;Key&gt;,
+        typename ExtractKey = extract_key_single&lt;Key&gt;,
+        typename EqualKey = equal_key&lt;Key&gt;, typename Alloc = alloc&gt;
+class hash_table{
+    template&lt;typename K, typename V, typename H, typename Ex, typename Eq, typename Al&gt;
+    friend  struct hash_table_iterator;
+    template&lt;typename Ku, typename Hu, typename Eu, typename Au&gt;
+    friend class unordered_set;
+    template&lt;typename Km, typename Mapped, typename Hm, typename Em, typename Am&gt;
+    friend class unordered_map;
+public:
+    typedef Key Key_type;
+    typedef Value Value_type;
+    typedef size_t size_type;
+    typedef hash_table&lt;Key, Value, HashFunc, ExtractKey, EqualKey, Alloc&gt; hash_table_type;
+    typedef hash_table_iterator&lt;Key, Value, HashFunc, ExtractKey, EqualKey, Alloc&gt; iterator;
+    typedef hash_node&lt;Value&gt; hash_node_type;</p>
+
+<pre><code>hash_table(size_type n = prime_table[0]) : buckets(vector&amp;lt;hash_node_type*, Alloc&amp;gt;(n, NULL)),
+        num_element(0), prime_pos(0), load_factor_gate(1.0), finish(NULL, this){}
+
+~hash_table(){
+    clear();
+}
+
+size_type getBucketSize() const {   return buckets.size(); }
+size_type maxBucketSize()   const   {   return UINT_MAX;    }
+size_type getBucketId(const Value_type val) const{
+    return hash_func(get_key(val)) % getBucketSize();
+}
+size_type getBucket(const size_type n)  const{
+    hash_node&amp;lt;Value_type&amp;gt; *pCur = buckets[n];
+    size_type num = 0;
+    while(pCur){
+        num++;
+        pCur = pCur-&amp;gt;next;
+    }
+    return num;
+}
+bool empty()    {   return num_element == 0;    }
+size_type size()    {   return num_element; }
+size_type max_size()    {   return UINT_MAX;    }
+double load_factor()    {   return num_element * 1.0 / getBucketSize(); }
+double  max_load_factor()   {   return load_factor_gate;    }
+void max_load_factor(double lfg)    {   load_factor_gate = lfg; }
+
+// iterator interface
+iterator begin(){
+    iterator start = iterator(NULL, this);
+    for(size_type i = 0; i &amp;lt; buckets.size(); i++)
+        if(buckets[i]){
+            start = iterator(buckets[i], this);
+            break;
+        }
+    return start;
+}
+iterator end() const { return finish; }
+
+size_type count(const Key_type &amp;amp;vale);
+iterator find(const Key_type &amp;amp;vale);
+void insert_equal(const Value_type value);
+void insert_unique(const Value_type value);
+void erase(iterator iter);
+void erase(const Key_type key);
+void clear();
+void swap(hash_table_type &amp;amp;rhs);
+</code></pre>
+
+<p>private:
+    void resize(const size_type sz);</p>
+
+<p>private:
+    vector&lt;hash_node_type*, Alloc&gt; buckets;
+    size_t num_element; // count how many keys have been contained
+    size_t prime_pos;
+    double  load_factor_gate;
+    ExtractKey get_key;
+    HashFunc hash_func;
+    EqualKey equal;
+    iterator finish;
+};</p>
+
+<p>template&lt;typename Key, typename Value, typename HashFunc, typename ExtractKey, typename Equal, typename Alloc&gt;
+typename hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::size_type
+hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::count(const Key_type &amp;key){
+    hash_node_type *pCur = buckets[hash_func(key) % getBucketSize()];
+    size_type num = 0;
+    while(pCur){
+        if(equal(get_key(pCur-&gt;val), key))   num++;
+        pCur = pCur-&gt;next;
+    }
+    return num;
+}</p>
+
+<p>template&lt;typename Key, typename Value, typename HashFunc, typename ExtractKey, typename Equal, typename Alloc&gt;
+typename hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::iterator
+hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::find(const Key_type &amp;val){
+    hash_node_type *pCur = buckets[hash_func(val) % getBucketSize()];
+    while(pCur){
+        if(equal(get_key(pCur-&gt;val), val )){
+            return iterator(pCur, this);
+        }
+        pCur = pCur-&gt;next;
+    }
+    return finish;
+}</p>
+
+<p>template&lt;typename Key, typename Value, typename HashFunc, typename ExtractKey, typename Equal, typename Alloc&gt;
+void hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::clear(){
+    for(size_type i = 0; i &lt; buckets.size(); i++){
+        hash_node_type <em>pHead = buckets[i], </em>pNext = NULL;
+        while(pHead){
+            pNext = pHead-&gt;next;
+            _destroy(pHead);
+            pHead = pNext;
+            --num_element;
+        }
+    }
+}</p>
+
+<p>template&lt;typename Key, typename Value, typename HashFunc, typename ExtractKey, typename Equal, typename Alloc&gt;
+void hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::resize(const size_type sz){
+    vector&lt;hash_node_type<em>, Alloc&gt; old_buckets(sz, NULL);
+    buckets.swap(old_buckets);
+    num_element = 0;
+    prime_pos = 0;
+    while(prime_table[prime_pos+1] &lt; sz) prime_pos++;
+    for(size_type i = 0; i &lt; old_buckets.size(); i++){
+        hash_node_type </em>pHead = old_buckets[i], *pNext = NULL;
+        while(pHead){
+            pNext = pHead-&gt;next;
+            insert_equal(pHead-&gt;val);
+            _destroy(pHead);
+            pHead = pNext;
+        }
+    }
+}</p>
+
+<p>template&lt;typename Key, typename Value, typename HashFunc, typename ExtractKey, typename Equal, typename Alloc&gt;
+void hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::insert_unique(const Value_type value){
+    if(count(get_key(value))){
+        //remove the older value
+        *find(get_key(value)) = value;
+        return;
+    }
+    insert_equal(value);
+}</p>
+
+<p>template&lt;typename Key, typename Value, typename HashFunc, typename ExtractKey, typename Equal, typename Alloc&gt;
+void hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::insert_equal(const Value_type value){
+    if(num_element &gt;= load_factor_gate * getBucketSize()){
+        prime_pos++;
+        resize(prime_table[prime_pos]);
+    }
+    hash_node_type <em>pCur = buckets[hash_func(get_key(value)) % getBucketSize()];
+    hash_node_type </em>pNode = new hash_node_type(NULL, value);
+    if(!pCur)   buckets[hash_func(get_key(value)) % getBucketSize()] = pNode;
+    else{
+        while(pCur-&gt;next)    pCur = pCur-&gt;next;
+        pCur-&gt;next = pNode;
+    }
+    num_element++;
+}</p>
+
+<p>// erase all the same Value
+template&lt;typename Key, typename Value, typename HashFunc, typename ExtractKey, typename Equal, typename Alloc&gt;
+void hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::erase(const Key_type key){
+    hash_node_type <em>pHead = buckets[hash_func(key) % getBucketSize()];
+    hash_node_type </em>pCur = pHead, *pNext = NULL;
+    if(!pCur)   return;
+    while(pCur-&gt;next){
+        if(equal(get_key(pCur-&gt;next-&gt;val), key)){
+            pNext = pCur-&gt;next;
+            pCur-&gt;next = pNext-&gt;next;
+            <em>destroy(pNext);
+            num_element--;
+        }
+    }
+    if(equal(get_key(pHead-&gt;val), key)){
+        buckets[hash_func(key) % getBucketSize()] = pHead-&gt;next;
+        </em>destroy(pHead);
+        num_element--;
+    }
+}</p>
+
+<p>// only erase the one that iterator point
+template&lt;typename Key, typename Value, typename HashFunc, typename ExtractKey, typename Equal, typename Alloc&gt;
+void hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::erase(iterator iter){
+    hash_node&lt;Value_type&gt; *pCur = buckets[hash_func(get_key(iter-&gt;cur-&gt;val)) % getBucketSize()];
+    if(pCur != iter)
+        while(pCur-&gt;next != iter-&gt;cur)    pCur = pCur-&gt;next;
+    pCur-&gt;next = iter-&gt;cur-&gt;next;
+    _destroy(iter-&gt;cur);
+    num_element--;
+}</p>
+
+<p>template&lt;typename Key, typename Value, typename HashFunc, typename ExtractKey, typename Equal, typename Alloc&gt;
+void hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::swap(hash_table_type &amp;rhs){
+    buckets.swap(rhs.buckets);
+    std::swap(num_element, rhs.num_element);
+    std::swap(prime_pos, rhs.prime_pos);
+    std::swap(load_factor_gate, rhs.load_factor_gate);
+}</code></pre></figure></p>
+
+<h2>根据Hash Table实现unordered_set和unordered_map</h2>
+
+<p>有了上面的Hash Table底层类再来实现unordered_set和unordered_map简直不要太轻松.我们只需要准备好Hash Table所需要的Key, Value, ExtractKey等类参数然后包装一层API即可.</p>
+
+<h3>unordered_set</h3>
+
+<p>其中由于unordered_set的值就是Key,所以Value的类型就是Key,ExtractKey也很就很简单(extract_key_single),代码如下:</p>
+
+<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;typename Key&gt;
+struct extract_key_single{
+    Key operator()(const Key key)   const{
+        return key;
+    }
+};</p>
+
+<p>template&lt;typename Key, typename HashFunc = hash_function&lt;Key&gt;, typename EqualKey = equal_key&lt;Key&gt;, typename Alloc = alloc&gt;
+class unordered_set{
+public:
+    typedef Key Key_type;
+    typedef Key Value_type;
+    typedef Key* pointer;
+    typedef Key&amp; reference;
+    typedef unordered_set&lt;Key, HashFunc, EqualKey, Alloc&gt; unordered_set_type;
+    typedef size_t size_type;
+    //注意准备的Key, Value，ExtractKey，这和unordered_map略微不同
+    typedef hash_table&lt;Key, Key, HashFunc, extract_key_single&lt;Key&gt;, EqualKey, Alloc&gt; hash_table_type;
+    typedef typename hash_table_type::iterator iterator;</p>
+
+<pre><code>unordered_set() = default;
+template&amp;lt;typename InputIterator&amp;gt;
+unordered_set(InputIterator first, InputIterator last){
+    while(first != last){
+        insert(*first++);
+    }
+}
+unordered_set(const unordered_set_type &amp;amp;rhs){
+    ht.swap(rhs.ht);
+}
+~unordered_set()    = default;
+
+bool empty()    {   return ht.empty();  }
+size_type size()    {   return ht.size();   }
+size_type max_size()    {   return ht.max_size();   }
+
+iterator begin()    {   return ht.begin();  }
+iterator end()  {   return ht.end();    }
+
+size_type count(const Key_type key) {   return ht.count(key);   }
+iterator find(const Key_type key){  return ht.find(key);    }
+
+void insert(const Value_type key)   {   ht.insert_unique(key); }
+void erase(const Key_type key)  {   ht.erase(key);  }
+void erase(iterator iter)   {   ht.erase(iter); }
+void clear()    {   ht.clear(); }
+void swap(unordered_set_type &amp;amp;rhs)  {   ht.swap(rhs.ht);    }
+
+size_type bucket_count()    {   return ht.getBucketSize();  }
+size_type max_bucket_count()    {   return ht.maxBucketSize();  }
+size_type bucket_size(size_type n)  {   return ht.getBucket(n); }
+size_type bucket(const Key_type key)    {   return ht.getBucketId(key); }
+
+double load_factor()    {   return ht.load_factor();    }
+double max_load_factor()    {   return ht.max_load_factor();    }
+void max_load_factor(double factor) {   ht.max_load_factor(factor); }
+ // n is the new buckets num
+void rehash(size_type n){
+    ht.resize(n);
+}
+// n is the num of element
+void reserve(size_type n){
+    if(n &amp;gt;   bucket_count() * load_factor()){
+        rehash(n / max_load_factor());
+    }
+}
+</code></pre>
+
+<p>private:
+    //封装Hash Table
+    hash_table_type ht;
+};</code></pre></figure></p>
+
+<h3>unordered_map</h3>
+
+<p>我们在使用unordered_map时候一般会确定两个类型，比如unordered_map&lt;int,double>,这里int是Key类型而double是Mapped类型，所以传递给Hash Table的Value类型就是pair&lt;Key, Mapped>即pair&lt;int, double>，同样对于ExtractKey(使用extract_key_pair)也需要注意一下.</p>
+
+<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;typename Key, typename Value&gt;
+struct extract_key_pair{
+    Key operator()(const Value value)   const{
+        return value.first;
+    }
+};</p>
+
+<p>template&lt;typename Key, typename Mapped, typename HashFunc = hash_function&lt;Key&gt;,
+        typename EqualKey = equal_key&lt;Key&gt;, typename Alloc = alloc&gt;
+class unordered_map{
+public:
+    typedef size_t size_type;
+    typedef Key key_type;
+    typedef Mapped mapped_type;
+    typedef std::pair&lt;Key, Mapped&gt;    value_type;
+    typedef unordered_map&lt;Key, Mapped, HashFunc, EqualKey, Alloc&gt; unordered_map_type;
+    //准备参数
+    typedef hash_table&lt;Key, value_type, HashFunc, extract_key_pair&lt;Key, value_type&gt;, EqualKey, Alloc&gt;   hash_table_type;
+    typedef typename hash_table_type::iterator  iterator;</p>
+
+<pre><code>unordered_map() = default;
+template&amp;lt;typename InputIterator&amp;gt;
+unordered_map(InputIterator first, InputIterator last){
+    while(first != last){
+        insert(*first++);
+    }
+}
+unordered_map(const unordered_map_type &amp;amp;rhs){
+    ht.swap(rhs.ht);
+}
+~unordered_map() = default;
+
+bool empty()    {   return ht.empty();  }
+size_type size()    {   return ht.size();   }
+size_type max_size()    {   return ht.max_size();   }
+
+iterator begin()    {   return ht.begin();  }
+iterator end()  {   return ht.end();    }
+
+mapped_type&amp;amp; operator[](const key_type key){
+    if(ht.find(key) == end()){
+        insert(std::make_pair(key, mapped_type()));
+    }
+    return (ht.find(key))-&amp;gt;second;
+}
+
+mapped_type at(const key_type key){
+    if(ht.find(key) == end())   THROW_OUT_OF_RANGE;
+    return (ht.find(key))-&amp;gt;second;
+}
+
+size_type count(const key_type key) {   return ht.count(key);   }
+iterator find(const key_type key)   {   return ht.find(key);    }
+
+/*
+ * attention: insert the value_type and erase the key_type
+ */
+void insert(const value_type key)   {   ht.insert_unique(key); }
+void erase(const key_type key)  {   ht.erase(key);  }
+void erase(iterator iter)   {   ht.erase(iter); }
+void clear()    {   ht.clear(); }
+void swap(unordered_map_type &amp;amp;rhs)  {   ht.swap(rhs.ht);    }
+
+size_type bucket_count()    {   return ht.getBucketSize();  }
+size_type max_bucket_count()    {   return ht.maxBucketSize();  }
+size_type bucket_size(size_type n)  {   return ht.getBucket(n); }
+size_type bucket(const key_type key)    {   return ht.getBucketId(key); }
+
+double load_factor()    {   return ht.load_factor();    }
+double max_load_factor()    {   return ht.max_load_factor();    }
+void max_load_factor(double factor) {   ht.max_load_factor(factor); }
+ // n is the new buckets num
+void rehash(size_type n){
+    ht.resize(n);
+}
+// n is the num of element
+void reserve(size_type n){
+    if(n &amp;gt;   bucket_count() * load_factor()){
+        rehash(n / max_load_factor());
+    }
+}
+</code></pre>
+
+<p>private:
+    hash_table_type ht;
+};</code></pre></figure></p>
+
+<h2>总结</h2>
+
+<p>只要你把Key, Value各自的作用搞得很清楚，然后参照上面提到的数据存储方法就可以很清楚的写出相关代码，另外从这个实例也可以看出迭代器的设计与容器是相互依存的，迭代器需要知道容器的各种信息(通常包含一个容器对象指针)，容器也需要迭代器作为其许多成员函数的接口.</p>
+
+
+    <!--    17569-->
+    <div class="eof">-&nbsp;EOF&nbsp;-</div>
+    <p class="declare">声明:本文采用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="nofollow" title="署名-非商业性使用-相同方式共享">BY-NC-SA</a>协议进行授权.转载请注明: <a href="/c/c++/2015/06/16/%E4%BB%BF%E7%85%A7SGI-STL%E5%AE%9E%E7%8E%B0Hash%E8%A1%A8.html" title="仿照SGI-STL实现Hash表 " rel="nofollow">仿照SGI-STL实现Hash表</a></p>
+    <hr>
+	<!-- bdshare provider -->	
+	<style>
+		.bdsharebuttonbox{
+			float:right;
+		}
+	</style>
+	<div class="bdsharebuttonbox">
+		<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+		<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+		<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+		<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+		<a href="#" class="bds_more" data-cmd="more"></a>
+	</div>
+	<script>
+		window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+	</script>
+	<!--- end bdshare -->
+	<!--- 
+ -->
+	
+    <div class="pagination">
+      <ul>
+      
+        <li class="prev"><a href="/mips/2015/05/30/Mips%E4%B8%8B%E4%BB%BF%E7%85%A7%E7%BC%96%E8%AF%91%E5%99%A8%E5%AE%9E%E7%8E%B0C++%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8.html" title="Mips下仿照编译器实现C++成员函数调用">&larr; Previous</a></li>
+      
+        <li><a href="/archive.html">Archive</a></li>
+      
+        <li class="next"><a href="/job/2015/07/03/%E7%A0%81%E5%86%9C%E9%9D%A2%E8%AF%95%E5%9F%BA%E7%A1%80%E5%87%86%E5%A4%87%E6%80%BB%E7%BB%93.html" title="码农面试基础准备总结">Next &rarr;</a></li>
+      
+      </ul>
+    </div>
+    <hr>
+    
+
+
+      <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'sosohu'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+    
+
+
+
+
+
+  </div>
+  
+  <div class="span4">
+
+  
+    <h4>Tags</h4>
+    <ul class="tag_box">
+    
+    
+
+
+  
+     
+    	<li><a href="/tags.html#STL-ref">STL <span>4</span></a></li>
+    
+  
+
+
+
+    </ul>
+    
+  <h4>相关文章</h4>
+  <ul>
+  
+  <li><a href="/job/2016/03/20/%E6%89%BE%E5%B7%A5%E4%BD%9C%E6%80%BB%E7%BB%93.html ">找工作总结</a></li>
+  
+  <li><a href="/book/2015/07/31/%E6%88%91%E7%9A%84%E8%AF%BB%E4%B9%A6%E5%8D%95.html ">我的读书单</a></li>
+  
+  <li><a href="/linux/2015/07/16/Linux%E5%86%85%E6%A0%B8%E6%BA%90%E4%BB%A3%E7%A0%81%E6%83%85%E6%99%AF%E5%88%86%E6%9E%90%E4%B9%8B%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86.html ">Linux内核源代码情景分析之存储管理</a></li>
+  
+  <li><a href="/job/2015/07/03/%E7%A0%81%E5%86%9C%E9%9D%A2%E8%AF%95%E5%9F%BA%E7%A1%80%E5%87%86%E5%A4%87%E6%80%BB%E7%BB%93.html ">码农面试基础准备总结</a></li>
+  
+  <li><a href="/mips/2015/05/30/Mips%E4%B8%8B%E4%BB%BF%E7%85%A7%E7%BC%96%E8%AF%91%E5%99%A8%E5%AE%9E%E7%8E%B0C++%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8.html ">Mips下仿照编译器实现C++成员函数调用</a></li>
+  
+  <li><a href="/c/c++/2015/05/16/%E4%BB%BF%E7%85%A7SGI-STL%E5%AE%9E%E7%8E%B0Vector%E5%AE%B9%E5%99%A8.html ">仿照SGI-STL实现Vector容器</a></li>
+  
+  <li><a href="/2015/05/01/Valid-Number.html ">Valid Number</a></li>
+  
+  </ul>
+  </div>
+</div>
+<script type="text/javascript" src="/assets/themes/flying//js/blogscript.js"></script>
+
+
+      </div>
+
+      <footer>
+        <p>&copy; sosohu 2012 
+          with help from <a href="http://jekyllbootstrap.com" target="_blank" title="The Definitive Jekyll Blogging Framework">Jekyll Bootstrap</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+	<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1000067280'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s22.cnzz.com/z_stat.php%3Fid%3D1000067280%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+        </p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    
+    
+  </body>
+
+<script type="text/javascript">
+$("a[href^='http://']").each(function(){
+	this.target="_blank";
+
+});
+</script>
+
+  <!--MathJax-->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+       }
+  });
+</script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        TeX: {equationNumbers: {autoNumber: ["AMS"], useLabelIds: true},extensions: ["autobold.js"]},
+        "HTML-CSS": {linebreaks: {automatic: true}},
+        SVG: {linebreaks: {automatic: true}}
+    });
+</script>
+
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<script type="text/javascript" src="/assets/themes/flying//js/default.js"></script>
+ </html>
+
+
+<!-- hitwebcounter Code START -->
+<a href="http://www.hitwebcounter.com/" target="_blank">
+<img src="http://hitwebcounter.com/counter/counter.php?page=6039789&style=0027&nbdigits=6&type=page&initCount=1122" title="" Alt=""   border="0" >
+</a><br/>
+<!-- hitwebcounter.com --><a href="http://www.hitwebcounter.com/" title="Hitwebcounter.com Free" 
+target="_blank" style="font-family: Arial, Helvetica, sans-serif; 
+font-size: 12px; color: #6B706A; text-decoration: underline ;"><strong>Hitwebcounter.com Free</strong>
+</a>   
