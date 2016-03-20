@@ -3,10 +3,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>C++的this指针 | WordWorth</title>
-    <meta name="description" content="关于this指针的粗浅认识">
+    <title>归并排序的迭代写法 | WordWorth</title>
+    <meta name="description" content="Merge Sort的迭代写法">
     <meta name="author" content="sosohu">
-    <meta name="keywords" content="this">
+    <meta name="keywords" content="Merge Sort">
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
     <!--[if lt IE 9]>
@@ -52,152 +52,77 @@
       <div class="content">
         
 <div class="page-header">
-  <h1>C++的this指针 <small class="H1_Date">--10 December 2014</small></h1>
+  <h1>归并排序的迭代写法 <small class="H1_Date">--14 April 2014</small></h1>
 </div>
 
 <div class="row">
   <div class="span8">
-    <p>这篇博客主要内容翻译自国外著名程序员网站：<a href="http://www.geeksforgeeks.org">geekersforgeekers</a>,经过作者小幅度整理，水平有限，敬请指正.</p>
+    <p>归并排序是一种司空见惯的排序方法，而大多数实现方式都是采用递归的方法，这里介绍一下笔者从<code>SGI-STL</code>里面学习到的迭代实现归并排序的方法．</p>
 
-<h1>关于this指针的粗浅认识</h1>
+<h2>算法实现</h2>
 
-<h2>(一)   this指针：</h2>
+<p>这里选取排序一个链表为例子，这是因为这种迭代实现对排序链表显得更加优美，当然排序一个<code>vector</code>类似的容器也可以，但是需要多次申请的空间，代码显得很臃肿，这里为了阐述算法的思想，就以链表排序为例.</p>
 
-<p>在对象的任意非static类型的成员函数被调用时候，this指针会作为一个隐藏的参数被秘密的传递给该成员函数．</p>
-
-<h2>(二)   this指针的类型：</h2>
-
-<ul>
-<li>首先，this指针本身是一个const类型的指针(注意是指针是const的，不是指向的对象是const的)，例如对于类X，那么它的this指针类型就是X * const</li>
-</ul>
-
-
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">#include&lt;iostream&gt;
-        using namespace std;</p>
-
-<pre><code>    class Test
-    {
-        private:
-            int x;
-        public:
-            Test(int x = 0) { this-&amp;gt;x = x; }
-            void change(Test *t) { this = t; } 
-            //试图赋值失败，因为this是const类型指针
-            void print() { cout &amp;lt;&amp;lt; &amp;quot;x = &amp;quot; &amp;lt;&amp;lt; x &amp;lt;&amp;lt; endl; }
-    };
-
-    int main()
-    {
-        Test obj(5);
-        Test *ptr = new Test (10);
-        obj.change(ptr);
-        obj.print();
-        return 0;
-    }&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-</code></pre>
-
-<ul>
-<li>另外，this指针指向的类型根据成员函数实际的类型确定，例如X有个const类型的成员函数, 那么this指针类型就const X * const</li>
-</ul>
-
-
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">#include&lt;iostream&gt;
-    class X {
-        void fun() const {
-        // this is passed as hidden argument to fun().
-        // Type of this is const X*
+<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">//仿照SGI STL里面的List容器的sort函数，实现迭代版的归并排序
+ListNode <em>ListSort(ListNode </em>pHead){
+    if(!pHead || !pHead-&gt;next)  return pHead;
+    vector&lt;ListNode<em>&gt; counter(64, NULL);
+    ListNode </em>carry;
+    ListNode *pos = pHead;
+    int fill = 0;
+    while(pos){
+        carry = new ListNode(pos-&gt;val);
+        pos = pos-&gt;next;
+        int i = 0;
+        for(i = 0; i &lt; fill &amp;&amp; counter[i]; i++){
+            //合并两个已排序的链表
+            carry = MergeSortedList(carry, counter[i]);
+            counter[i] = NULL;
         }
-    };</code></pre></figure></p>
+        counter[i] = carry;
+        if(i == fill) fill++;
+    }
+    for(int i = 1; i &lt; fill; i++){
+        counter[i] = MergeSortedList(counter[i-1], counter[i]);
+    }
+    return counter[fill-1];
+}</code></pre></figure></p>
 
-<h2>(三)何时使用this指针</h2>
+<h2>算法解释</h2>
 
-<ul>
-<li>当局部变量与类成员变量同名</li>
-</ul>
+<p>总体上来说，算法的思想就是准备64个槽(<code>counter[i]</code>)，编号为0,1,...,63,分别表示已经排序长为1,2,...,2<sup>63</sup>的链表．一开始这64个槽为空.</p>
 
-
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">#include&lt;iostream&gt;
-        using namespace std;</p>
-
-<pre><code>    /* local variable is same as a member&amp;#39;s name */
-    class Test
-    {
-    private:
-       int x;
-    public:
-       void setX (int x)
-       {
-           // The &amp;#39;this&amp;#39; pointer is used to retrieve the object&amp;#39;s x
-           // hidden by the local variable &amp;#39;x&amp;#39;
-           this-&amp;gt;x = x;
-       }
-       void print() { cout &amp;lt;&amp;lt; &amp;quot;x = &amp;quot; &amp;lt;&amp;lt; x &amp;lt;&amp;lt; endl; }
-    };
-
-    int main()
-    {
-       Test obj;
-       int x = 20;
-       obj.setX(x);
-       obj.print();
-       return 0;
-    }&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-</code></pre>
-
-<ul>
-<li>返回调用对象的引用时候</li>
-</ul>
+<ol>
+<li>如果待排序链表还有未被取出的元素则取出下一个元素，否则转到3</li>
+<li>将这个元素先和0号槽合并，如果此时0号槽为空则，将合并后结果放入0号槽;如果不为空那么合并后长度变为2,则清空0号槽，继续和1号槽合并，依次类推一直合并到i号槽，且i号槽为空，则将合并结果放入i号槽．转到1.</li>
+<li>将这64个槽从低到高依次合并，得到最终的结果.</li>
+</ol>
 
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">/<em> Reference to the calling object can be returned </em>/
-        Test&amp; Test::func ()
-        {
-           // Some processing
-           return *this;
-        }</code></pre></figure></p>
+<p><strong>Note</strong>: 上面是算法的主体思想，但是可以看到上面的代码在实现的时候做出了一定的优化,就是设置了fill变量以避免步骤3合并所有的槽，而是合并0,1,...fill-1这些槽就可以了.</p>
 
-<h2>(四)delete this指针</h2>
+<h2>举例说明</h2>
 
-<p>什么？要删除this指针？对，你没有看错，就是要删出它，其实这也没什么奇怪的，需要注意的就是：</p>
+<p>下面以链表数据4，2，1，5，6，9，7，8，10为例分析这个迭代版的代码过程</p>
 
-<ul>
-<li> delete函数释放的只能是堆里面的内存，也就是说是new出来的空间</li>
-<li> delete完this指针之后，对象的所有成员都不能再被访问</li>
-</ul>
+<p><img src="https://github.com/sosohu/sosohu.github.io/assets/image/posts/2015-4-14-Merge/example.png" alt="example" /></p>
 
+<p>在while循环里面每次都是从原链表里取出一个节点，然后往counter数组里面归并，fill值表明目前counter数组中存有数据的最大的那个数组标号+1,比如说，我们首先取出４，此时<code>fill = 0</code>, 直接就把４放在counter[0]链表上，fill变为1，然后取出1，就拿2与counter[0]进行merge，得到结果放到count[1],fill变为2，此时counter数组的情况是counter[0]为空，counter[1]存放2，4，再加入1时候直接放到counter[0], 再加入5时候，1与5merge，得到1，5再继续向上和couter[1]中的2,4,merge得到1，2，4，5，如果此时counter[2]不为空，那么继续merge，这里为空则1，2，4，5存到counter[2],于是就这样一步步的向上merge，每次merge链表长度都是加倍</p>
 
-<p>下面代码就会体现出来：</p>
+<p>最终取完所有数据之后，counter数组里面的数据需要最终整合一下，代码中最后一个for循环就是不断的把couter中的内容向上merge，最终形成最后的结果</p>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">class A
-    {
-      public:
-        void fun()
-        {
-            delete this;
-        }
-    };</p>
+<p>这里其实也就是形成了一颗归并树，时间复杂度依然是O(nlgn)</p>
 
-<pre><code>int main()
-{
-  /* Following is Valid */
-  A *ptr = new A;
-  ptr-&amp;gt;fun ; // 没有问题
-  ptr = NULL // make ptr NULL to make sure that things are not accessed using ptr. 
+<h2>复杂度分析</h2>
+
+<p>时间复杂度<strong>O(nlgn)</strong>,空间复杂度<strong>O(1)</strong></p>
+
+<p><strong>Note</strong>: 因为是链表所以空间复杂度才会是O(1),换成连续存储的容器就不行了.</p>
 
 
-  /* And following is Invalid: Undefined Behavior */
-  A a;
-  a.fun();　// 释放栈上的空间，会出错
-
-  getchar();
-  return 0;
-}&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-</code></pre>
-
-
-    <!--    2428-->
+    <!--    1817-->
     <div class="eof">-&nbsp;EOF&nbsp;-</div>
-    <p class="declare">声明:本文采用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="nofollow" title="署名-非商业性使用-相同方式共享">BY-NC-SA</a>协议进行授权.转载请注明: <a href="/c/c++/2014/12/10/C++%E7%9A%84this%E6%8C%87%E9%92%88.html" title="C++的this指针 " rel="nofollow">C++的this指针</a></p>
+    <p class="declare">声明:本文采用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="nofollow" title="署名-非商业性使用-相同方式共享">BY-NC-SA</a>协议进行授权.转载请注明: <a href="/algorithm/2014/04/14/%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F%E7%9A%84%E8%BF%AD%E4%BB%A3%E5%86%99%E6%B3%95.html" title="归并排序的迭代写法 " rel="nofollow">归并排序的迭代写法</a></p>
     <hr>
 	<!-- bdshare provider -->	
 	<style>
@@ -222,11 +147,11 @@
     <div class="pagination">
       <ul>
       
-        <li class="prev"><a href="/ubuntu/2014/12/07/Ubuntu14.10%E4%B8%8B%E8%A7%A3%E5%86%B3chromium%E6%B5%8F%E8%A7%88%E5%99%A8%E6%97%A0%E6%B3%95%E5%AE%89%E8%A3%85adobe-flash%E7%9A%84%E9%97%AE%E9%A2%98.html" title="Ubuntu14.10下解决chromium浏览器无法安装adobe flash的问题">&larr; Previous</a></li>
+        <li class="prev disabled"><a>&larr; Previous</a></li>
       
         <li><a href="/archive.html">Archive</a></li>
       
-        <li class="next"><a href="/tool/2015/02/05/Linux%E4%B8%8B%E5%B0%8F%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90.html" title="Linux下小工具推荐">Next &rarr;</a></li>
+        <li class="next"><a href="/c/c++/2014/04/15/%E4%BB%BF%E7%85%A7%E5%AE%9E%E7%8E%B0SGI-STL%E7%A9%BA%E9%97%B4%E9%85%8D%E7%BD%AE%E5%99%A8.html" title="仿照实现SGI-STL空间配置器">Next &rarr;</a></li>
       
       </ul>
     </div>
@@ -267,7 +192,7 @@
 
   
      
-    	<li><a href="/tags.html#C++-ref">C++ <span>1</span></a></li>
+    	<li><a href="/tags.html#Sort-ref">Sort <span>1</span></a></li>
     
   
 

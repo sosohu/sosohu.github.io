@@ -14,10 +14,10 @@
     <![endif]-->
 
     <!-- Le styles -->
-    <link href="/assets/themes/flying/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/assets/themes/flying/css/style.css" rel="stylesheet" type="text/css" media="all">
-    <link href="/assets/themes/flying/css/syntax.css" rel="stylesheet" type="text/css" media="all">
-    <script type="text/javascript" src="/assets/themes/flying/js/jquery-1.9.1.min.js"></script>
+    <link href="/assets/themes/flying//bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/themes/flying//css/style.css" rel="stylesheet" type="text/css" media="all">
+    <link href="/assets/themes/flying//css/syntax.css" rel="stylesheet" type="text/css" media="all">
+    <script type="text/javascript" src="/assets/themes/flying//js/jquery-1.9.1.min.js"></script>
    <!-- Le fav and touch icons -->
   <!-- Update these with your own images
     <link rel="shortcut icon" href="images/favicon.ico">
@@ -37,8 +37,8 @@
 		<li><a href="/about.html">About</a></li>
 		<li><a href="/archive.html">Archive</a></li>
 		<li><a href="/categories.html">Categories</a></li>
-		<li><a href="/link.html">Link</a></li>
-		<li><a href="/download.html">Download</a></li>
+      	<li><a href="/link.html">Link</a></li>
+      	<li><a href="/download.html">Download</a></li>
 <!--		<li><a href="http://wiki.zhouyichu.com">Wiki</a></li>  -->
 		<li class="offset3"><a href="/atom.xml">Subscribe</a></li>
 		<li><a id="random" href="#">Random</a></li>
@@ -79,319 +79,319 @@
 
 <p>下面只是vector容器的代码展示，其中还有依赖一些其他函数，具体细节可以查看我的github上Tiny-STL项目的<a href="https://github.com/sosohu/Tiny-Stl/blob/master/include/vector.h">全部代码</a>．</p>
 
-<div class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span> <span class="o">=</span> <span class="n">alloc</span><span class="o">&gt;</span>
-<span class="k">class</span> <span class="nc">vector</span><span class="p">{</span>
-<span class="k">private</span><span class="o">:</span>
-    <span class="k">typedef</span> <span class="n">simple_alloc</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">alloc</span><span class="o">&gt;</span> <span class="n">data_alloc</span><span class="p">;</span>
+<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;typename T, typename Alloc = alloc&gt;
+class vector{
+private:
+    typedef simple_alloc&lt;T, alloc&gt; data_alloc;</p>
 
-<span class="k">public</span><span class="o">:</span>
-    <span class="k">typedef</span> <span class="n">T</span> <span class="n">value_type</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="n">T</span><span class="o">*</span> <span class="n">poniter</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="k">const</span> <span class="n">T</span><span class="o">*</span> <span class="n">const_pointer</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">reference</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">const_reference</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="kt">size_t</span> <span class="n">size_type</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="kt">ptrdiff_t</span> <span class="n">difference_type</span><span class="p">;</span>
+<p>public:
+    typedef T value_type;
+    typedef T<em> poniter;
+    typedef const T</em> const_pointer;
+    typedef T&amp; reference;
+    typedef const T&amp; const_reference;
+    typedef size_t size_type;
+    typedef ptrdiff_t difference_type;</p>
 
-    <span class="k">typedef</span> <span class="n">poniter</span> <span class="n">iterator</span><span class="p">;</span>
+<pre><code>typedef poniter iterator;
 
-    <span class="c1">//基本的构造析构函数</span>
-    <span class="k">explicit</span> <span class="nf">vector</span><span class="p">();</span>
-    <span class="k">explicit</span> <span class="nf">vector</span><span class="p">(</span><span class="n">size_type</span> <span class="n">n</span><span class="p">);</span>
-    <span class="n">vector</span><span class="p">(</span><span class="n">size_type</span> <span class="n">n</span><span class="p">,</span> <span class="n">const_reference</span> <span class="n">x</span><span class="p">);</span>
-    <span class="n">vector</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">rhs</span><span class="p">);</span>
+//基本的构造析构函数
+explicit vector();
+explicit vector(size_type n);
+vector(size_type n, const_reference x);
+vector(const vector&amp;lt;T&amp;gt;&amp;amp; rhs);
 
-    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
-    <span class="n">vector</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">end</span><span class="p">);</span>
+template&amp;lt;typename InputIterator&amp;gt;
+vector(InputIterator begin, InputIterator end);
 
-    <span class="o">~</span><span class="n">vector</span><span class="p">();</span>
+~vector();
 
-    <span class="c1">//迭代器函数</span>
-    <span class="n">iterator</span> <span class="nf">begin</span><span class="p">(){</span> <span class="k">return</span> <span class="n">start</span><span class="p">;}</span>
-    <span class="n">iterator</span> <span class="nf">end</span><span class="p">(){</span> <span class="k">return</span> <span class="n">finish</span><span class="p">;</span> <span class="p">}</span>
+//迭代器函数
+iterator begin(){ return start;}
+iterator end(){ return finish; }
 
-    <span class="c1">//属性函数</span>
-    <span class="n">size_type</span> <span class="n">size</span><span class="p">()</span> <span class="k">const</span><span class="p">{</span>  <span class="k">return</span> <span class="n">finish</span> <span class="o">-</span> <span class="n">start</span><span class="p">;</span> <span class="p">}</span>
-    <span class="n">size_type</span> <span class="n">max_size</span><span class="p">()</span> <span class="k">const</span><span class="p">{</span>  <span class="k">return</span> <span class="n">UINT_MAX</span> <span class="o">/</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">);</span>   <span class="p">}</span>
-    <span class="n">size_type</span> <span class="n">capacity</span><span class="p">()</span> <span class="k">const</span><span class="p">{</span>  <span class="k">return</span> <span class="n">end_of_storage</span> <span class="o">-</span> <span class="n">start</span><span class="p">;</span>   <span class="p">}</span>
-    <span class="kt">bool</span> <span class="n">empty</span><span class="p">()</span> <span class="k">const</span><span class="p">{</span> <span class="k">return</span> <span class="n">finish</span> <span class="o">==</span> <span class="n">start</span><span class="p">;</span>  <span class="p">}</span>
-    <span class="kt">void</span> <span class="n">resize</span><span class="p">(</span><span class="n">size_type</span> <span class="n">n</span><span class="p">){</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">capacity</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">){</span>
-            <span class="n">reserve</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
-        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
-            <span class="n">finish</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">n</span><span class="p">;</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-    <span class="kt">void</span> <span class="n">reserve</span><span class="p">(</span><span class="n">size_type</span> <span class="n">n</span><span class="p">){</span>
-        <span class="n">size_type</span> <span class="n">old_sz</span> <span class="o">=</span> <span class="n">capacity</span><span class="p">();</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">old_sz</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">){</span>
-            <span class="n">iterator</span> <span class="n">new_start</span> <span class="o">=</span> <span class="n">data_alloc</span><span class="o">::</span><span class="n">allocate</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
-            <span class="n">uninitialized_copy</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">finish</span><span class="p">,</span> <span class="n">new_start</span><span class="p">);</span>
-            <span class="n">data_alloc</span><span class="o">::</span><span class="n">deallocate</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">old_sz</span><span class="p">);</span>
-            <span class="n">start</span> <span class="o">=</span> <span class="n">new_start</span><span class="p">;</span>
-            <span class="n">finish</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">old_sz</span><span class="p">;</span>
-            <span class="n">end_of_storage</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">n</span><span class="p">;</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
+//属性函数
+size_type size() const{     return finish - start; }
+size_type max_size() const{     return UINT_MAX / sizeof(T);    }
+size_type capacity() const{ return end_of_storage - start;  }
+bool empty() const{ return finish == start; }
+void resize(size_type n){
+    if(capacity() &amp;lt; n){
+        reserve(n);
+    }else{
+        finish = start + n;
+    }
+}
+void reserve(size_type n){
+    size_type old_sz = capacity();
+    if(old_sz &amp;lt; n){
+        iterator new_start = data_alloc::allocate(n);
+        uninitialized_copy(start, finish, new_start);
+        data_alloc::deallocate(start, old_sz);
+        start = new_start;
+        finish = start + old_sz;
+        end_of_storage = start + n;
+    }
+}
 
-    <span class="c1">//访问函数</span>
-    <span class="n">const_reference</span> <span class="k">operator</span><span class="p">[](</span><span class="n">size_type</span> <span class="n">pos</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
-    <span class="n">reference</span> <span class="k">operator</span><span class="p">[](</span><span class="n">size_type</span> <span class="n">pos</span><span class="p">);</span>
-    <span class="n">value_type</span> <span class="n">at</span><span class="p">(</span><span class="n">size_type</span> <span class="n">pos</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
-    <span class="n">value_type</span> <span class="n">front</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
-    <span class="n">value_type</span> <span class="n">back</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
+//访问函数
+const_reference operator[](size_type pos) const;
+reference operator[](size_type pos);
+value_type at(size_type pos) const;
+value_type front() const;
+value_type back() const;
 
-    <span class="c1">//修改函数</span>
-    <span class="kt">void</span> <span class="nf">assign</span><span class="p">(</span><span class="n">size_type</span> <span class="n">n</span><span class="p">,</span> <span class="n">const_reference</span> <span class="n">value</span><span class="p">);</span>
-    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
-    <span class="kt">void</span> <span class="n">assign</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">end</span><span class="p">);</span>
+//修改函数
+void assign(size_type n, const_reference value);
+template&amp;lt;typename InputIterator&amp;gt;
+void assign(InputIterator begin, InputIterator end);
 
-    <span class="kt">void</span> <span class="nf">push_back</span><span class="p">(</span><span class="k">const</span> <span class="n">const_reference</span> <span class="n">value</span><span class="p">);</span>
-    <span class="kt">void</span> <span class="nf">pop_back</span><span class="p">();</span>
+void push_back(const const_reference value);
+void pop_back();
 
-    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span><span class="c1">//pos之前插入</span>
-    <span class="kt">void</span> <span class="n">insert</span><span class="p">(</span><span class="n">iterator</span> <span class="n">pos</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">end</span><span class="p">);</span>
+template&amp;lt;typename InputIterator&amp;gt;//pos之前插入
+void insert(iterator pos, InputIterator begin, InputIterator end);
 
-    <span class="n">iterator</span> <span class="nf">insert</span><span class="p">(</span><span class="n">iterator</span> <span class="n">pos</span><span class="p">,</span> <span class="n">const_reference</span> <span class="n">value</span><span class="p">);</span>
-    <span class="kt">void</span> <span class="nf">insert</span><span class="p">(</span><span class="n">iterator</span> <span class="n">pos</span><span class="p">,</span> <span class="n">size_type</span> <span class="n">n</span><span class="p">,</span> <span class="n">const_reference</span> <span class="n">value</span><span class="p">);</span>
+iterator insert(iterator pos, const_reference value);
+void insert(iterator pos, size_type n, const_reference value);
 
-    <span class="n">iterator</span> <span class="nf">erase</span><span class="p">(</span><span class="n">iterator</span> <span class="n">pos</span><span class="p">);</span>
-    <span class="n">iterator</span> <span class="nf">erase</span><span class="p">(</span><span class="n">iterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">iterator</span> <span class="n">end</span><span class="p">);</span>
+iterator erase(iterator pos);
+iterator erase(iterator begin, iterator end);
 
-    <span class="kt">void</span> <span class="nf">swap</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">rhs</span><span class="p">);</span>
-    <span class="kt">void</span> <span class="nf">clear</span><span class="p">();</span>
+void swap(vector&amp;lt;T, Alloc&amp;gt; &amp;amp;rhs);
+void clear();
+</code></pre>
 
-<span class="k">private</span><span class="o">:</span>
-    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
-    <span class="kt">void</span> <span class="n">vector_aux</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">end</span><span class="p">,</span> <span class="n">Is_Int</span><span class="p">);</span>
+<p>private:
+    template&lt;typename InputIterator&gt;
+    void vector_aux(InputIterator begin, InputIterator end, Is_Int);</p>
 
-    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
-    <span class="kt">void</span> <span class="n">vector_aux</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">end</span><span class="p">,</span> <span class="n">Not_Int</span><span class="p">);</span>
+<pre><code>template&amp;lt;typename InputIterator&amp;gt;
+void vector_aux(InputIterator begin, InputIterator end, Not_Int);
 
-    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
-    <span class="kt">void</span> <span class="n">assign_aux</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">end</span><span class="p">,</span> <span class="n">Is_Int</span><span class="p">);</span>
+template&amp;lt;typename InputIterator&amp;gt;
+void assign_aux(InputIterator begin, InputIterator end, Is_Int);
 
-    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
-    <span class="kt">void</span> <span class="n">assign_aux</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">end</span><span class="p">,</span> <span class="n">Not_Int</span><span class="p">);</span>
+template&amp;lt;typename InputIterator&amp;gt;
+void assign_aux(InputIterator begin, InputIterator end, Not_Int);
 
-    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
-    <span class="kt">void</span> <span class="n">insert_aux</span><span class="p">(</span><span class="n">iterator</span> <span class="n">pos</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">end</span><span class="p">,</span> <span class="n">Is_Int</span><span class="p">);</span>
+template&amp;lt;typename InputIterator&amp;gt;
+void insert_aux(iterator pos, InputIterator begin, InputIterator end, Is_Int);
 
-    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
-    <span class="kt">void</span> <span class="n">insert_aux</span><span class="p">(</span><span class="n">iterator</span> <span class="n">pos</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">end</span><span class="p">,</span> <span class="n">Not_Int</span><span class="p">);</span>
+template&amp;lt;typename InputIterator&amp;gt;
+void insert_aux(iterator pos, InputIterator begin, InputIterator end, Not_Int);
+</code></pre>
 
-<span class="k">private</span><span class="o">:</span>
-    <span class="n">iterator</span> <span class="n">start</span><span class="p">;</span>
-    <span class="n">iterator</span> <span class="n">finish</span><span class="p">;</span>
-    <span class="n">iterator</span> <span class="n">end_of_storage</span><span class="p">;</span>
-<span class="p">};</span>
+<p>private:
+    iterator start;
+    iterator finish;
+    iterator end_of_storage;
+};</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">vector</span><span class="p">(){</span>
-    <span class="n">start</span> <span class="o">=</span> <span class="n">data_alloc</span><span class="o">::</span><span class="n">allocate</span><span class="p">();</span>
-    <span class="n">finish</span> <span class="o">=</span> <span class="n">start</span><span class="p">;</span>
-    <span class="n">end_of_storage</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+vector&lt;T,Alloc&gt;::vector(){
+    start = data_alloc::allocate();
+    finish = start;
+    end_of_storage = start + 1;
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">vector</span><span class="p">(</span><span class="n">size_type</span> <span class="n">n</span><span class="p">){</span>
-    <span class="n">start</span> <span class="o">=</span> <span class="n">data_alloc</span><span class="o">::</span><span class="n">allocate</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
-    <span class="n">finish</span> <span class="o">=</span> <span class="n">start</span><span class="p">;</span>
-    <span class="n">end_of_storage</span> <span class="o">=</span> <span class="n">finish</span><span class="p">;</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+vector&lt;T,Alloc&gt;::vector(size_type n){
+    start = data_alloc::allocate(n);
+    finish = start;
+    end_of_storage = finish;
+}</p>
 
-<span class="cm">/*</span>
-<span class="cm"> * Alloc负责为对象分配内存，uninitialized系列函数负责构造对象</span>
-<span class="cm"> */</span>
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">vector</span><span class="p">(</span><span class="n">size_type</span> <span class="n">n</span><span class="p">,</span> <span class="n">const_reference</span> <span class="n">x</span><span class="p">){</span>
-    <span class="n">start</span> <span class="o">=</span> <span class="n">data_alloc</span><span class="o">::</span><span class="n">allocate</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
-    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">n</span><span class="o">&lt;&lt;</span><span class="s">&quot;,&quot;</span><span class="o">&lt;&lt;</span><span class="n">x</span><span class="o">&lt;&lt;</span><span class="s">&quot;,&quot;</span><span class="o">&lt;&lt;</span><span class="n">start</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
-    <span class="n">hu</span><span class="o">::</span><span class="n">uninitialized_fill_n</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
-    <span class="n">finish</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">n</span><span class="p">;</span>
-    <span class="n">end_of_storage</span> <span class="o">=</span> <span class="n">finish</span><span class="p">;</span>
-<span class="p">}</span>
+<p>/<em>
+ * Alloc负责为对象分配内存，uninitialized系列函数负责构造对象
+ </em>/
+template&lt;typename T, typename Alloc&gt;
+vector&lt;T, Alloc&gt;::vector(size_type n, const_reference x){
+    start = data_alloc::allocate(n);
+    cout&lt;&lt;n&lt;&lt;&quot;,&quot;&lt;&lt;x&lt;&lt;&quot;,&quot;&lt;&lt;start&lt;&lt;endl;
+    hu::uninitialized_fill_n(start, n, x);
+    finish = start + n;
+    end_of_storage = finish;
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">vector_aux</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">end</span><span class="p">,</span> <span class="n">Is_Int</span><span class="p">){</span>
-    <span class="n">size_type</span> <span class="n">n</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">size_type</span><span class="o">&gt;</span><span class="p">(</span><span class="n">begin</span><span class="p">);</span>
-    <span class="n">value_type</span> <span class="n">x</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">value_type</span><span class="o">&gt;</span><span class="p">(</span><span class="n">end</span><span class="p">);</span>
-    <span class="n">start</span> <span class="o">=</span> <span class="n">data_alloc</span><span class="o">::</span><span class="n">allocate</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
-    <span class="n">uninitialized_fill_n</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
-    <span class="n">finish</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">n</span><span class="p">;</span>
-    <span class="n">end_of_storage</span> <span class="o">=</span> <span class="n">finish</span><span class="p">;</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+template&lt;typename InputIterator&gt;
+void vector&lt;T,Alloc&gt;::vector_aux(InputIterator begin, InputIterator end, Is_Int){
+    size_type n = static_cast&lt;size_type&gt;(begin);
+    value_type x = static_cast&lt;value_type&gt;(end);
+    start = data_alloc::allocate(n);
+    uninitialized_fill_n(start, n, x);
+    finish = start + n;
+    end_of_storage = finish;
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">vector_aux</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">end</span><span class="p">,</span> <span class="n">Not_Int</span><span class="p">){</span>
-    <span class="n">difference_type</span> <span class="n">n</span> <span class="o">=</span> <span class="n">distance</span><span class="p">(</span><span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">);</span>
-    <span class="n">start</span> <span class="o">=</span> <span class="n">data_alloc</span><span class="o">::</span><span class="n">allocate</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
-    <span class="n">uninitialized_copy</span><span class="p">(</span><span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">start</span><span class="p">);</span>
-    <span class="n">finish</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">n</span><span class="p">;</span>
-    <span class="n">end_of_storage</span> <span class="o">=</span> <span class="n">finish</span><span class="p">;</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+template&lt;typename InputIterator&gt;
+void vector&lt;T,Alloc&gt;::vector_aux(InputIterator begin, InputIterator end, Not_Int){
+    difference_type n = distance(begin, end);
+    start = data_alloc::allocate(n);
+    uninitialized_copy(begin, end, start);
+    finish = start + n;
+    end_of_storage = finish;
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
-<span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">vector</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">end</span><span class="p">){</span>
-    <span class="k">typedef</span> <span class="k">typename</span> <span class="n">traits_int</span><span class="o">&lt;</span><span class="n">InputIterator</span><span class="o">&gt;::</span><span class="n">is_int</span> <span class="n">Judge</span><span class="p">;</span>
-    <span class="n">vector_aux</span><span class="p">(</span><span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">Judge</span><span class="p">());</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+template&lt;typename InputIterator&gt;
+vector&lt;T,Alloc&gt;::vector(InputIterator begin, InputIterator end){
+    typedef typename traits_int&lt;InputIterator&gt;::is_int Judge;
+    vector_aux(begin, end, Judge());
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::~</span><span class="n">vector</span><span class="p">(){</span>
-    <span class="n">data_alloc</span><span class="o">::</span><span class="n">deallocate</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">capacity</span><span class="p">());</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+vector&lt;T,Alloc&gt;::~vector(){
+    data_alloc::deallocate(start, capacity());
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="k">typename</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">reference</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="k">operator</span><span class="p">[](</span><span class="n">size_type</span> <span class="n">pos</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="o">*</span><span class="p">(</span><span class="n">start</span> <span class="o">+</span> <span class="n">pos</span><span class="p">);</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+typename vector&lt;T,Alloc&gt;::reference vector&lt;T,Alloc&gt;::operator<a href="size_type%20pos"></a> {
+    return *(start + pos);
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="k">typename</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">const_reference</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="k">operator</span><span class="p">[](</span><span class="n">size_type</span> <span class="n">pos</span><span class="p">)</span> <span class="k">const</span><span class="p">{</span>
-    <span class="k">return</span> <span class="p">(</span><span class="k">const_cast</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;</span> <span class="o">&gt;</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">))[</span><span class="n">pos</span><span class="p">];</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+typename vector&lt;T,Alloc&gt;::const_reference vector&lt;T,Alloc&gt;::operator<a href="size_type%20pos"></a> const{
+    return (const_cast&lt;vector&lt;T, Alloc&gt; &gt;(*this))[pos];
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="k">typename</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">value_type</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">at</span><span class="p">(</span><span class="n">size_type</span> <span class="n">pos</span><span class="p">)</span> <span class="k">const</span><span class="p">{</span>
-    <span class="k">if</span><span class="p">(</span><span class="n">pos</span> <span class="o">&gt;=</span> <span class="n">size</span><span class="p">())</span>  <span class="n">THROW_OUT_OF_RANGE</span><span class="p">;</span>
-    <span class="k">return</span> <span class="o">*</span><span class="p">(</span><span class="n">start</span> <span class="o">+</span> <span class="n">pos</span><span class="p">);</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+typename vector&lt;T,Alloc&gt;::value_type vector&lt;T,Alloc&gt;::at(size_type pos) const{
+    if(pos &gt;= size())    THROW_OUT_OF_RANGE;
+    return *(start + pos);
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="k">typename</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">value_type</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">front</span><span class="p">()</span> <span class="k">const</span><span class="p">{</span>
-    <span class="k">if</span><span class="p">(</span><span class="n">empty</span><span class="p">())</span> <span class="n">THROW_OUT_OF_RANGE</span><span class="p">;</span>
-    <span class="k">return</span> <span class="o">*</span><span class="n">start</span><span class="p">;</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+typename vector&lt;T,Alloc&gt;::value_type vector&lt;T, Alloc&gt;::front() const{
+    if(empty()) THROW_OUT_OF_RANGE;
+    return *start;
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="k">typename</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">value_type</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">back</span><span class="p">()</span> <span class="k">const</span><span class="p">{</span>
-    <span class="k">if</span><span class="p">(</span><span class="n">empty</span><span class="p">())</span> <span class="n">THROW_OUT_OF_RANGE</span><span class="p">;</span>
-    <span class="k">return</span> <span class="o">*</span><span class="p">(</span><span class="n">finish</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+typename vector&lt;T,Alloc&gt;::value_type vector&lt;T, Alloc&gt;::back() const{
+    if(empty()) THROW_OUT_OF_RANGE;
+    return *(finish - 1);
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">assign</span><span class="p">(</span><span class="n">size_type</span> <span class="n">n</span><span class="p">,</span> <span class="n">const_reference</span> <span class="n">value</span><span class="p">){</span>
-    <span class="n">resize</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
-    <span class="n">clear</span><span class="p">();</span>
-    <span class="n">uninitialized_fill_n</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
-    <span class="n">finish</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">n</span><span class="p">;</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+void vector&lt;T, Alloc&gt;::assign(size_type n, const_reference value){
+    resize(n);
+    clear();
+    uninitialized_fill_n(start, n, value);
+    finish = start + n;
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">assign_aux</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">end</span><span class="p">,</span> <span class="n">Is_Int</span><span class="p">){</span>
-    <span class="n">assign</span><span class="p">(</span><span class="n">size_type</span><span class="p">(</span><span class="n">begin</span><span class="p">),</span> <span class="n">end</span><span class="p">);</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+template&lt;typename InputIterator&gt;
+void vector&lt;T,Alloc&gt;::assign_aux(InputIterator begin, InputIterator end, Is_Int){
+    assign(size_type(begin), end);
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">assign_aux</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">end</span><span class="p">,</span> <span class="n">Not_Int</span><span class="p">){</span>
-    <span class="n">size_type</span> <span class="n">dis</span> <span class="o">=</span> <span class="n">distance</span><span class="p">(</span><span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">);</span>
-    <span class="n">resize</span><span class="p">(</span><span class="n">dis</span><span class="p">);</span>
-    <span class="n">clear</span><span class="p">();</span>
-    <span class="n">uninitialized_copy</span><span class="p">(</span><span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">start</span><span class="p">);</span>
-    <span class="n">finish</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">dis</span><span class="p">;</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+template&lt;typename InputIterator&gt;
+void vector&lt;T,Alloc&gt;::assign_aux(InputIterator begin, InputIterator end, Not_Int){
+    size_type dis = distance(begin, end);
+    resize(dis);
+    clear();
+    uninitialized_copy(begin, end, start);
+    finish = start + dis;
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">assign</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">end</span><span class="p">){</span>
-    <span class="c1">//需要判断InputIterator是否为Integer,也采用traits技术</span>
-    <span class="k">typedef</span> <span class="k">typename</span> <span class="n">traits_int</span><span class="o">&lt;</span><span class="n">InputIterator</span><span class="o">&gt;::</span><span class="n">is_int</span> <span class="n">Judge</span><span class="p">;</span>
-    <span class="n">assign_aux</span><span class="p">(</span><span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">Judge</span><span class="p">());</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+template&lt;typename InputIterator&gt;
+void vector&lt;T, Alloc&gt;::assign(InputIterator begin, InputIterator end){
+    //需要判断InputIterator是否为Integer,也采用traits技术
+    typedef typename traits_int&lt;InputIterator&gt;::is_int Judge;
+    assign_aux(begin, end, Judge());
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">push_back</span><span class="p">(</span><span class="k">const</span> <span class="n">const_reference</span> <span class="n">value</span><span class="p">){</span>
-    <span class="k">if</span><span class="p">(</span><span class="n">finish</span> <span class="o">==</span> <span class="n">end_of_storage</span><span class="p">){</span>
-        <span class="n">size_type</span> <span class="n">old_sz</span> <span class="o">=</span> <span class="n">size</span><span class="p">();</span>
-        <span class="n">size_type</span> <span class="n">new_sz</span> <span class="o">=</span> <span class="n">old_sz</span> <span class="o">==</span> <span class="mi">0</span><span class="o">?</span> <span class="mi">1</span> <span class="o">:</span> <span class="mi">2</span><span class="o">*</span><span class="n">old_sz</span><span class="p">;</span>
-        <span class="n">resize</span><span class="p">(</span><span class="n">new_sz</span><span class="p">);</span>
-    <span class="p">}</span>
-    <span class="n">_construct</span><span class="p">(</span><span class="o">&amp;*</span><span class="n">finish</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
-    <span class="n">finish</span><span class="o">++</span><span class="p">;</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+void vector&lt;T, Alloc&gt;::push_back(const const_reference value){
+    if(finish == end_of_storage){
+        size_type old_sz = size();
+        size_type new_sz = old_sz == 0? 1 : 2<em>old_sz;
+        resize(new_sz);
+    }
+    _construct(&amp;</em>finish, value);
+    finish++;
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">pop_back</span><span class="p">(){</span>
-    <span class="k">if</span><span class="p">(</span><span class="n">empty</span><span class="p">())</span>
-        <span class="n">THROW_OUT_OF_RANGE</span><span class="p">;</span>
-    <span class="n">finish</span><span class="o">--</span><span class="p">;</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+void vector&lt;T, Alloc&gt;::pop_back(){
+    if(empty())
+        THROW_OUT_OF_RANGE;
+    finish--;
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">insert_aux</span><span class="p">(</span><span class="n">iterator</span> <span class="n">pos</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">end</span><span class="p">,</span> <span class="n">Is_Int</span><span class="p">){</span>
-    <span class="n">insert</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">size_type</span><span class="o">&gt;</span><span class="p">(</span><span class="n">begin</span><span class="p">),</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">value_type</span><span class="o">&gt;</span><span class="p">(</span><span class="n">end</span><span class="p">));</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+template&lt;typename InputIterator&gt;
+void vector&lt;T, Alloc&gt;::insert_aux(iterator pos, InputIterator begin, InputIterator end, Is_Int){
+    insert(pos, static_cast&lt;size_type&gt;(begin), static_cast&lt;value_type&gt;(end));
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">insert_aux</span><span class="p">(</span><span class="n">iterator</span> <span class="n">pos</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">end</span><span class="p">,</span> <span class="n">Not_Int</span><span class="p">){</span>
-    <span class="n">size_type</span> <span class="n">dif</span> <span class="o">=</span> <span class="n">distance</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">pos</span><span class="p">);</span>
-    <span class="n">size_type</span> <span class="n">dis</span> <span class="o">=</span> <span class="n">distance</span><span class="p">(</span><span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">);</span>
-    <span class="n">reserve</span><span class="p">(</span><span class="n">dis</span> <span class="o">+</span> <span class="n">size</span><span class="p">());</span>
-    <span class="n">pos</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">dif</span><span class="p">;</span>
-    <span class="c1">//copy from back to front</span>
-    <span class="n">_copy_backward</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">finish</span><span class="p">,</span> <span class="n">pos</span> <span class="o">+</span> <span class="n">dis</span><span class="p">);</span>
-    <span class="n">uninitialized_copy</span><span class="p">(</span><span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">pos</span><span class="p">);</span>
-    <span class="n">finish</span> <span class="o">=</span> <span class="n">finish</span> <span class="o">+</span> <span class="n">dis</span><span class="p">;</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+template&lt;typename InputIterator&gt;
+void vector&lt;T, Alloc&gt;::insert_aux(iterator pos, InputIterator begin, InputIterator end, Not_Int){
+    size_type dif = distance(start, pos);
+    size_type dis = distance(begin, end);
+    reserve(dis + size());
+    pos = start + dif;
+    //copy from back to front
+    _copy_backward(pos, finish, pos + dis);
+    uninitialized_copy(begin, end, pos);
+    finish = finish + dis;
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">insert</span><span class="p">(</span><span class="n">iterator</span> <span class="n">pos</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">end</span><span class="p">){</span>
-    <span class="k">typedef</span> <span class="k">typename</span> <span class="n">traits_int</span><span class="o">&lt;</span><span class="n">InputIterator</span><span class="o">&gt;::</span><span class="n">is_int</span> <span class="n">Judge</span><span class="p">;</span>
-    <span class="n">insert_aux</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">Judge</span><span class="p">());</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+template&lt;typename InputIterator&gt;
+void vector&lt;T, Alloc&gt;::insert(iterator pos, InputIterator begin, InputIterator end){
+    typedef typename traits_int&lt;InputIterator&gt;::is_int Judge;
+    insert_aux(pos, begin, end, Judge());
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="k">typename</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">insert</span><span class="p">(</span><span class="n">iterator</span> <span class="n">pos</span><span class="p">,</span> <span class="n">const_reference</span> <span class="n">value</span><span class="p">){</span>
-    <span class="k">return</span> <span class="n">insert</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+typename vector&lt;T, Alloc&gt;::iterator vector&lt;T, Alloc&gt;::insert(iterator pos, const_reference value){
+    return insert(pos, 1, value);
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">insert</span><span class="p">(</span><span class="n">iterator</span> <span class="n">pos</span><span class="p">,</span> <span class="n">size_type</span> <span class="n">n</span><span class="p">,</span> <span class="n">const_reference</span> <span class="n">value</span><span class="p">){</span>
-    <span class="n">size_type</span> <span class="n">dif</span> <span class="o">=</span> <span class="n">distance</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">pos</span><span class="p">);</span>
-    <span class="n">reserve</span><span class="p">(</span><span class="n">size</span><span class="p">()</span> <span class="o">+</span> <span class="n">n</span><span class="p">);</span>
-    <span class="n">pos</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">dif</span><span class="p">;</span>
-    <span class="c1">//copy from back to front</span>
-    <span class="n">_copy_backward</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">finish</span><span class="p">,</span> <span class="n">pos</span> <span class="o">+</span> <span class="n">n</span><span class="p">);</span>
-    <span class="n">uninitialized_fill_n</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">n</span> <span class="p">,</span> <span class="n">value</span><span class="p">);</span>
-    <span class="n">finish</span> <span class="o">=</span> <span class="n">finish</span> <span class="o">+</span> <span class="n">n</span><span class="p">;</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+void vector&lt;T, Alloc&gt;::insert(iterator pos, size_type n, const_reference value){
+    size_type dif = distance(start, pos);
+    reserve(size() + n);
+    pos = start + dif;
+    //copy from back to front
+    _copy_backward(pos, finish, pos + n);
+    uninitialized_fill_n(pos, n , value);
+    finish = finish + n;
+}</p>
 
+<p>template&lt;typename T, typename Alloc&gt;
+typename vector&lt;T, Alloc&gt;::iterator vector&lt;T, Alloc&gt;::erase(iterator pos){
+    return erase(pos, pos+1);
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="k">typename</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">erase</span><span class="p">(</span><span class="n">iterator</span> <span class="n">pos</span><span class="p">){</span>
-    <span class="k">return</span> <span class="n">erase</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">pos</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+typename vector&lt;T,Alloc&gt;::iterator vector&lt;T, Alloc&gt;::erase(iterator begin, iterator end){
+    iterator pos;
+    // copy from front to back
+    _copy_forward(end, finish, begin);
+    finish = finish - (end - begin);
+    return pos;
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="k">typename</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">erase</span><span class="p">(</span><span class="n">iterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">iterator</span> <span class="n">end</span><span class="p">){</span>
-    <span class="n">iterator</span> <span class="n">pos</span><span class="p">;</span>
-    <span class="c1">// copy from front to back</span>
-    <span class="n">_copy_forward</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="n">finish</span><span class="p">,</span> <span class="n">begin</span><span class="p">);</span>
-    <span class="n">finish</span> <span class="o">=</span> <span class="n">finish</span> <span class="o">-</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">begin</span><span class="p">);</span>
-    <span class="k">return</span> <span class="n">pos</span><span class="p">;</span>
-<span class="p">}</span>
+<p>template&lt;typename T, typename Alloc&gt;
+void vector&lt;T, Alloc&gt;::swap(vector&lt;T, Alloc&gt; &amp;rhs){
+    std::swap(start, rhs.start);
+    std::swap(finish, rhs.finish);
+    std::swap(end_of_storage, rhs.end_of_storage);
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">swap</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">rhs</span><span class="p">){</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">rhs</span><span class="p">.</span><span class="n">start</span><span class="p">);</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">finish</span><span class="p">,</span> <span class="n">rhs</span><span class="p">.</span><span class="n">finish</span><span class="p">);</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">end_of_storage</span><span class="p">,</span> <span class="n">rhs</span><span class="p">.</span><span class="n">end_of_storage</span><span class="p">);</span>
-<span class="p">}</span>
-
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">clear</span><span class="p">(){</span>
-    <span class="n">finish</span> <span class="o">=</span> <span class="n">start</span><span class="p">;</span>
-<span class="p">}</span></code></pre></div>
-
+<p>template&lt;typename T, typename Alloc&gt;
+void vector&lt;T, Alloc&gt;::clear(){
+    finish = start;
+}</code></pre></figure></p>
 
 <h3>注意</h3>
 
@@ -399,17 +399,16 @@
 
 <p>以assign成员函数为例,我们可以看到有两个重载的assign成员函数:</p>
 
-<div class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="kt">void</span> <span class="nf">assign</span><span class="p">(</span><span class="n">size_type</span> <span class="n">n</span><span class="p">,</span> <span class="n">const_reference</span> <span class="n">value</span><span class="p">);</span>
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">assign</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">end</span><span class="p">);</span></code></pre></div>
-
+<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">void assign(size_type n, const_reference value);
+template&lt;typename InputIterator&gt;
+void assign(InputIterator begin, InputIterator end);</code></pre></figure></p>
 
 <p>一个为当前vector assign n个value,一个是将[begin, end)里的数据assign给当前vector,它们两个似乎没有什么冲突，但是会有什么问题呢？</p>
 
 <p>我们可以看到第一个assign函数的第一个参数是size_type即unsigned int，第二个参数是const T; 我们可以想一下，如果这个T是int,那么我们如果使用assgin(3, 3)本意调用第一个assgin函数，那么就是形参都是int,所以会将InputIterator解释为int,<strong>然后匹配第二个assgin函数!!!</strong>除非我们assgin((unsigned int)3, 3)这样调用才会匹配到第一个assgin函数，这当然是不方便的.所以我们需要针对这种情况判断InputIterator是否是int类型，如果是则再调用第一个assgin函数. 同理，我们可以看到vector的迭代器构造函数，以及insert函数都有这样的问题，也需要这样解决.</p>
 
 
-    <!--    10924-->
+    <!--    10726-->
     <div class="eof">-&nbsp;EOF&nbsp;-</div>
     <p class="declare">声明:本文采用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="nofollow" title="署名-非商业性使用-相同方式共享">BY-NC-SA</a>协议进行授权.转载请注明: <a href="/c/c++/2015/05/16/%E4%BB%BF%E7%85%A7SGI-STL%E5%AE%9E%E7%8E%B0Vector%E5%AE%B9%E5%99%A8.html" title="仿照SGI-STL实现Vector容器 " rel="nofollow">仿照SGI-STL实现Vector容器</a></p>
     <hr>
@@ -436,11 +435,11 @@
     <div class="pagination">
       <ul>
       
-        <li class="prev"><a href="/c/c++/2015/05/10/%E6%B5%85%E8%B0%88%E5%AF%B9SGI-STL%E8%BF%AD%E4%BB%A3%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3%E7%9A%84%E7%90%86%E8%A7%A3.html" title="浅谈对SGI-STL迭代器设计思想的理解">&larr; Previous</a></li>
+        <li class="prev"><a href="/2015/05/01/Valid-Number.html" title="Valid Number">&larr; Previous</a></li>
       
         <li><a href="/archive.html">Archive</a></li>
       
-        <li class="next"><a href="/mips/2015/05/30/Mips%E4%B8%8B%E4%BB%BF%E7%85%A7%E7%BC%96%E8%AF%91%E5%99%A8%E5%AE%9E%E7%8E%B0C%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8.html" title="Mips下仿照编译器实现C++成员函数调用">Next &rarr;</a></li>
+        <li class="next"><a href="/mips/2015/05/30/Mips%E4%B8%8B%E4%BB%BF%E7%85%A7%E7%BC%96%E8%AF%91%E5%99%A8%E5%AE%9E%E7%8E%B0C++%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8.html" title="Mips下仿照编译器实现C++成员函数调用">Next &rarr;</a></li>
       
       </ul>
     </div>
@@ -492,6 +491,8 @@
   <h4>相关文章</h4>
   <ul>
   
+  <li><a href="/job/2016/03/20/%E6%89%BE%E5%B7%A5%E4%BD%9C%E6%80%BB%E7%BB%93.html ">找工作总结</a></li>
+  
   <li><a href="/book/2015/07/31/%E6%88%91%E7%9A%84%E8%AF%BB%E4%B9%A6%E5%8D%95.html ">我的读书单</a></li>
   
   <li><a href="/linux/2015/07/16/Linux%E5%86%85%E6%A0%B8%E6%BA%90%E4%BB%A3%E7%A0%81%E6%83%85%E6%99%AF%E5%88%86%E6%9E%90%E4%B9%8B%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86.html ">Linux内核源代码情景分析之存储管理</a></li>
@@ -500,26 +501,23 @@
   
   <li><a href="/c/c++/2015/06/16/%E4%BB%BF%E7%85%A7SGI-STL%E5%AE%9E%E7%8E%B0Hash%E8%A1%A8.html ">仿照SGI-STL实现Hash表</a></li>
   
-  <li><a href="/mips/2015/05/30/Mips%E4%B8%8B%E4%BB%BF%E7%85%A7%E7%BC%96%E8%AF%91%E5%99%A8%E5%AE%9E%E7%8E%B0C%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8.html ">Mips下仿照编译器实现C++成员函数调用</a></li>
+  <li><a href="/mips/2015/05/30/Mips%E4%B8%8B%E4%BB%BF%E7%85%A7%E7%BC%96%E8%AF%91%E5%99%A8%E5%AE%9E%E7%8E%B0C++%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8.html ">Mips下仿照编译器实现C++成员函数调用</a></li>
   
-  <li><a href="/c/c++/2015/05/10/%E6%B5%85%E8%B0%88%E5%AF%B9SGI-STL%E8%BF%AD%E4%BB%A3%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3%E7%9A%84%E7%90%86%E8%A7%A3.html ">浅谈对SGI-STL迭代器设计思想的理解</a></li>
-  
-  <li><a href="/leetcode/2015/05/01/LeetCode-Valid_Number.html ">LeetCode --- Valid Number</a></li>
+  <li><a href="/2015/05/01/Valid-Number.html ">Valid Number</a></li>
   
   </ul>
   </div>
 </div>
-<script type="text/javascript" src="/assets/themes/flying/js/blogscript.js"></script>
+<script type="text/javascript" src="/assets/themes/flying//js/blogscript.js"></script>
 
 
       </div>
 
       <footer>
-        <p>&copy; sosohu 2014 
+        <p>&copy; sosohu 2012 
           with help from <a href="http://jekyllbootstrap.com" target="_blank" title="The Definitive Jekyll Blogging Framework">Jekyll Bootstrap</a>
           and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
-	<!--script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1000067280'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s22.cnzz.com/z_stat.php%3Fid%3D1000067280%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script-->
-	<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_3815131'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s9.cnzz.com/stat.php%3Fid%3D3815131%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+	<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1000067280'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s22.cnzz.com/z_stat.php%3Fid%3D1000067280%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
         </p>
       </footer>
 
@@ -565,7 +563,7 @@ $("a[href^='http://']").each(function(){
 <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
 
-<script type="text/javascript" src="/assets/themes/flying/js/default.js"></script>
+<script type="text/javascript" src="/assets/themes/flying//js/default.js"></script>
  </html>
 
 

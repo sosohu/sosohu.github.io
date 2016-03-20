@@ -3,10 +3,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>C++的this指针 | WordWorth</title>
-    <meta name="description" content="关于this指针的粗浅认识">
+    <title>Ubuntu14.10下解决chromium浏览器无法安装adobe flash的问题 | WordWorth</title>
+    <meta name="description" content="解决chromium浏览器无法安装adobe flash问题">
     <meta name="author" content="sosohu">
-    <meta name="keywords" content="this">
+    <meta name="keywords" content="chromium, abobe flash">
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
     <!--[if lt IE 9]>
@@ -52,152 +52,46 @@
       <div class="content">
         
 <div class="page-header">
-  <h1>C++的this指针 <small class="H1_Date">--10 December 2014</small></h1>
+  <h1>Ubuntu14.10下解决chromium浏览器无法安装adobe flash的问题 <small class="H1_Date">--07 December 2014</small></h1>
 </div>
 
 <div class="row">
   <div class="span8">
-    <p>这篇博客主要内容翻译自国外著名程序员网站：<a href="http://www.geeksforgeeks.org">geekersforgeekers</a>,经过作者小幅度整理，水平有限，敬请指正.</p>
-
-<h1>关于this指针的粗浅认识</h1>
-
-<h2>(一)   this指针：</h2>
-
-<p>在对象的任意非static类型的成员函数被调用时候，this指针会作为一个隐藏的参数被秘密的传递给该成员函数．</p>
-
-<h2>(二)   this指针的类型：</h2>
+    <p>本文参考了一下资源和博客，在此提出表示感谢：</p>
 
 <ul>
-<li>首先，this指针本身是一个const类型的指针(注意是指针是const的，不是指向的对象是const的)，例如对于类X，那么它的this指针类型就是X * const</li>
+<li>http://my.oschina.net/u/209016/blog/290067</li>
+<li>http://ubuntuhandbook.org/index.php/2014/10/enable-flash-chromium-browser-ubuntu-14-10/</li>
 </ul>
 
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">#include&lt;iostream&gt;
-        using namespace std;</p>
+<h2>问题描述</h2>
 
-<pre><code>    class Test
-    {
-        private:
-            int x;
-        public:
-            Test(int x = 0) { this-&amp;gt;x = x; }
-            void change(Test *t) { this = t; } 
-            //试图赋值失败，因为this是const类型指针
-            void print() { cout &amp;lt;&amp;lt; &amp;quot;x = &amp;quot; &amp;lt;&amp;lt; x &amp;lt;&amp;lt; endl; }
-    };
+<p>前段时间装了Ubuntu14.10的32位版本，然后不记得是随系统带的还是自己装的chromium浏览器，可是自从用了chromium浏览器后，问题来了，网页观看视频的时候检测到没有flash支持，然后一般会有个链接然后让你点击安装，可是安装时候发现选择linux->apt-get安装时候在软件中心又无法找到该软件......</p>
 
-    int main()
-    {
-        Test obj(5);
-        Test *ptr = new Test (10);
-        obj.change(ptr);
-        obj.print();
-        return 0;
-    }&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-</code></pre>
+<h2>解决办法</h2>
 
-<ul>
-<li>另外，this指针指向的类型根据成员函数实际的类型确定，例如X有个const类型的成员函数, 那么this指针类型就const X * const</li>
-</ul>
+<p>那么该怎么办呢？解决办法很简单：</p>
+
+<p><figure class="highlight"><pre><code class="language-sh" data-lang="sh">sudo apt-get install pepperflashplugin-nonfree
+sudo update-pepperflashplugin-nonfree --install</code></pre></figure>
+　　
+不过，第一句<code>sudo apt-get install pepperflashplugin-nonfree</code>时候你可能还是会搜不到这个软件，那么推荐你直接下载<a href="http://packages.ubuntu.com/trusty/pepperflashplugin-nonfree">deb</a>安装</p>
+
+<p>之后就是重启一下浏览器，就可以发现Chromium可以看flash视频啦</p>
+
+<h2>原因解释</h2>
+
+<p>If you’re using a Chromium based web browser in Ubuntu, you may find that the Adobe Flash Player installed from Ubuntu Software Center does not work all the time.</p>
+
+<p>Because ‘Aura’ for Linux, which replaces GTK+, lacks coded support for NPAPI plugins, the “old” Adobe plugin in Ubuntu repositories does no longer play Flash content in Chromium based web browser.</p>
+
+<p>As a workaround, you can use the ‘Pepper Flash’ which is bundled with Google Chrome that provides the latest Adobe Flash Player for Linux.</p>
 
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">#include&lt;iostream&gt;
-    class X {
-        void fun() const {
-        // this is passed as hidden argument to fun().
-        // Type of this is const X*
-        }
-    };</code></pre></figure></p>
-
-<h2>(三)何时使用this指针</h2>
-
-<ul>
-<li>当局部变量与类成员变量同名</li>
-</ul>
-
-
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">#include&lt;iostream&gt;
-        using namespace std;</p>
-
-<pre><code>    /* local variable is same as a member&amp;#39;s name */
-    class Test
-    {
-    private:
-       int x;
-    public:
-       void setX (int x)
-       {
-           // The &amp;#39;this&amp;#39; pointer is used to retrieve the object&amp;#39;s x
-           // hidden by the local variable &amp;#39;x&amp;#39;
-           this-&amp;gt;x = x;
-       }
-       void print() { cout &amp;lt;&amp;lt; &amp;quot;x = &amp;quot; &amp;lt;&amp;lt; x &amp;lt;&amp;lt; endl; }
-    };
-
-    int main()
-    {
-       Test obj;
-       int x = 20;
-       obj.setX(x);
-       obj.print();
-       return 0;
-    }&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-</code></pre>
-
-<ul>
-<li>返回调用对象的引用时候</li>
-</ul>
-
-
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">/<em> Reference to the calling object can be returned </em>/
-        Test&amp; Test::func ()
-        {
-           // Some processing
-           return *this;
-        }</code></pre></figure></p>
-
-<h2>(四)delete this指针</h2>
-
-<p>什么？要删除this指针？对，你没有看错，就是要删出它，其实这也没什么奇怪的，需要注意的就是：</p>
-
-<ul>
-<li> delete函数释放的只能是堆里面的内存，也就是说是new出来的空间</li>
-<li> delete完this指针之后，对象的所有成员都不能再被访问</li>
-</ul>
-
-
-<p>下面代码就会体现出来：</p>
-
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">class A
-    {
-      public:
-        void fun()
-        {
-            delete this;
-        }
-    };</p>
-
-<pre><code>int main()
-{
-  /* Following is Valid */
-  A *ptr = new A;
-  ptr-&amp;gt;fun ; // 没有问题
-  ptr = NULL // make ptr NULL to make sure that things are not accessed using ptr. 
-
-
-  /* And following is Invalid: Undefined Behavior */
-  A a;
-  a.fun();　// 释放栈上的空间，会出错
-
-  getchar();
-  return 0;
-}&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-</code></pre>
-
-
-    <!--    2428-->
+    <!--    1052-->
     <div class="eof">-&nbsp;EOF&nbsp;-</div>
-    <p class="declare">声明:本文采用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="nofollow" title="署名-非商业性使用-相同方式共享">BY-NC-SA</a>协议进行授权.转载请注明: <a href="/c/c++/2014/12/10/C++%E7%9A%84this%E6%8C%87%E9%92%88.html" title="C++的this指针 " rel="nofollow">C++的this指针</a></p>
+    <p class="declare">声明:本文采用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="nofollow" title="署名-非商业性使用-相同方式共享">BY-NC-SA</a>协议进行授权.转载请注明: <a href="/ubuntu/2014/12/07/Ubuntu14.10%E4%B8%8B%E8%A7%A3%E5%86%B3chromium%E6%B5%8F%E8%A7%88%E5%99%A8%E6%97%A0%E6%B3%95%E5%AE%89%E8%A3%85adobe-flash%E7%9A%84%E9%97%AE%E9%A2%98.html" title="Ubuntu14.10下解决chromium浏览器无法安装adobe flash的问题 " rel="nofollow">Ubuntu14.10下解决chromium浏览器无法安装adobe flash的问题</a></p>
     <hr>
 	<!-- bdshare provider -->	
 	<style>
@@ -222,11 +116,11 @@
     <div class="pagination">
       <ul>
       
-        <li class="prev"><a href="/ubuntu/2014/12/07/Ubuntu14.10%E4%B8%8B%E8%A7%A3%E5%86%B3chromium%E6%B5%8F%E8%A7%88%E5%99%A8%E6%97%A0%E6%B3%95%E5%AE%89%E8%A3%85adobe-flash%E7%9A%84%E9%97%AE%E9%A2%98.html" title="Ubuntu14.10下解决chromium浏览器无法安装adobe flash的问题">&larr; Previous</a></li>
+        <li class="prev"><a href="/c/c++/2014/05/10/%E6%B5%85%E8%B0%88%E5%AF%B9SGI-STL%E8%BF%AD%E4%BB%A3%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3%E7%9A%84%E7%90%86%E8%A7%A3.html" title="浅谈对SGI-STL迭代器设计思想的理解">&larr; Previous</a></li>
       
         <li><a href="/archive.html">Archive</a></li>
       
-        <li class="next"><a href="/tool/2015/02/05/Linux%E4%B8%8B%E5%B0%8F%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90.html" title="Linux下小工具推荐">Next &rarr;</a></li>
+        <li class="next"><a href="/c/c++/2014/12/10/C++%E7%9A%84this%E6%8C%87%E9%92%88.html" title="C++的this指针">Next &rarr;</a></li>
       
       </ul>
     </div>
@@ -267,7 +161,7 @@
 
   
      
-    	<li><a href="/tags.html#C++-ref">C++ <span>1</span></a></li>
+    	<li><a href="/tags.html#Ubuntu-ref">Ubuntu <span>1</span></a></li>
     
   
 

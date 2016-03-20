@@ -14,10 +14,10 @@
     <![endif]-->
 
     <!-- Le styles -->
-    <link href="/assets/themes/flying/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/assets/themes/flying/css/style.css" rel="stylesheet" type="text/css" media="all">
-    <link href="/assets/themes/flying/css/syntax.css" rel="stylesheet" type="text/css" media="all">
-    <script type="text/javascript" src="/assets/themes/flying/js/jquery-1.9.1.min.js"></script>
+    <link href="/assets/themes/flying//bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/themes/flying//css/style.css" rel="stylesheet" type="text/css" media="all">
+    <link href="/assets/themes/flying//css/syntax.css" rel="stylesheet" type="text/css" media="all">
+    <script type="text/javascript" src="/assets/themes/flying//js/jquery-1.9.1.min.js"></script>
    <!-- Le fav and touch icons -->
   <!-- Update these with your own images
     <link rel="shortcut icon" href="images/favicon.ico">
@@ -37,8 +37,8 @@
 		<li><a href="/about.html">About</a></li>
 		<li><a href="/archive.html">Archive</a></li>
 		<li><a href="/categories.html">Categories</a></li>
-		<li><a href="/link.html">Link</a></li>
-		<li><a href="/download.html">Download</a></li>
+      	<li><a href="/link.html">Link</a></li>
+      	<li><a href="/download.html">Download</a></li>
 <!--		<li><a href="http://wiki.zhouyichu.com">Wiki</a></li>  -->
 		<li class="offset3"><a href="/atom.xml">Subscribe</a></li>
 		<li><a id="random" href="#">Random</a></li>
@@ -67,13 +67,12 @@
 
 <h3>Hash Table类的原型</h3>
 
-<div class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Key</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Value</span><span class="p">,</span> <span class="k">typename</span> <span class="n">HashFunc</span> <span class="o">=</span> <span class="n">hash_function</span><span class="o">&lt;</span><span class="n">Key</span><span class="o">&gt;</span><span class="p">,</span>
-        <span class="k">typename</span> <span class="n">ExtractKey</span> <span class="o">=</span> <span class="n">extract_key_single</span><span class="o">&lt;</span><span class="n">Key</span><span class="o">&gt;</span><span class="p">,</span>
-        <span class="k">typename</span> <span class="n">EqualKey</span> <span class="o">=</span> <span class="n">equal_key</span><span class="o">&lt;</span><span class="n">Key</span><span class="o">&gt;</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span> <span class="o">=</span> <span class="n">alloc</span><span class="o">&gt;</span>
-<span class="k">class</span> <span class="nc">hash_table</span><span class="p">{</span>
-    <span class="p">...</span>
-<span class="p">}</span></code></pre></div>
-
+<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;typename Key, typename Value, typename HashFunc = hash_function&lt;Key&gt;,
+        typename ExtractKey = extract_key_single&lt;Key&gt;,
+        typename EqualKey = equal_key&lt;Key&gt;, typename Alloc = alloc&gt;
+class hash_table{
+    ...
+}</code></pre></figure></p>
 
 <p>这里需要解释一下,Key指的就是键的类型,Value指的是存储的数据类型，对于<code>unordered_set&lt;int&gt;</code>这种，对应过来的Value就是int,而对于<code>unordered_map&lt;int, double&gt;</code>这种对应过来的Value就是<code>pair&lt;int,double&gt;</code>. HashFunc即hash仿函数类.EqualKey也是一个仿函数类，它的作用就是从Value类型中提取出Key类型对应的值,比如Value如果是int,那么提取出int,如果Value是<code>pair&lt;int,double&gt;</code>那么就是提取出int,这在后面的unordered_map类可以再仔细看一下.EqualKey也是一个仿函数类，用来判断两个key是否相等．Alloc类即是负责空间分配的类</p>
 
@@ -83,27 +82,26 @@
 
 <p>这里贴一下链表和槽的数据结构代码实现:</p>
 
-<div class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="c1">//链表节点</span>
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Value</span><span class="o">&gt;</span>
-<span class="k">struct</span> <span class="n">hash_node</span><span class="p">{</span>
-    <span class="n">hash_node</span> <span class="o">*</span><span class="n">next</span><span class="p">;</span>
-    <span class="n">Value</span> <span class="n">val</span><span class="p">;</span>
-    <span class="n">hash_node</span><span class="p">(</span><span class="n">hash_node</span> <span class="o">*</span><span class="n">next</span><span class="p">,</span> <span class="n">Value</span> <span class="n">val</span><span class="p">)</span> <span class="o">:</span> <span class="n">next</span><span class="p">(</span><span class="n">next</span><span class="p">),</span> <span class="n">val</span><span class="p">(</span><span class="n">val</span><span class="p">){}</span>
-    <span class="n">hash_node</span><span class="p">()</span> <span class="o">=</span> <span class="k">default</span><span class="p">;</span>
-<span class="p">};</span>
+<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">//链表节点
+template&lt;typename Value&gt;
+struct hash_node{
+    hash_node <em>next;
+    Value val;
+    hash_node(hash_node </em>next, Value val) : next(next), val(val){}
+    hash_node() = default;
+};</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Key</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Value</span><span class="p">,</span> <span class="k">typename</span> <span class="n">HashFunc</span> <span class="o">=</span> <span class="n">hash_function</span><span class="o">&lt;</span><span class="n">Key</span><span class="o">&gt;</span><span class="p">,</span>
-        <span class="k">typename</span> <span class="n">ExtractKey</span> <span class="o">=</span> <span class="n">extract_key_single</span><span class="o">&lt;</span><span class="n">Key</span><span class="o">&gt;</span><span class="p">,</span>
-        <span class="k">typename</span> <span class="n">EqualKey</span> <span class="o">=</span> <span class="n">equal_key</span><span class="o">&lt;</span><span class="n">Key</span><span class="o">&gt;</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span> <span class="o">=</span> <span class="n">alloc</span><span class="o">&gt;</span>
-<span class="k">class</span> <span class="nc">hash_table</span><span class="p">{</span>
-<span class="p">...</span>
-<span class="k">typedef</span> <span class="n">hash_table</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="n">EqualKey</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;</span>    <span class="n">hash_table_type</span><span class="p">;</span>
-<span class="p">...</span>
-<span class="c1">//槽</span>
-<span class="n">vector</span><span class="o">&lt;</span><span class="n">hash_node_type</span><span class="o">*</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;</span> <span class="n">buckets</span><span class="p">;</span>
-<span class="p">...</span>
-<span class="p">}</span></code></pre></div>
-
+<p>template&lt;typename Key, typename Value, typename HashFunc = hash_function&lt;Key&gt;,
+        typename ExtractKey = extract_key_single&lt;Key&gt;,
+        typename EqualKey = equal_key&lt;Key&gt;, typename Alloc = alloc&gt;
+class hash_table{
+...
+typedef hash_table&lt;Key, Value, HashFunc, ExtractKey, EqualKey, Alloc&gt; hash_table_type;
+...
+//槽
+vector&lt;hash_node_type*, Alloc&gt; buckets;
+...
+}</code></pre></figure></p>
 
 <p>另外，为了避免冲突发生率太高,当hash表的<strong>负载因子</strong>(表中存放的数据总数/槽的个数)超过一定阀值(通常是1)就需要扩大槽的数目(一般是原槽数的2倍左右的一个素数).具体扩大的方法就是，申请新的槽，然后把原来槽中存放的数据全部重新hash到新槽对应的链表中，然后释放原来的槽及数据.</p>
 
@@ -113,284 +111,284 @@
 
 <p>这里贴上迭代器的设计代码:</p>
 
-<div class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Key</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Value</span><span class="p">,</span> <span class="k">typename</span> <span class="n">HashFunc</span><span class="p">,</span>
-            <span class="k">typename</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="k">typename</span> <span class="n">EqualKey</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span> <span class="o">=</span> <span class="n">alloc</span><span class="o">&gt;</span>
-<span class="k">struct</span> <span class="n">hash_table_iterator</span><span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-    <span class="k">typedef</span> <span class="n">Key</span> <span class="n">key_type</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="n">Value</span> <span class="n">value_type</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="n">Value</span><span class="o">*</span> <span class="n">pointer</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="n">Value</span> <span class="o">&amp;</span><span class="n">reference</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="n">hash_table_iterator</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="n">EqualKey</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;</span> <span class="n">iterator</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="k">const</span> <span class="n">iterator</span> <span class="n">const_iterator</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="n">hash_table</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="n">EqualKey</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;</span> <span class="n">hash_table_type</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="n">hash_node</span><span class="o">&lt;</span><span class="n">Value</span><span class="o">&gt;</span> <span class="n">hash_node_type</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="n">forward_iterator_tag</span> <span class="n">iterator_category</span><span class="p">;</span>
+<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;typename Key, typename Value, typename HashFunc,
+            typename ExtractKey, typename EqualKey, typename Alloc = alloc&gt;
+struct hash_table_iterator{
+public:
+    typedef Key key_type;
+    typedef Value value_type;
+    typedef Value* pointer;
+    typedef Value &amp;reference;
+    typedef hash_table_iterator&lt;Key, Value, HashFunc, ExtractKey, EqualKey, Alloc&gt; iterator;
+    typedef const iterator const_iterator;
+    typedef hash_table&lt;Key, Value, HashFunc, ExtractKey, EqualKey, Alloc&gt; hash_table_type;
+    typedef hash_node&lt;Value&gt; hash_node_type;
+    typedef forward_iterator_tag iterator_category;</p>
 
-<span class="k">public</span><span class="o">:</span>
-    <span class="n">hash_table_iterator</span><span class="p">()</span> <span class="o">=</span> <span class="k">default</span><span class="p">;</span>
-    <span class="n">hash_table_iterator</span><span class="p">(</span><span class="n">hash_node_type</span> <span class="o">*</span><span class="n">cur</span><span class="p">,</span> <span class="n">hash_table_type</span><span class="o">*</span> <span class="n">ht</span><span class="p">)</span> <span class="o">:</span> <span class="n">cur</span><span class="p">(</span><span class="n">cur</span><span class="p">),</span> <span class="n">ht</span><span class="p">(</span><span class="n">ht</span><span class="p">){}</span>
+<p>public:
+    hash_table_iterator() = default;
+    hash_table_iterator(hash_node_type <em>cur, hash_table_type</em> ht) : cur(cur), ht(ht){}</p>
 
-    <span class="n">reference</span> <span class="k">operator</span><span class="o">*</span><span class="p">(){</span>
-        <span class="k">return</span> <span class="n">cur</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">;</span>
-    <span class="p">}</span>
+<pre><code>reference operator*(){
+    return cur-&amp;gt;val;
+}
 
-    <span class="n">pointer</span> <span class="k">operator</span><span class="o">-&gt;</span><span class="p">(){</span>
-        <span class="k">return</span> <span class="o">&amp;</span><span class="p">(</span><span class="n">cur</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">);</span>
-    <span class="p">}</span>
+pointer operator-&amp;gt;(){
+    return &amp;amp;(cur-&amp;gt;val);
+}
 
-    <span class="n">iterator</span> <span class="k">operator</span><span class="o">++</span><span class="p">(){</span>
-        <span class="n">hash_node_type</span> <span class="o">*</span><span class="n">old</span> <span class="o">=</span> <span class="n">cur</span><span class="p">;</span>
-        <span class="n">cur</span> <span class="o">=</span> <span class="n">cur</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">cur</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">){</span>
-            <span class="kt">size_t</span> <span class="n">id</span> <span class="o">=</span> <span class="n">ht</span><span class="o">-&gt;</span><span class="n">getBucketId</span><span class="p">(</span><span class="n">old</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">);</span>
-            <span class="n">id</span><span class="o">++</span><span class="p">;</span>
-            <span class="k">while</span><span class="p">(</span><span class="n">id</span> <span class="o">&lt;</span> <span class="n">ht</span><span class="o">-&gt;</span><span class="n">getBucketSize</span><span class="p">()){</span>
-                <span class="n">cur</span> <span class="o">=</span> <span class="n">ht</span><span class="o">-&gt;</span><span class="n">buckets</span><span class="p">[</span><span class="n">id</span><span class="o">++</span><span class="p">];</span>
-                <span class="k">if</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span> <span class="k">break</span><span class="p">;</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-        <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="n">iterator</span> <span class="k">operator</span><span class="o">++</span><span class="p">(</span><span class="kt">int</span><span class="p">){</span>
-        <span class="n">iterator</span> <span class="n">tmp</span> <span class="o">=</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
-        <span class="o">++*</span><span class="k">this</span><span class="p">;</span>
-        <span class="k">return</span> <span class="n">tmp</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="kt">bool</span> <span class="k">operator</span><span class="o">==</span><span class="p">(</span><span class="n">const_iterator</span> <span class="o">&amp;</span><span class="n">rhs</span><span class="p">)</span> <span class="k">const</span><span class="p">{</span>
-        <span class="k">return</span>   <span class="n">cur</span> <span class="o">==</span> <span class="n">rhs</span><span class="p">.</span><span class="n">cur</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="kt">bool</span> <span class="k">operator</span><span class="o">!=</span><span class="p">(</span><span class="n">const_iterator</span> <span class="o">&amp;</span><span class="n">rhs</span><span class="p">)</span> <span class="k">const</span><span class="p">{</span>
-        <span class="k">return</span> <span class="n">cur</span> <span class="o">!=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">cur</span><span class="p">;</span>
-    <span class="p">}</span>
+iterator operator++(){
+    hash_node_type *old = cur;
+    cur = cur-&amp;gt;next;
+    if(cur == NULL){
+        size_t id = ht-&amp;gt;getBucketId(old-&amp;gt;val);
+        id++;
+        while(id &amp;lt; ht-&amp;gt;getBucketSize()){
+            cur = ht-&amp;gt;buckets[id++];
+            if(cur) break;
+        }
+    }
+    return *this;
+}
+iterator operator++(int){
+    iterator tmp = *this;
+    ++*this;
+    return tmp;
+}
+bool operator==(const_iterator &amp;amp;rhs) const{
+    return  cur == rhs.cur;
+}
+bool operator!=(const_iterator &amp;amp;rhs) const{
+    return cur != rhs.cur;
+}
+</code></pre>
 
-<span class="k">public</span><span class="o">:</span>
-    <span class="n">hash_table_type</span> <span class="o">*</span><span class="n">ht</span><span class="p">;</span> <span class="c1">//Hash Table对象指针</span>
-    <span class="n">hash_node_type</span>   <span class="o">*</span><span class="n">cur</span><span class="p">;</span> <span class="c1">//当前链表节点</span>
-<span class="p">};</span></code></pre></div>
-
+<p>public:
+    hash_table_type <em>ht; //Hash Table对象指针
+    hash_node_type  </em>cur; //当前链表节点
+};</code></pre></figure></p>
 
 <h2>Hash Table具体设计</h2>
 
 <p>具体代码如下面所示，其实完整的工程代码请查看我的github上的<a href="https://github.com/sosohu/Tiny-Stl/blob/master/include/hash_table.h">Tiny-STL</a>项目.</p>
 
-<div class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">static</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">prime_table_size</span> <span class="o">=</span> <span class="mi">28</span><span class="p">;</span>
-<span class="k">static</span> <span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">prime_table</span><span class="p">[</span><span class="n">prime_table_size</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="mi">53</span><span class="p">,</span> <span class="mi">97</span><span class="p">,</span> <span class="mi">193</span><span class="p">,</span> <span class="mi">389</span><span class="p">,</span> <span class="mi">769</span><span class="p">,</span>
-        <span class="mi">1543</span><span class="p">,</span> <span class="mi">3079</span><span class="p">,</span> <span class="mi">6151</span><span class="p">,</span> <span class="mi">12289</span><span class="p">,</span> <span class="mi">24593</span><span class="p">,</span>
-        <span class="mi">49157</span><span class="p">,</span> <span class="mi">98317</span><span class="p">,</span> <span class="mi">196613</span><span class="p">,</span> <span class="mi">393241</span><span class="p">,</span> <span class="mi">786433</span><span class="p">,</span>
-        <span class="mi">1572869</span><span class="p">,</span> <span class="mi">3145739</span><span class="p">,</span> <span class="mi">6291469</span><span class="p">,</span> <span class="mi">12582917</span><span class="p">,</span> <span class="mi">25165843</span><span class="p">,</span>
-        <span class="mi">50331653</span><span class="p">,</span> <span class="mi">100663319</span><span class="p">,</span> <span class="mi">201326611</span><span class="p">,</span> <span class="mi">402653189</span><span class="p">,</span> <span class="mi">805306457</span><span class="p">,</span>
-        <span class="mi">1610612741</span><span class="p">,</span> <span class="mi">3221225473ul</span><span class="p">,</span> <span class="mi">4294967291ul</span>
-<span class="p">};</span>
+<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">static const int prime_table_size = 28;
+static const unsigned int prime_table[prime_table_size] = {
+        53, 97, 193, 389, 769,
+        1543, 3079, 6151, 12289, 24593,
+        49157, 98317, 196613, 393241, 786433,
+        1572869, 3145739, 6291469, 12582917, 25165843,
+        50331653, 100663319, 201326611, 402653189, 805306457,
+        1610612741, 3221225473ul, 4294967291ul
+};</p>
 
-<span class="cm">/*</span>
-<span class="cm"> * ExtractKey tells you how to get the key from the value. For example, Value type is pair&lt;int, int&gt; hash_map and</span>
-<span class="cm"> * the ExtractKey is select the first one of the pair.</span>
-<span class="cm"> */</span>
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Key</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Value</span><span class="p">,</span> <span class="k">typename</span> <span class="n">HashFunc</span> <span class="o">=</span> <span class="n">hash_function</span><span class="o">&lt;</span><span class="n">Key</span><span class="o">&gt;</span><span class="p">,</span>
-        <span class="k">typename</span> <span class="n">ExtractKey</span> <span class="o">=</span> <span class="n">extract_key_single</span><span class="o">&lt;</span><span class="n">Key</span><span class="o">&gt;</span><span class="p">,</span>
-        <span class="k">typename</span> <span class="n">EqualKey</span> <span class="o">=</span> <span class="n">equal_key</span><span class="o">&lt;</span><span class="n">Key</span><span class="o">&gt;</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span> <span class="o">=</span> <span class="n">alloc</span><span class="o">&gt;</span>
-<span class="k">class</span> <span class="nc">hash_table</span><span class="p">{</span>
-    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">K</span><span class="p">,</span> <span class="k">typename</span> <span class="n">V</span><span class="p">,</span> <span class="k">typename</span> <span class="n">H</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Ex</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Eq</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Al</span><span class="o">&gt;</span>
-    <span class="k">friend</span>  <span class="k">struct</span> <span class="n">hash_table_iterator</span><span class="p">;</span>
-    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Ku</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Hu</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Eu</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Au</span><span class="o">&gt;</span>
-    <span class="k">friend</span> <span class="k">class</span> <span class="nc">unordered_set</span><span class="p">;</span>
-    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Km</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Mapped</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Hm</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Em</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Am</span><span class="o">&gt;</span>
-    <span class="k">friend</span> <span class="k">class</span> <span class="nc">unordered_map</span><span class="p">;</span>
-<span class="k">public</span><span class="o">:</span>
-    <span class="k">typedef</span> <span class="n">Key</span> <span class="n">Key_type</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="n">Value</span> <span class="n">Value_type</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="kt">size_t</span> <span class="n">size_type</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="n">hash_table</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="n">EqualKey</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;</span>    <span class="n">hash_table_type</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="n">hash_table_iterator</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="n">EqualKey</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;</span> <span class="n">iterator</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="n">hash_node</span><span class="o">&lt;</span><span class="n">Value</span><span class="o">&gt;</span> <span class="n">hash_node_type</span><span class="p">;</span>
+<p>/<em>
+ * ExtractKey tells you how to get the key from the value. For example, Value type is pair&lt;int, int&gt; hash_map and
+ * the ExtractKey is select the first one of the pair.
+ </em>/
+template&lt;typename Key, typename Value, typename HashFunc = hash_function&lt;Key&gt;,
+        typename ExtractKey = extract_key_single&lt;Key&gt;,
+        typename EqualKey = equal_key&lt;Key&gt;, typename Alloc = alloc&gt;
+class hash_table{
+    template&lt;typename K, typename V, typename H, typename Ex, typename Eq, typename Al&gt;
+    friend  struct hash_table_iterator;
+    template&lt;typename Ku, typename Hu, typename Eu, typename Au&gt;
+    friend class unordered_set;
+    template&lt;typename Km, typename Mapped, typename Hm, typename Em, typename Am&gt;
+    friend class unordered_map;
+public:
+    typedef Key Key_type;
+    typedef Value Value_type;
+    typedef size_t size_type;
+    typedef hash_table&lt;Key, Value, HashFunc, ExtractKey, EqualKey, Alloc&gt; hash_table_type;
+    typedef hash_table_iterator&lt;Key, Value, HashFunc, ExtractKey, EqualKey, Alloc&gt; iterator;
+    typedef hash_node&lt;Value&gt; hash_node_type;</p>
 
-    <span class="n">hash_table</span><span class="p">(</span><span class="n">size_type</span> <span class="n">n</span> <span class="o">=</span> <span class="n">prime_table</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">:</span> <span class="n">buckets</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">hash_node_type</span><span class="o">*</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">)),</span>
-            <span class="n">num_element</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">prime_pos</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">load_factor_gate</span><span class="p">(</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">finish</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="k">this</span><span class="p">){}</span>
+<pre><code>hash_table(size_type n = prime_table[0]) : buckets(vector&amp;lt;hash_node_type*, Alloc&amp;gt;(n, NULL)),
+        num_element(0), prime_pos(0), load_factor_gate(1.0), finish(NULL, this){}
 
-    <span class="o">~</span><span class="n">hash_table</span><span class="p">(){</span>
-        <span class="n">clear</span><span class="p">();</span>
-    <span class="p">}</span>
+~hash_table(){
+    clear();
+}
 
-    <span class="n">size_type</span> <span class="n">getBucketSize</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>    <span class="k">return</span> <span class="n">buckets</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="p">}</span>
-    <span class="n">size_type</span> <span class="n">maxBucketSize</span><span class="p">()</span>  <span class="k">const</span>    <span class="p">{</span>    <span class="k">return</span> <span class="n">UINT_MAX</span><span class="p">;</span>   <span class="p">}</span>
-    <span class="n">size_type</span> <span class="n">getBucketId</span><span class="p">(</span><span class="k">const</span> <span class="n">Value_type</span> <span class="n">val</span><span class="p">)</span>    <span class="k">const</span><span class="p">{</span>
-        <span class="k">return</span> <span class="n">hash_func</span><span class="p">(</span><span class="n">get_key</span><span class="p">(</span><span class="n">val</span><span class="p">))</span> <span class="o">%</span> <span class="n">getBucketSize</span><span class="p">();</span>
-    <span class="p">}</span>
-    <span class="n">size_type</span> <span class="n">getBucket</span><span class="p">(</span><span class="k">const</span> <span class="n">size_type</span> <span class="n">n</span><span class="p">)</span> <span class="k">const</span><span class="p">{</span>
-        <span class="n">hash_node</span><span class="o">&lt;</span><span class="n">Value_type</span><span class="o">&gt;</span> <span class="o">*</span><span class="n">pCur</span> <span class="o">=</span> <span class="n">buckets</span><span class="p">[</span><span class="n">n</span><span class="p">];</span>
-        <span class="n">size_type</span> <span class="n">num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-        <span class="k">while</span><span class="p">(</span><span class="n">pCur</span><span class="p">){</span>
-            <span class="n">num</span><span class="o">++</span><span class="p">;</span>
-            <span class="n">pCur</span> <span class="o">=</span> <span class="n">pCur</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
-        <span class="p">}</span>
-        <span class="k">return</span> <span class="n">num</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="kt">bool</span> <span class="n">empty</span><span class="p">()</span>  <span class="p">{</span>    <span class="k">return</span> <span class="n">num_element</span> <span class="o">==</span> <span class="mi">0</span><span class="p">;</span>    <span class="p">}</span>
-    <span class="n">size_type</span> <span class="n">size</span><span class="p">()</span>   <span class="p">{</span>    <span class="k">return</span> <span class="n">num_element</span><span class="p">;</span>    <span class="p">}</span>
-    <span class="n">size_type</span> <span class="n">max_size</span><span class="p">()</span>   <span class="p">{</span>    <span class="k">return</span> <span class="n">UINT_MAX</span><span class="p">;</span>   <span class="p">}</span>
-    <span class="kt">double</span> <span class="n">load_factor</span><span class="p">()</span>  <span class="p">{</span>    <span class="k">return</span> <span class="n">num_element</span> <span class="o">*</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">getBucketSize</span><span class="p">();</span> <span class="p">}</span>
-    <span class="kt">double</span>  <span class="n">max_load_factor</span><span class="p">()</span> <span class="p">{</span>    <span class="k">return</span> <span class="n">load_factor_gate</span><span class="p">;</span>   <span class="p">}</span>
-    <span class="kt">void</span> <span class="n">max_load_factor</span><span class="p">(</span><span class="kt">double</span> <span class="n">lfg</span><span class="p">)</span>    <span class="p">{</span>    <span class="n">load_factor_gate</span> <span class="o">=</span> <span class="n">lfg</span><span class="p">;</span> <span class="p">}</span>
+size_type getBucketSize() const {   return buckets.size(); }
+size_type maxBucketSize()   const   {   return UINT_MAX;    }
+size_type getBucketId(const Value_type val) const{
+    return hash_func(get_key(val)) % getBucketSize();
+}
+size_type getBucket(const size_type n)  const{
+    hash_node&amp;lt;Value_type&amp;gt; *pCur = buckets[n];
+    size_type num = 0;
+    while(pCur){
+        num++;
+        pCur = pCur-&amp;gt;next;
+    }
+    return num;
+}
+bool empty()    {   return num_element == 0;    }
+size_type size()    {   return num_element; }
+size_type max_size()    {   return UINT_MAX;    }
+double load_factor()    {   return num_element * 1.0 / getBucketSize(); }
+double  max_load_factor()   {   return load_factor_gate;    }
+void max_load_factor(double lfg)    {   load_factor_gate = lfg; }
 
-    <span class="c1">// iterator interface</span>
-    <span class="n">iterator</span> <span class="n">begin</span><span class="p">(){</span>
-        <span class="n">iterator</span> <span class="n">start</span> <span class="o">=</span> <span class="n">iterator</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
-        <span class="k">for</span><span class="p">(</span><span class="n">size_type</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">buckets</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
-            <span class="k">if</span><span class="p">(</span><span class="n">buckets</span><span class="p">[</span><span class="n">i</span><span class="p">]){</span>
-                <span class="n">start</span> <span class="o">=</span> <span class="n">iterator</span><span class="p">(</span><span class="n">buckets</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="k">this</span><span class="p">);</span>
-                <span class="k">break</span><span class="p">;</span>
-            <span class="p">}</span>
-        <span class="k">return</span> <span class="n">start</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="n">iterator</span> <span class="n">end</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">finish</span><span class="p">;</span> <span class="p">}</span>
+// iterator interface
+iterator begin(){
+    iterator start = iterator(NULL, this);
+    for(size_type i = 0; i &amp;lt; buckets.size(); i++)
+        if(buckets[i]){
+            start = iterator(buckets[i], this);
+            break;
+        }
+    return start;
+}
+iterator end() const { return finish; }
 
-    <span class="n">size_type</span> <span class="n">count</span><span class="p">(</span><span class="k">const</span> <span class="n">Key_type</span> <span class="o">&amp;</span><span class="n">vale</span><span class="p">);</span>
-    <span class="n">iterator</span> <span class="nf">find</span><span class="p">(</span><span class="k">const</span> <span class="n">Key_type</span> <span class="o">&amp;</span><span class="n">vale</span><span class="p">);</span>
-    <span class="kt">void</span> <span class="nf">insert_equal</span><span class="p">(</span><span class="k">const</span> <span class="n">Value_type</span> <span class="n">value</span><span class="p">);</span>
-    <span class="kt">void</span> <span class="nf">insert_unique</span><span class="p">(</span><span class="k">const</span> <span class="n">Value_type</span> <span class="n">value</span><span class="p">);</span>
-    <span class="kt">void</span> <span class="nf">erase</span><span class="p">(</span><span class="n">iterator</span> <span class="n">iter</span><span class="p">);</span>
-    <span class="kt">void</span> <span class="nf">erase</span><span class="p">(</span><span class="k">const</span> <span class="n">Key_type</span> <span class="n">key</span><span class="p">);</span>
-    <span class="kt">void</span> <span class="nf">clear</span><span class="p">();</span>
-    <span class="kt">void</span> <span class="nf">swap</span><span class="p">(</span><span class="n">hash_table_type</span> <span class="o">&amp;</span><span class="n">rhs</span><span class="p">);</span>
+size_type count(const Key_type &amp;amp;vale);
+iterator find(const Key_type &amp;amp;vale);
+void insert_equal(const Value_type value);
+void insert_unique(const Value_type value);
+void erase(iterator iter);
+void erase(const Key_type key);
+void clear();
+void swap(hash_table_type &amp;amp;rhs);
+</code></pre>
 
-<span class="k">private</span><span class="o">:</span>
-    <span class="kt">void</span> <span class="n">resize</span><span class="p">(</span><span class="k">const</span> <span class="n">size_type</span> <span class="n">sz</span><span class="p">);</span>
+<p>private:
+    void resize(const size_type sz);</p>
 
-<span class="k">private</span><span class="o">:</span>
-    <span class="n">vector</span><span class="o">&lt;</span><span class="n">hash_node_type</span><span class="o">*</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;</span> <span class="n">buckets</span><span class="p">;</span>
-    <span class="kt">size_t</span> <span class="n">num_element</span><span class="p">;</span> <span class="c1">// count how many keys have been contained</span>
-    <span class="kt">size_t</span> <span class="n">prime_pos</span><span class="p">;</span>
-    <span class="kt">double</span>  <span class="n">load_factor_gate</span><span class="p">;</span>
-    <span class="n">ExtractKey</span> <span class="n">get_key</span><span class="p">;</span>
-    <span class="n">HashFunc</span> <span class="n">hash_func</span><span class="p">;</span>
-    <span class="n">EqualKey</span> <span class="n">equal</span><span class="p">;</span>
-    <span class="n">iterator</span> <span class="n">finish</span><span class="p">;</span>
-<span class="p">};</span>
+<p>private:
+    vector&lt;hash_node_type*, Alloc&gt; buckets;
+    size_t num_element; // count how many keys have been contained
+    size_t prime_pos;
+    double  load_factor_gate;
+    ExtractKey get_key;
+    HashFunc hash_func;
+    EqualKey equal;
+    iterator finish;
+};</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Key</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Value</span><span class="p">,</span> <span class="k">typename</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="k">typename</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Equal</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="k">typename</span> <span class="n">hash_table</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="n">Equal</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">size_type</span>
-<span class="n">hash_table</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="n">Equal</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">count</span><span class="p">(</span><span class="k">const</span> <span class="n">Key_type</span> <span class="o">&amp;</span><span class="n">key</span><span class="p">){</span>
-    <span class="n">hash_node_type</span> <span class="o">*</span><span class="n">pCur</span> <span class="o">=</span> <span class="n">buckets</span><span class="p">[</span><span class="n">hash_func</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">%</span> <span class="n">getBucketSize</span><span class="p">()];</span>
-    <span class="n">size_type</span> <span class="n">num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="k">while</span><span class="p">(</span><span class="n">pCur</span><span class="p">){</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="n">get_key</span><span class="p">(</span><span class="n">pCur</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">),</span> <span class="n">key</span><span class="p">))</span>   <span class="n">num</span><span class="o">++</span><span class="p">;</span>
-        <span class="n">pCur</span> <span class="o">=</span> <span class="n">pCur</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="n">num</span><span class="p">;</span>
-<span class="p">}</span>
+<p>template&lt;typename Key, typename Value, typename HashFunc, typename ExtractKey, typename Equal, typename Alloc&gt;
+typename hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::size_type
+hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::count(const Key_type &amp;key){
+    hash_node_type *pCur = buckets[hash_func(key) % getBucketSize()];
+    size_type num = 0;
+    while(pCur){
+        if(equal(get_key(pCur-&gt;val), key))   num++;
+        pCur = pCur-&gt;next;
+    }
+    return num;
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Key</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Value</span><span class="p">,</span> <span class="k">typename</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="k">typename</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Equal</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="k">typename</span> <span class="n">hash_table</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="n">Equal</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">iterator</span>
-<span class="n">hash_table</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="n">Equal</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">find</span><span class="p">(</span><span class="k">const</span> <span class="n">Key_type</span> <span class="o">&amp;</span><span class="n">val</span><span class="p">){</span>
-    <span class="n">hash_node_type</span> <span class="o">*</span><span class="n">pCur</span> <span class="o">=</span> <span class="n">buckets</span><span class="p">[</span><span class="n">hash_func</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">%</span> <span class="n">getBucketSize</span><span class="p">()];</span>
-    <span class="k">while</span><span class="p">(</span><span class="n">pCur</span><span class="p">){</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="n">get_key</span><span class="p">(</span><span class="n">pCur</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">),</span> <span class="n">val</span> <span class="p">)){</span>
-            <span class="k">return</span> <span class="n">iterator</span><span class="p">(</span><span class="n">pCur</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
-        <span class="p">}</span>
-        <span class="n">pCur</span> <span class="o">=</span> <span class="n">pCur</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="n">finish</span><span class="p">;</span>
-<span class="p">}</span>
+<p>template&lt;typename Key, typename Value, typename HashFunc, typename ExtractKey, typename Equal, typename Alloc&gt;
+typename hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::iterator
+hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::find(const Key_type &amp;val){
+    hash_node_type *pCur = buckets[hash_func(val) % getBucketSize()];
+    while(pCur){
+        if(equal(get_key(pCur-&gt;val), val )){
+            return iterator(pCur, this);
+        }
+        pCur = pCur-&gt;next;
+    }
+    return finish;
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Key</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Value</span><span class="p">,</span> <span class="k">typename</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="k">typename</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Equal</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">hash_table</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="n">Equal</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">clear</span><span class="p">(){</span>
-    <span class="k">for</span><span class="p">(</span><span class="n">size_type</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">buckets</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
-        <span class="n">hash_node_type</span> <span class="o">*</span><span class="n">pHead</span> <span class="o">=</span> <span class="n">buckets</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="o">*</span><span class="n">pNext</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
-        <span class="k">while</span><span class="p">(</span><span class="n">pHead</span><span class="p">){</span>
-            <span class="n">pNext</span> <span class="o">=</span> <span class="n">pHead</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
-            <span class="n">_destroy</span><span class="p">(</span><span class="n">pHead</span><span class="p">);</span>
-            <span class="n">pHead</span> <span class="o">=</span> <span class="n">pNext</span><span class="p">;</span>
-            <span class="o">--</span><span class="n">num_element</span><span class="p">;</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<p>template&lt;typename Key, typename Value, typename HashFunc, typename ExtractKey, typename Equal, typename Alloc&gt;
+void hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::clear(){
+    for(size_type i = 0; i &lt; buckets.size(); i++){
+        hash_node_type <em>pHead = buckets[i], </em>pNext = NULL;
+        while(pHead){
+            pNext = pHead-&gt;next;
+            _destroy(pHead);
+            pHead = pNext;
+            --num_element;
+        }
+    }
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Key</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Value</span><span class="p">,</span> <span class="k">typename</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="k">typename</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Equal</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">hash_table</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="n">Equal</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">resize</span><span class="p">(</span><span class="k">const</span> <span class="n">size_type</span> <span class="n">sz</span><span class="p">){</span>
-    <span class="n">vector</span><span class="o">&lt;</span><span class="n">hash_node_type</span><span class="o">*</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;</span> <span class="n">old_buckets</span><span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
-    <span class="n">buckets</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="n">old_buckets</span><span class="p">);</span>
-    <span class="n">num_element</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="n">prime_pos</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="k">while</span><span class="p">(</span><span class="n">prime_table</span><span class="p">[</span><span class="n">prime_pos</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">sz</span><span class="p">)</span>   <span class="n">prime_pos</span><span class="o">++</span><span class="p">;</span>
-    <span class="k">for</span><span class="p">(</span><span class="n">size_type</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">old_buckets</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
-        <span class="n">hash_node_type</span> <span class="o">*</span><span class="n">pHead</span> <span class="o">=</span> <span class="n">old_buckets</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="o">*</span><span class="n">pNext</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
-        <span class="k">while</span><span class="p">(</span><span class="n">pHead</span><span class="p">){</span>
-            <span class="n">pNext</span> <span class="o">=</span> <span class="n">pHead</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
-            <span class="n">insert_equal</span><span class="p">(</span><span class="n">pHead</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">);</span>
-            <span class="n">_destroy</span><span class="p">(</span><span class="n">pHead</span><span class="p">);</span>
-            <span class="n">pHead</span> <span class="o">=</span> <span class="n">pNext</span><span class="p">;</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<p>template&lt;typename Key, typename Value, typename HashFunc, typename ExtractKey, typename Equal, typename Alloc&gt;
+void hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::resize(const size_type sz){
+    vector&lt;hash_node_type<em>, Alloc&gt; old_buckets(sz, NULL);
+    buckets.swap(old_buckets);
+    num_element = 0;
+    prime_pos = 0;
+    while(prime_table[prime_pos+1] &lt; sz) prime_pos++;
+    for(size_type i = 0; i &lt; old_buckets.size(); i++){
+        hash_node_type </em>pHead = old_buckets[i], *pNext = NULL;
+        while(pHead){
+            pNext = pHead-&gt;next;
+            insert_equal(pHead-&gt;val);
+            _destroy(pHead);
+            pHead = pNext;
+        }
+    }
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Key</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Value</span><span class="p">,</span> <span class="k">typename</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="k">typename</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Equal</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">hash_table</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="n">Equal</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">insert_unique</span><span class="p">(</span><span class="k">const</span> <span class="n">Value_type</span> <span class="n">value</span><span class="p">){</span>
-    <span class="k">if</span><span class="p">(</span><span class="n">count</span><span class="p">(</span><span class="n">get_key</span><span class="p">(</span><span class="n">value</span><span class="p">))){</span>
-        <span class="c1">//remove the older value</span>
-        <span class="o">*</span><span class="n">find</span><span class="p">(</span><span class="n">get_key</span><span class="p">(</span><span class="n">value</span><span class="p">))</span> <span class="o">=</span> <span class="n">value</span><span class="p">;</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="n">insert_equal</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
-<span class="p">}</span>
+<p>template&lt;typename Key, typename Value, typename HashFunc, typename ExtractKey, typename Equal, typename Alloc&gt;
+void hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::insert_unique(const Value_type value){
+    if(count(get_key(value))){
+        //remove the older value
+        *find(get_key(value)) = value;
+        return;
+    }
+    insert_equal(value);
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Key</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Value</span><span class="p">,</span> <span class="k">typename</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="k">typename</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Equal</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">hash_table</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="n">Equal</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">insert_equal</span><span class="p">(</span><span class="k">const</span> <span class="n">Value_type</span> <span class="n">value</span><span class="p">){</span>
-    <span class="k">if</span><span class="p">(</span><span class="n">num_element</span> <span class="o">&gt;=</span> <span class="n">load_factor_gate</span> <span class="o">*</span> <span class="n">getBucketSize</span><span class="p">()){</span>
-        <span class="n">prime_pos</span><span class="o">++</span><span class="p">;</span>
-        <span class="n">resize</span><span class="p">(</span><span class="n">prime_table</span><span class="p">[</span><span class="n">prime_pos</span><span class="p">]);</span>
-    <span class="p">}</span>
-    <span class="n">hash_node_type</span> <span class="o">*</span><span class="n">pCur</span> <span class="o">=</span> <span class="n">buckets</span><span class="p">[</span><span class="n">hash_func</span><span class="p">(</span><span class="n">get_key</span><span class="p">(</span><span class="n">value</span><span class="p">))</span> <span class="o">%</span> <span class="n">getBucketSize</span><span class="p">()];</span>
-    <span class="n">hash_node_type</span> <span class="o">*</span><span class="n">pNode</span> <span class="o">=</span> <span class="k">new</span> <span class="n">hash_node_type</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
-    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">pCur</span><span class="p">)</span>    <span class="n">buckets</span><span class="p">[</span><span class="n">hash_func</span><span class="p">(</span><span class="n">get_key</span><span class="p">(</span><span class="n">value</span><span class="p">))</span> <span class="o">%</span> <span class="n">getBucketSize</span><span class="p">()]</span> <span class="o">=</span> <span class="n">pNode</span><span class="p">;</span>
-    <span class="k">else</span><span class="p">{</span>
-        <span class="k">while</span><span class="p">(</span><span class="n">pCur</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">)</span>  <span class="n">pCur</span> <span class="o">=</span> <span class="n">pCur</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
-        <span class="n">pCur</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">pNode</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="n">num_element</span><span class="o">++</span><span class="p">;</span>
-<span class="p">}</span>
+<p>template&lt;typename Key, typename Value, typename HashFunc, typename ExtractKey, typename Equal, typename Alloc&gt;
+void hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::insert_equal(const Value_type value){
+    if(num_element &gt;= load_factor_gate * getBucketSize()){
+        prime_pos++;
+        resize(prime_table[prime_pos]);
+    }
+    hash_node_type <em>pCur = buckets[hash_func(get_key(value)) % getBucketSize()];
+    hash_node_type </em>pNode = new hash_node_type(NULL, value);
+    if(!pCur)   buckets[hash_func(get_key(value)) % getBucketSize()] = pNode;
+    else{
+        while(pCur-&gt;next)    pCur = pCur-&gt;next;
+        pCur-&gt;next = pNode;
+    }
+    num_element++;
+}</p>
 
-<span class="c1">// erase all the same Value</span>
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Key</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Value</span><span class="p">,</span> <span class="k">typename</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="k">typename</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Equal</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">hash_table</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="n">Equal</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">erase</span><span class="p">(</span><span class="k">const</span> <span class="n">Key_type</span> <span class="n">key</span><span class="p">){</span>
-    <span class="n">hash_node_type</span> <span class="o">*</span><span class="n">pHead</span> <span class="o">=</span> <span class="n">buckets</span><span class="p">[</span><span class="n">hash_func</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">%</span> <span class="n">getBucketSize</span><span class="p">()];</span>
-    <span class="n">hash_node_type</span> <span class="o">*</span><span class="n">pCur</span> <span class="o">=</span> <span class="n">pHead</span><span class="p">,</span> <span class="o">*</span><span class="n">pNext</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
-    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">pCur</span><span class="p">)</span>    <span class="k">return</span><span class="p">;</span>
-    <span class="k">while</span><span class="p">(</span><span class="n">pCur</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">){</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="n">get_key</span><span class="p">(</span><span class="n">pCur</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">),</span> <span class="n">key</span><span class="p">)){</span>
-            <span class="n">pNext</span> <span class="o">=</span> <span class="n">pCur</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
-            <span class="n">pCur</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">pNext</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
-            <span class="n">_destroy</span><span class="p">(</span><span class="n">pNext</span><span class="p">);</span>
-            <span class="n">num_element</span><span class="o">--</span><span class="p">;</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-    <span class="k">if</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="n">get_key</span><span class="p">(</span><span class="n">pHead</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">),</span> <span class="n">key</span><span class="p">)){</span>
-        <span class="n">buckets</span><span class="p">[</span><span class="n">hash_func</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">%</span> <span class="n">getBucketSize</span><span class="p">()]</span> <span class="o">=</span> <span class="n">pHead</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
-        <span class="n">_destroy</span><span class="p">(</span><span class="n">pHead</span><span class="p">);</span>
-        <span class="n">num_element</span><span class="o">--</span><span class="p">;</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<p>// erase all the same Value
+template&lt;typename Key, typename Value, typename HashFunc, typename ExtractKey, typename Equal, typename Alloc&gt;
+void hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::erase(const Key_type key){
+    hash_node_type <em>pHead = buckets[hash_func(key) % getBucketSize()];
+    hash_node_type </em>pCur = pHead, *pNext = NULL;
+    if(!pCur)   return;
+    while(pCur-&gt;next){
+        if(equal(get_key(pCur-&gt;next-&gt;val), key)){
+            pNext = pCur-&gt;next;
+            pCur-&gt;next = pNext-&gt;next;
+            <em>destroy(pNext);
+            num_element--;
+        }
+    }
+    if(equal(get_key(pHead-&gt;val), key)){
+        buckets[hash_func(key) % getBucketSize()] = pHead-&gt;next;
+        </em>destroy(pHead);
+        num_element--;
+    }
+}</p>
 
-<span class="c1">// only erase the one that iterator point</span>
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Key</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Value</span><span class="p">,</span> <span class="k">typename</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="k">typename</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Equal</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">hash_table</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="n">Equal</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">erase</span><span class="p">(</span><span class="n">iterator</span> <span class="n">iter</span><span class="p">){</span>
-    <span class="n">hash_node</span><span class="o">&lt;</span><span class="n">Value_type</span><span class="o">&gt;</span> <span class="o">*</span><span class="n">pCur</span> <span class="o">=</span> <span class="n">buckets</span><span class="p">[</span><span class="n">hash_func</span><span class="p">(</span><span class="n">get_key</span><span class="p">(</span><span class="n">iter</span><span class="o">-&gt;</span><span class="n">cur</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">))</span> <span class="o">%</span> <span class="n">getBucketSize</span><span class="p">()];</span>
-    <span class="k">if</span><span class="p">(</span><span class="n">pCur</span> <span class="o">!=</span> <span class="n">iter</span><span class="p">)</span>
-        <span class="k">while</span><span class="p">(</span><span class="n">pCur</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">!=</span> <span class="n">iter</span><span class="o">-&gt;</span><span class="n">cur</span><span class="p">)</span>  <span class="n">pCur</span> <span class="o">=</span> <span class="n">pCur</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
-    <span class="n">pCur</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">iter</span><span class="o">-&gt;</span><span class="n">cur</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
-    <span class="n">_destroy</span><span class="p">(</span><span class="n">iter</span><span class="o">-&gt;</span><span class="n">cur</span><span class="p">);</span>
-    <span class="n">num_element</span><span class="o">--</span><span class="p">;</span>
-<span class="p">}</span>
+<p>// only erase the one that iterator point
+template&lt;typename Key, typename Value, typename HashFunc, typename ExtractKey, typename Equal, typename Alloc&gt;
+void hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::erase(iterator iter){
+    hash_node&lt;Value_type&gt; *pCur = buckets[hash_func(get_key(iter-&gt;cur-&gt;val)) % getBucketSize()];
+    if(pCur != iter)
+        while(pCur-&gt;next != iter-&gt;cur)    pCur = pCur-&gt;next;
+    pCur-&gt;next = iter-&gt;cur-&gt;next;
+    _destroy(iter-&gt;cur);
+    num_element--;
+}</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Key</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Value</span><span class="p">,</span> <span class="k">typename</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="k">typename</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Equal</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span><span class="o">&gt;</span>
-<span class="kt">void</span> <span class="n">hash_table</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="n">ExtractKey</span><span class="p">,</span> <span class="n">Equal</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">swap</span><span class="p">(</span><span class="n">hash_table_type</span> <span class="o">&amp;</span><span class="n">rhs</span><span class="p">){</span>
-    <span class="n">buckets</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="n">rhs</span><span class="p">.</span><span class="n">buckets</span><span class="p">);</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">num_element</span><span class="p">,</span> <span class="n">rhs</span><span class="p">.</span><span class="n">num_element</span><span class="p">);</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">prime_pos</span><span class="p">,</span> <span class="n">rhs</span><span class="p">.</span><span class="n">prime_pos</span><span class="p">);</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">load_factor_gate</span><span class="p">,</span> <span class="n">rhs</span><span class="p">.</span><span class="n">load_factor_gate</span><span class="p">);</span>
-<span class="p">}</span></code></pre></div>
-
+<p>template&lt;typename Key, typename Value, typename HashFunc, typename ExtractKey, typename Equal, typename Alloc&gt;
+void hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::swap(hash_table_type &amp;rhs){
+    buckets.swap(rhs.buckets);
+    std::swap(num_element, rhs.num_element);
+    std::swap(prime_pos, rhs.prime_pos);
+    std::swap(load_factor_gate, rhs.load_factor_gate);
+}</code></pre></figure></p>
 
 <h2>根据Hash Table实现unordered_set和unordered_map</h2>
 
@@ -400,176 +398,176 @@
 
 <p>其中由于unordered_set的值就是Key,所以Value的类型就是Key,ExtractKey也很就很简单(extract_key_single),代码如下:</p>
 
-<div class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Key</span><span class="o">&gt;</span>
-<span class="k">struct</span> <span class="n">extract_key_single</span><span class="p">{</span>
-    <span class="n">Key</span> <span class="k">operator</span><span class="p">()(</span><span class="k">const</span> <span class="n">Key</span> <span class="n">key</span><span class="p">)</span>  <span class="k">const</span><span class="p">{</span>
-        <span class="k">return</span> <span class="n">key</span><span class="p">;</span>
-    <span class="p">}</span>
-<span class="p">};</span>
+<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;typename Key&gt;
+struct extract_key_single{
+    Key operator()(const Key key)   const{
+        return key;
+    }
+};</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Key</span><span class="p">,</span> <span class="k">typename</span> <span class="n">HashFunc</span> <span class="o">=</span> <span class="n">hash_function</span><span class="o">&lt;</span><span class="n">Key</span><span class="o">&gt;</span><span class="p">,</span> <span class="k">typename</span> <span class="n">EqualKey</span> <span class="o">=</span> <span class="n">equal_key</span><span class="o">&lt;</span><span class="n">Key</span><span class="o">&gt;</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span> <span class="o">=</span> <span class="n">alloc</span><span class="o">&gt;</span>
-<span class="k">class</span> <span class="nc">unordered_set</span><span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-    <span class="k">typedef</span> <span class="n">Key</span> <span class="n">Key_type</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="n">Key</span> <span class="n">Value_type</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="n">Key</span><span class="o">*</span> <span class="n">pointer</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="n">Key</span><span class="o">&amp;</span> <span class="n">reference</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="n">unordered_set</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="n">EqualKey</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;</span> <span class="n">unordered_set_type</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="kt">size_t</span> <span class="n">size_type</span><span class="p">;</span>
-    <span class="c1">//注意准备的Key, Value，ExtractKey，这和unordered_map略微不同</span>
-    <span class="k">typedef</span> <span class="n">hash_table</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">Key</span><span class="p">,</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="n">extract_key_single</span><span class="o">&lt;</span><span class="n">Key</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">EqualKey</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;</span> <span class="n">hash_table_type</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="k">typename</span> <span class="n">hash_table_type</span><span class="o">::</span><span class="n">iterator</span> <span class="n">iterator</span><span class="p">;</span>
+<p>template&lt;typename Key, typename HashFunc = hash_function&lt;Key&gt;, typename EqualKey = equal_key&lt;Key&gt;, typename Alloc = alloc&gt;
+class unordered_set{
+public:
+    typedef Key Key_type;
+    typedef Key Value_type;
+    typedef Key* pointer;
+    typedef Key&amp; reference;
+    typedef unordered_set&lt;Key, HashFunc, EqualKey, Alloc&gt; unordered_set_type;
+    typedef size_t size_type;
+    //注意准备的Key, Value，ExtractKey，这和unordered_map略微不同
+    typedef hash_table&lt;Key, Key, HashFunc, extract_key_single&lt;Key&gt;, EqualKey, Alloc&gt; hash_table_type;
+    typedef typename hash_table_type::iterator iterator;</p>
 
-    <span class="n">unordered_set</span><span class="p">()</span> <span class="o">=</span> <span class="k">default</span><span class="p">;</span>
-    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
-    <span class="n">unordered_set</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">first</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">last</span><span class="p">){</span>
-        <span class="k">while</span><span class="p">(</span><span class="n">first</span> <span class="o">!=</span> <span class="n">last</span><span class="p">){</span>
-            <span class="n">insert</span><span class="p">(</span><span class="o">*</span><span class="n">first</span><span class="o">++</span><span class="p">);</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-    <span class="n">unordered_set</span><span class="p">(</span><span class="k">const</span> <span class="n">unordered_set_type</span> <span class="o">&amp;</span><span class="n">rhs</span><span class="p">){</span>
-        <span class="n">ht</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="n">rhs</span><span class="p">.</span><span class="n">ht</span><span class="p">);</span>
-    <span class="p">}</span>
-    <span class="o">~</span><span class="n">unordered_set</span><span class="p">()</span>   <span class="o">=</span> <span class="k">default</span><span class="p">;</span>
+<pre><code>unordered_set() = default;
+template&amp;lt;typename InputIterator&amp;gt;
+unordered_set(InputIterator first, InputIterator last){
+    while(first != last){
+        insert(*first++);
+    }
+}
+unordered_set(const unordered_set_type &amp;amp;rhs){
+    ht.swap(rhs.ht);
+}
+~unordered_set()    = default;
 
-    <span class="kt">bool</span> <span class="nf">empty</span><span class="p">()</span> <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">empty</span><span class="p">();</span>   <span class="p">}</span>
-    <span class="n">size_type</span> <span class="nf">size</span><span class="p">()</span>  <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>    <span class="p">}</span>
-    <span class="n">size_type</span> <span class="nf">max_size</span><span class="p">()</span>  <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">max_size</span><span class="p">();</span>    <span class="p">}</span>
+bool empty()    {   return ht.empty();  }
+size_type size()    {   return ht.size();   }
+size_type max_size()    {   return ht.max_size();   }
 
-    <span class="n">iterator</span> <span class="nf">begin</span><span class="p">()</span>  <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>   <span class="p">}</span>
-    <span class="n">iterator</span> <span class="nf">end</span><span class="p">()</span>    <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="p">}</span>
+iterator begin()    {   return ht.begin();  }
+iterator end()  {   return ht.end();    }
 
-    <span class="n">size_type</span> <span class="nf">count</span><span class="p">(</span><span class="k">const</span> <span class="n">Key_type</span> <span class="n">key</span><span class="p">)</span>   <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">count</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>  <span class="p">}</span>
-    <span class="n">iterator</span> <span class="nf">find</span><span class="p">(</span><span class="k">const</span> <span class="n">Key_type</span> <span class="n">key</span><span class="p">){</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>   <span class="p">}</span>
+size_type count(const Key_type key) {   return ht.count(key);   }
+iterator find(const Key_type key){  return ht.find(key);    }
 
-    <span class="kt">void</span> <span class="nf">insert</span><span class="p">(</span><span class="k">const</span> <span class="n">Value_type</span> <span class="n">key</span><span class="p">)</span>    <span class="p">{</span>    <span class="n">ht</span><span class="p">.</span><span class="n">insert_unique</span><span class="p">(</span><span class="n">key</span><span class="p">);</span> <span class="p">}</span>
-    <span class="kt">void</span> <span class="nf">erase</span><span class="p">(</span><span class="k">const</span> <span class="n">Key_type</span> <span class="n">key</span><span class="p">)</span>   <span class="p">{</span>    <span class="n">ht</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>    <span class="p">}</span>
-    <span class="kt">void</span> <span class="nf">erase</span><span class="p">(</span><span class="n">iterator</span> <span class="n">iter</span><span class="p">)</span>   <span class="p">{</span>    <span class="n">ht</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">iter</span><span class="p">);</span>   <span class="p">}</span>
-    <span class="kt">void</span> <span class="nf">clear</span><span class="p">()</span> <span class="p">{</span>    <span class="n">ht</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span> <span class="p">}</span>
-    <span class="kt">void</span> <span class="nf">swap</span><span class="p">(</span><span class="n">unordered_set_type</span> <span class="o">&amp;</span><span class="n">rhs</span><span class="p">)</span>   <span class="p">{</span>    <span class="n">ht</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="n">rhs</span><span class="p">.</span><span class="n">ht</span><span class="p">);</span>    <span class="p">}</span>
+void insert(const Value_type key)   {   ht.insert_unique(key); }
+void erase(const Key_type key)  {   ht.erase(key);  }
+void erase(iterator iter)   {   ht.erase(iter); }
+void clear()    {   ht.clear(); }
+void swap(unordered_set_type &amp;amp;rhs)  {   ht.swap(rhs.ht);    }
 
-    <span class="n">size_type</span> <span class="nf">bucket_count</span><span class="p">()</span>  <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">getBucketSize</span><span class="p">();</span>   <span class="p">}</span>
-    <span class="n">size_type</span> <span class="nf">max_bucket_count</span><span class="p">()</span>  <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">maxBucketSize</span><span class="p">();</span>   <span class="p">}</span>
-    <span class="n">size_type</span> <span class="nf">bucket_size</span><span class="p">(</span><span class="n">size_type</span> <span class="n">n</span><span class="p">)</span>   <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">getBucket</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>    <span class="p">}</span>
-    <span class="n">size_type</span> <span class="nf">bucket</span><span class="p">(</span><span class="k">const</span> <span class="n">Key_type</span> <span class="n">key</span><span class="p">)</span>  <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">getBucketId</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>    <span class="p">}</span>
+size_type bucket_count()    {   return ht.getBucketSize();  }
+size_type max_bucket_count()    {   return ht.maxBucketSize();  }
+size_type bucket_size(size_type n)  {   return ht.getBucket(n); }
+size_type bucket(const Key_type key)    {   return ht.getBucketId(key); }
 
-    <span class="kt">double</span> <span class="nf">load_factor</span><span class="p">()</span> <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">load_factor</span><span class="p">();</span> <span class="p">}</span>
-    <span class="kt">double</span> <span class="nf">max_load_factor</span><span class="p">()</span> <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">max_load_factor</span><span class="p">();</span> <span class="p">}</span>
-    <span class="kt">void</span> <span class="nf">max_load_factor</span><span class="p">(</span><span class="kt">double</span> <span class="n">factor</span><span class="p">)</span>    <span class="p">{</span>    <span class="n">ht</span><span class="p">.</span><span class="n">max_load_factor</span><span class="p">(</span><span class="n">factor</span><span class="p">);</span>   <span class="p">}</span>
-     <span class="c1">// n is the new buckets num</span>
-    <span class="kt">void</span> <span class="nf">rehash</span><span class="p">(</span><span class="n">size_type</span> <span class="n">n</span><span class="p">){</span>
-        <span class="n">ht</span><span class="p">.</span><span class="n">resize</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
-    <span class="p">}</span>
-    <span class="c1">// n is the num of element</span>
-    <span class="kt">void</span> <span class="nf">reserve</span><span class="p">(</span><span class="n">size_type</span> <span class="n">n</span><span class="p">){</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">n</span> <span class="o">&gt;</span>   <span class="n">bucket_count</span><span class="p">()</span> <span class="o">*</span> <span class="n">load_factor</span><span class="p">()){</span>
-            <span class="n">rehash</span><span class="p">(</span><span class="n">n</span> <span class="o">/</span> <span class="n">max_load_factor</span><span class="p">());</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
+double load_factor()    {   return ht.load_factor();    }
+double max_load_factor()    {   return ht.max_load_factor();    }
+void max_load_factor(double factor) {   ht.max_load_factor(factor); }
+ // n is the new buckets num
+void rehash(size_type n){
+    ht.resize(n);
+}
+// n is the num of element
+void reserve(size_type n){
+    if(n &amp;gt;   bucket_count() * load_factor()){
+        rehash(n / max_load_factor());
+    }
+}
+</code></pre>
 
-<span class="k">private</span><span class="o">:</span>
-    <span class="c1">//封装Hash Table</span>
-    <span class="n">hash_table_type</span> <span class="n">ht</span><span class="p">;</span>
-<span class="p">};</span></code></pre></div>
-
+<p>private:
+    //封装Hash Table
+    hash_table_type ht;
+};</code></pre></figure></p>
 
 <h3>unordered_map</h3>
 
 <p>我们在使用unordered_map时候一般会确定两个类型，比如unordered_map&lt;int,double>,这里int是Key类型而double是Mapped类型，所以传递给Hash Table的Value类型就是pair&lt;Key, Mapped>即pair&lt;int, double>，同样对于ExtractKey(使用extract_key_pair)也需要注意一下.</p>
 
-<div class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Key</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Value</span><span class="o">&gt;</span>
-<span class="k">struct</span> <span class="n">extract_key_pair</span><span class="p">{</span>
-    <span class="n">Key</span> <span class="k">operator</span><span class="p">()(</span><span class="k">const</span> <span class="n">Value</span> <span class="n">value</span><span class="p">)</span>  <span class="k">const</span><span class="p">{</span>
-        <span class="k">return</span> <span class="n">value</span><span class="p">.</span><span class="n">first</span><span class="p">;</span>
-    <span class="p">}</span>
-<span class="p">};</span>
+<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;typename Key, typename Value&gt;
+struct extract_key_pair{
+    Key operator()(const Value value)   const{
+        return value.first;
+    }
+};</p>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Key</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Mapped</span><span class="p">,</span> <span class="k">typename</span> <span class="n">HashFunc</span> <span class="o">=</span> <span class="n">hash_function</span><span class="o">&lt;</span><span class="n">Key</span><span class="o">&gt;</span><span class="p">,</span>
-        <span class="k">typename</span> <span class="n">EqualKey</span> <span class="o">=</span> <span class="n">equal_key</span><span class="o">&lt;</span><span class="n">Key</span><span class="o">&gt;</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Alloc</span> <span class="o">=</span> <span class="n">alloc</span><span class="o">&gt;</span>
-<span class="k">class</span> <span class="nc">unordered_map</span><span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-    <span class="k">typedef</span> <span class="kt">size_t</span> <span class="n">size_type</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="n">Key</span> <span class="n">key_type</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="n">Mapped</span> <span class="n">mapped_type</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">Mapped</span><span class="o">&gt;</span> <span class="n">value_type</span><span class="p">;</span>
-    <span class="k">typedef</span> <span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">Mapped</span><span class="p">,</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="n">EqualKey</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;</span>  <span class="n">unordered_map_type</span><span class="p">;</span>
-    <span class="c1">//准备参数</span>
-    <span class="k">typedef</span> <span class="n">hash_table</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">value_type</span><span class="p">,</span> <span class="n">HashFunc</span><span class="p">,</span> <span class="n">extract_key_pair</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">value_type</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">EqualKey</span><span class="p">,</span> <span class="n">Alloc</span><span class="o">&gt;</span>   <span class="n">hash_table_type</span><span class="p">;</span>
-    <span class="k">typedef</span>  <span class="k">typename</span> <span class="n">hash_table_type</span><span class="o">::</span><span class="n">iterator</span>  <span class="n">iterator</span><span class="p">;</span>
+<p>template&lt;typename Key, typename Mapped, typename HashFunc = hash_function&lt;Key&gt;,
+        typename EqualKey = equal_key&lt;Key&gt;, typename Alloc = alloc&gt;
+class unordered_map{
+public:
+    typedef size_t size_type;
+    typedef Key key_type;
+    typedef Mapped mapped_type;
+    typedef std::pair&lt;Key, Mapped&gt;    value_type;
+    typedef unordered_map&lt;Key, Mapped, HashFunc, EqualKey, Alloc&gt; unordered_map_type;
+    //准备参数
+    typedef hash_table&lt;Key, value_type, HashFunc, extract_key_pair&lt;Key, value_type&gt;, EqualKey, Alloc&gt;   hash_table_type;
+    typedef typename hash_table_type::iterator  iterator;</p>
 
-    <span class="n">unordered_map</span><span class="p">()</span> <span class="o">=</span> <span class="k">default</span><span class="p">;</span>
-    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
-    <span class="n">unordered_map</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">first</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">last</span><span class="p">){</span>
-        <span class="k">while</span><span class="p">(</span><span class="n">first</span> <span class="o">!=</span> <span class="n">last</span><span class="p">){</span>
-            <span class="n">insert</span><span class="p">(</span><span class="o">*</span><span class="n">first</span><span class="o">++</span><span class="p">);</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-    <span class="n">unordered_map</span><span class="p">(</span><span class="k">const</span> <span class="n">unordered_map_type</span> <span class="o">&amp;</span><span class="n">rhs</span><span class="p">){</span>
-        <span class="n">ht</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="n">rhs</span><span class="p">.</span><span class="n">ht</span><span class="p">);</span>
-    <span class="p">}</span>
-    <span class="o">~</span><span class="n">unordered_map</span><span class="p">()</span> <span class="o">=</span> <span class="k">default</span><span class="p">;</span>
+<pre><code>unordered_map() = default;
+template&amp;lt;typename InputIterator&amp;gt;
+unordered_map(InputIterator first, InputIterator last){
+    while(first != last){
+        insert(*first++);
+    }
+}
+unordered_map(const unordered_map_type &amp;amp;rhs){
+    ht.swap(rhs.ht);
+}
+~unordered_map() = default;
 
-    <span class="kt">bool</span> <span class="nf">empty</span><span class="p">()</span> <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">empty</span><span class="p">();</span>   <span class="p">}</span>
-    <span class="n">size_type</span> <span class="nf">size</span><span class="p">()</span>  <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>    <span class="p">}</span>
-    <span class="n">size_type</span> <span class="nf">max_size</span><span class="p">()</span>  <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">max_size</span><span class="p">();</span>    <span class="p">}</span>
+bool empty()    {   return ht.empty();  }
+size_type size()    {   return ht.size();   }
+size_type max_size()    {   return ht.max_size();   }
 
-    <span class="n">iterator</span> <span class="nf">begin</span><span class="p">()</span>  <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>   <span class="p">}</span>
-    <span class="n">iterator</span> <span class="nf">end</span><span class="p">()</span>    <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="p">}</span>
+iterator begin()    {   return ht.begin();  }
+iterator end()  {   return ht.end();    }
 
-    <span class="n">mapped_type</span><span class="o">&amp;</span> <span class="k">operator</span><span class="p">[](</span><span class="k">const</span> <span class="n">key_type</span> <span class="n">key</span><span class="p">){</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">ht</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="n">end</span><span class="p">()){</span>
-            <span class="n">insert</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">mapped_type</span><span class="p">()));</span>
-        <span class="p">}</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">ht</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">key</span><span class="p">))</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">;</span>
-    <span class="p">}</span>
+mapped_type&amp;amp; operator[](const key_type key){
+    if(ht.find(key) == end()){
+        insert(std::make_pair(key, mapped_type()));
+    }
+    return (ht.find(key))-&amp;gt;second;
+}
 
-    <span class="n">mapped_type</span> <span class="n">at</span><span class="p">(</span><span class="k">const</span> <span class="n">key_type</span> <span class="n">key</span><span class="p">){</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">ht</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="n">end</span><span class="p">())</span>  <span class="n">THROW_OUT_OF_RANGE</span><span class="p">;</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">ht</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">key</span><span class="p">))</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">;</span>
-    <span class="p">}</span>
+mapped_type at(const key_type key){
+    if(ht.find(key) == end())   THROW_OUT_OF_RANGE;
+    return (ht.find(key))-&amp;gt;second;
+}
 
-    <span class="n">size_type</span> <span class="n">count</span><span class="p">(</span><span class="k">const</span> <span class="n">key_type</span> <span class="n">key</span><span class="p">)</span>    <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">count</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>  <span class="p">}</span>
-    <span class="n">iterator</span> <span class="n">find</span><span class="p">(</span><span class="k">const</span> <span class="n">key_type</span> <span class="n">key</span><span class="p">)</span>  <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>   <span class="p">}</span>
+size_type count(const key_type key) {   return ht.count(key);   }
+iterator find(const key_type key)   {   return ht.find(key);    }
 
-    <span class="cm">/*</span>
-<span class="cm">    * attention: insert the value_type and erase the key_type</span>
-<span class="cm">    */</span>
-    <span class="kt">void</span> <span class="n">insert</span><span class="p">(</span><span class="k">const</span> <span class="n">value_type</span> <span class="n">key</span><span class="p">)</span> <span class="p">{</span>    <span class="n">ht</span><span class="p">.</span><span class="n">insert_unique</span><span class="p">(</span><span class="n">key</span><span class="p">);</span> <span class="p">}</span>
-    <span class="kt">void</span> <span class="n">erase</span><span class="p">(</span><span class="k">const</span> <span class="n">key_type</span> <span class="n">key</span><span class="p">)</span>    <span class="p">{</span>    <span class="n">ht</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>    <span class="p">}</span>
-    <span class="kt">void</span> <span class="n">erase</span><span class="p">(</span><span class="n">iterator</span> <span class="n">iter</span><span class="p">)</span>    <span class="p">{</span>    <span class="n">ht</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">iter</span><span class="p">);</span>   <span class="p">}</span>
-    <span class="kt">void</span> <span class="n">clear</span><span class="p">()</span>  <span class="p">{</span>    <span class="n">ht</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span> <span class="p">}</span>
-    <span class="kt">void</span> <span class="n">swap</span><span class="p">(</span><span class="n">unordered_map_type</span> <span class="o">&amp;</span><span class="n">rhs</span><span class="p">)</span>    <span class="p">{</span>    <span class="n">ht</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="n">rhs</span><span class="p">.</span><span class="n">ht</span><span class="p">);</span>    <span class="p">}</span>
+/*
+ * attention: insert the value_type and erase the key_type
+ */
+void insert(const value_type key)   {   ht.insert_unique(key); }
+void erase(const key_type key)  {   ht.erase(key);  }
+void erase(iterator iter)   {   ht.erase(iter); }
+void clear()    {   ht.clear(); }
+void swap(unordered_map_type &amp;amp;rhs)  {   ht.swap(rhs.ht);    }
 
-    <span class="n">size_type</span> <span class="n">bucket_count</span><span class="p">()</span>   <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">getBucketSize</span><span class="p">();</span>   <span class="p">}</span>
-    <span class="n">size_type</span> <span class="n">max_bucket_count</span><span class="p">()</span>   <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">maxBucketSize</span><span class="p">();</span>   <span class="p">}</span>
-    <span class="n">size_type</span> <span class="n">bucket_size</span><span class="p">(</span><span class="n">size_type</span> <span class="n">n</span><span class="p">)</span>    <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">getBucket</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>    <span class="p">}</span>
-    <span class="n">size_type</span> <span class="n">bucket</span><span class="p">(</span><span class="k">const</span> <span class="n">key_type</span> <span class="n">key</span><span class="p">)</span>   <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">getBucketId</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>    <span class="p">}</span>
+size_type bucket_count()    {   return ht.getBucketSize();  }
+size_type max_bucket_count()    {   return ht.maxBucketSize();  }
+size_type bucket_size(size_type n)  {   return ht.getBucket(n); }
+size_type bucket(const key_type key)    {   return ht.getBucketId(key); }
 
-    <span class="kt">double</span> <span class="n">load_factor</span><span class="p">()</span>  <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">load_factor</span><span class="p">();</span> <span class="p">}</span>
-    <span class="kt">double</span> <span class="n">max_load_factor</span><span class="p">()</span>  <span class="p">{</span>    <span class="k">return</span> <span class="n">ht</span><span class="p">.</span><span class="n">max_load_factor</span><span class="p">();</span> <span class="p">}</span>
-    <span class="kt">void</span> <span class="n">max_load_factor</span><span class="p">(</span><span class="kt">double</span> <span class="n">factor</span><span class="p">)</span> <span class="p">{</span>    <span class="n">ht</span><span class="p">.</span><span class="n">max_load_factor</span><span class="p">(</span><span class="n">factor</span><span class="p">);</span>   <span class="p">}</span>
-     <span class="c1">// n is the new buckets num</span>
-    <span class="kt">void</span> <span class="n">rehash</span><span class="p">(</span><span class="n">size_type</span> <span class="n">n</span><span class="p">){</span>
-        <span class="n">ht</span><span class="p">.</span><span class="n">resize</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
-    <span class="p">}</span>
-    <span class="c1">// n is the num of element</span>
-    <span class="kt">void</span> <span class="n">reserve</span><span class="p">(</span><span class="n">size_type</span> <span class="n">n</span><span class="p">){</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">n</span> <span class="o">&gt;</span>   <span class="n">bucket_count</span><span class="p">()</span> <span class="o">*</span> <span class="n">load_factor</span><span class="p">()){</span>
-            <span class="n">rehash</span><span class="p">(</span><span class="n">n</span> <span class="o">/</span> <span class="n">max_load_factor</span><span class="p">());</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
+double load_factor()    {   return ht.load_factor();    }
+double max_load_factor()    {   return ht.max_load_factor();    }
+void max_load_factor(double factor) {   ht.max_load_factor(factor); }
+ // n is the new buckets num
+void rehash(size_type n){
+    ht.resize(n);
+}
+// n is the num of element
+void reserve(size_type n){
+    if(n &amp;gt;   bucket_count() * load_factor()){
+        rehash(n / max_load_factor());
+    }
+}
+</code></pre>
 
-<span class="k">private</span><span class="o">:</span>
-    <span class="n">hash_table_type</span> <span class="n">ht</span><span class="p">;</span>
-<span class="p">};</span></code></pre></div>
-
+<p>private:
+    hash_table_type ht;
+};</code></pre></figure></p>
 
 <h2>总结</h2>
 
 <p>只要你把Key, Value各自的作用搞得很清楚，然后参照上面提到的数据存储方法就可以很清楚的写出相关代码，另外从这个实例也可以看出迭代器的设计与容器是相互依存的，迭代器需要知道容器的各种信息(通常包含一个容器对象指针)，容器也需要迭代器作为其许多成员函数的接口.</p>
 
 
-    <!--    18153-->
+    <!--    17569-->
     <div class="eof">-&nbsp;EOF&nbsp;-</div>
     <p class="declare">声明:本文采用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="nofollow" title="署名-非商业性使用-相同方式共享">BY-NC-SA</a>协议进行授权.转载请注明: <a href="/c/c++/2015/06/16/%E4%BB%BF%E7%85%A7SGI-STL%E5%AE%9E%E7%8E%B0Hash%E8%A1%A8.html" title="仿照SGI-STL实现Hash表 " rel="nofollow">仿照SGI-STL实现Hash表</a></p>
     <hr>
@@ -596,7 +594,7 @@
     <div class="pagination">
       <ul>
       
-        <li class="prev"><a href="/mips/2015/05/30/Mips%E4%B8%8B%E4%BB%BF%E7%85%A7%E7%BC%96%E8%AF%91%E5%99%A8%E5%AE%9E%E7%8E%B0C%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8.html" title="Mips下仿照编译器实现C++成员函数调用">&larr; Previous</a></li>
+        <li class="prev"><a href="/mips/2015/05/30/Mips%E4%B8%8B%E4%BB%BF%E7%85%A7%E7%BC%96%E8%AF%91%E5%99%A8%E5%AE%9E%E7%8E%B0C++%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8.html" title="Mips下仿照编译器实现C++成员函数调用">&larr; Previous</a></li>
       
         <li><a href="/archive.html">Archive</a></li>
       
@@ -652,34 +650,33 @@
   <h4>相关文章</h4>
   <ul>
   
+  <li><a href="/job/2016/03/20/%E6%89%BE%E5%B7%A5%E4%BD%9C%E6%80%BB%E7%BB%93.html ">找工作总结</a></li>
+  
   <li><a href="/book/2015/07/31/%E6%88%91%E7%9A%84%E8%AF%BB%E4%B9%A6%E5%8D%95.html ">我的读书单</a></li>
   
   <li><a href="/linux/2015/07/16/Linux%E5%86%85%E6%A0%B8%E6%BA%90%E4%BB%A3%E7%A0%81%E6%83%85%E6%99%AF%E5%88%86%E6%9E%90%E4%B9%8B%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86.html ">Linux内核源代码情景分析之存储管理</a></li>
   
   <li><a href="/job/2015/07/03/%E7%A0%81%E5%86%9C%E9%9D%A2%E8%AF%95%E5%9F%BA%E7%A1%80%E5%87%86%E5%A4%87%E6%80%BB%E7%BB%93.html ">码农面试基础准备总结</a></li>
   
-  <li><a href="/mips/2015/05/30/Mips%E4%B8%8B%E4%BB%BF%E7%85%A7%E7%BC%96%E8%AF%91%E5%99%A8%E5%AE%9E%E7%8E%B0C%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8.html ">Mips下仿照编译器实现C++成员函数调用</a></li>
+  <li><a href="/mips/2015/05/30/Mips%E4%B8%8B%E4%BB%BF%E7%85%A7%E7%BC%96%E8%AF%91%E5%99%A8%E5%AE%9E%E7%8E%B0C++%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8.html ">Mips下仿照编译器实现C++成员函数调用</a></li>
   
   <li><a href="/c/c++/2015/05/16/%E4%BB%BF%E7%85%A7SGI-STL%E5%AE%9E%E7%8E%B0Vector%E5%AE%B9%E5%99%A8.html ">仿照SGI-STL实现Vector容器</a></li>
   
-  <li><a href="/c/c++/2015/05/10/%E6%B5%85%E8%B0%88%E5%AF%B9SGI-STL%E8%BF%AD%E4%BB%A3%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3%E7%9A%84%E7%90%86%E8%A7%A3.html ">浅谈对SGI-STL迭代器设计思想的理解</a></li>
-  
-  <li><a href="/leetcode/2015/05/01/LeetCode-Valid_Number.html ">LeetCode --- Valid Number</a></li>
+  <li><a href="/2015/05/01/Valid-Number.html ">Valid Number</a></li>
   
   </ul>
   </div>
 </div>
-<script type="text/javascript" src="/assets/themes/flying/js/blogscript.js"></script>
+<script type="text/javascript" src="/assets/themes/flying//js/blogscript.js"></script>
 
 
       </div>
 
       <footer>
-        <p>&copy; sosohu 2014 
+        <p>&copy; sosohu 2012 
           with help from <a href="http://jekyllbootstrap.com" target="_blank" title="The Definitive Jekyll Blogging Framework">Jekyll Bootstrap</a>
           and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
-	<!--script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1000067280'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s22.cnzz.com/z_stat.php%3Fid%3D1000067280%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script-->
-	<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_3815131'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s9.cnzz.com/stat.php%3Fid%3D3815131%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+	<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1000067280'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s22.cnzz.com/z_stat.php%3Fid%3D1000067280%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
         </p>
       </footer>
 
@@ -725,7 +722,7 @@ $("a[href^='http://']").each(function(){
 <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
 
-<script type="text/javascript" src="/assets/themes/flying/js/default.js"></script>
+<script type="text/javascript" src="/assets/themes/flying//js/default.js"></script>
  </html>
 
 

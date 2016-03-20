@@ -14,10 +14,10 @@
     <![endif]-->
 
     <!-- Le styles -->
-    <link href="/assets/themes/flying/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/assets/themes/flying/css/style.css" rel="stylesheet" type="text/css" media="all">
-    <link href="/assets/themes/flying/css/syntax.css" rel="stylesheet" type="text/css" media="all">
-    <script type="text/javascript" src="/assets/themes/flying/js/jquery-1.9.1.min.js"></script>
+    <link href="/assets/themes/flying//bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/themes/flying//css/style.css" rel="stylesheet" type="text/css" media="all">
+    <link href="/assets/themes/flying//css/syntax.css" rel="stylesheet" type="text/css" media="all">
+    <script type="text/javascript" src="/assets/themes/flying//js/jquery-1.9.1.min.js"></script>
    <!-- Le fav and touch icons -->
   <!-- Update these with your own images
     <link rel="shortcut icon" href="images/favicon.ico">
@@ -37,8 +37,8 @@
 		<li><a href="/about.html">About</a></li>
 		<li><a href="/archive.html">Archive</a></li>
 		<li><a href="/categories.html">Categories</a></li>
-		<li><a href="/link.html">Link</a></li>
-		<li><a href="/download.html">Download</a></li>
+      	<li><a href="/link.html">Link</a></li>
+      	<li><a href="/download.html">Download</a></li>
 <!--		<li><a href="http://wiki.zhouyichu.com">Wiki</a></li>  -->
 		<li class="offset3"><a href="/atom.xml">Subscribe</a></li>
 		<li><a id="random" href="#">Random</a></li>
@@ -135,94 +135,94 @@
 
 <h3>简单示例</h3>
 
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c">#!/bin/bash</span>
+<p><figure class="highlight"><pre><code class="language-sh" data-lang="sh">#!/bin/bash</p>
 
-<span class="k">function</span> open<span class="o">(){</span>
-    <span class="k">for</span><span class="o">((</span><span class="nv">i</span><span class="o">=</span>0<span class="p">;</span>i&lt;5<span class="p">;</span>i++<span class="o">))</span><span class="p">;</span>
-    <span class="k">do</span>
-        nautilus <span class="s2">&quot;/home/&quot;</span>
-        <span class="nb">kill</span> -2 <span class="sb">`</span>ps -A <span class="p">|</span> grep nautilus <span class="p">|</span> cut -f-1 -d<span class="s1">&#39; &#39;</span><span class="sb">`</span>
-    <span class="k">done</span>
-<span class="o">}</span>
+<pre><code>function open(){
+    for((i=0;i&amp;lt;5;i++));
+    do
+        nautilus &amp;quot;/home/&amp;quot;
+        kill -2 `ps -A | grep nautilus | cut -f-1 -d&amp;#39; &amp;#39;`
+    done
+}
 
-<span class="c">#测试不断的打开和关闭文件浏览器</span>
+#测试不断的打开和关闭文件浏览器
 open  
-nautilus <span class="s2">&quot;/home/&quot;</span>
+nautilus &amp;quot;/home/&amp;quot;
 sleep 5
-<span class="nv">WID</span><span class="o">=</span><span class="sb">`</span>xdotool search --name <span class="s2">&quot;文件浏览器&quot;</span> <span class="p">|</span> tail -1<span class="sb">`</span>
-<span class="nb">echo</span> <span class="nv">$WID</span>
-xdotool windowfocus <span class="nv">$WID</span>
+WID=`xdotool search --name &amp;quot;文件浏览器&amp;quot; | tail -1`
+echo $WID
+xdotool windowfocus $WID
 
-<span class="c">#gen the random num in [0, max)</span>
-<span class="k">function</span> random<span class="o">(){</span>
-    <span class="k">if</span> <span class="o">[[</span> <span class="nv">$# </span>-eq <span class="s2">&quot;0&quot;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
-        <span class="nv">max</span><span class="o">=</span>1000
-    <span class="k">else</span>
-        <span class="nv">max</span><span class="o">=</span><span class="nv">$1</span>
-    <span class="k">fi</span>
-    <span class="nv">rand_value</span><span class="o">=</span><span class="nv">$[$RANDOM</span> % <span class="nv">$max</span><span class="o">]</span>
-    <span class="nb">echo</span> <span class="nv">$rand_value</span>
-<span class="o">}</span>
+#gen the random num in [0, max)
+function random(){
+    if [[ $# -eq &amp;quot;0&amp;quot; ]]; then
+        max=1000
+    else
+        max=$1
+    fi
+    rand_value=$[$RANDOM % $max]
+    echo $rand_value
+}
 
-<span class="k">function</span> drag<span class="o">(){</span>
-    <span class="nv">x0</span><span class="o">=</span>0
-    <span class="nv">y0</span><span class="o">=</span>0
-    xdotool windowmove <span class="nv">$WID</span> <span class="nv">$x0</span> <span class="nv">$y0</span>
-    <span class="k">for</span><span class="o">((</span><span class="nv">i</span><span class="o">=</span>0<span class="p">;</span>i&lt;500<span class="p">;</span>i++<span class="o">))</span><span class="p">;</span>
-    <span class="k">do</span>
-        <span class="c">#xdotool key ctrl+t</span>
-        <span class="nv">x</span><span class="o">=</span><span class="nv">$[$x0</span>+<span class="nv">$i</span><span class="o">]</span>
-        <span class="nv">y</span><span class="o">=</span><span class="nv">$[$y0</span>+<span class="nv">$i</span><span class="o">]</span>
-        xdotool windowmove <span class="nv">$WID</span> <span class="nv">$x</span> <span class="nv">$y</span>
-        <span class="c">#xdotool windowminimize $WID </span>
-        <span class="c">#sleep 4</span>
-    <span class="k">done</span>
-<span class="o">}</span>
+function drag(){
+    x0=0
+    y0=0
+    xdotool windowmove $WID $x0 $y0
+    for((i=0;i&amp;lt;500;i++));
+    do
+        #xdotool key ctrl+t
+        x=$[$x0+$i]
+        y=$[$y0+$i]
+        xdotool windowmove $WID $x $y
+        #xdotool windowminimize $WID 
+        #sleep 4
+    done
+}
 
-<span class="k">function</span> move<span class="o">(){</span>
-    <span class="nv">x1</span><span class="o">=</span><span class="sb">`</span>random<span class="sb">`</span>
-    <span class="nv">y1</span><span class="o">=</span><span class="sb">`</span>random<span class="sb">`</span>
-    xdotool windowmove <span class="nv">$WID</span> <span class="nv">$x1</span> <span class="nv">$y1</span>
-<span class="o">}</span>
+function move(){
+    x1=`random`
+    y1=`random`
+    xdotool windowmove $WID $x1 $y1
+}
 
-<span class="k">function</span> contineMove<span class="o">(){</span>
-    <span class="k">for</span><span class="o">((</span><span class="nv">i</span><span class="o">=</span>0<span class="p">;</span>i&lt;10000<span class="p">;</span>i++<span class="o">))</span><span class="p">;</span>
-    <span class="k">do</span>
+function contineMove(){
+    for((i=0;i&amp;lt;10000;i++));
+    do
         move
-        <span class="c">#sleep 1</span>
-    <span class="k">done</span>
-<span class="o">}</span>
+        #sleep 1
+    done
+}
 
-<span class="k">function</span> resize<span class="o">(){</span>
-    <span class="nv">x1</span><span class="o">=</span><span class="sb">`</span>random<span class="sb">`</span>
-    <span class="nv">y1</span><span class="o">=</span><span class="sb">`</span>random<span class="sb">`</span>
-    xdotool windowsize <span class="nv">$WID</span> <span class="nv">$x1</span> <span class="nv">$y1</span>
-<span class="o">}</span>
+function resize(){
+    x1=`random`
+    y1=`random`
+    xdotool windowsize $WID $x1 $y1
+}
 
-<span class="k">function</span> contineResize<span class="o">(){</span>
-    <span class="k">for</span><span class="o">((</span><span class="nv">i</span><span class="o">=</span>0<span class="p">;</span>i&lt;<span class="nv">$1</span><span class="p">;</span>i++<span class="o">))</span><span class="p">;</span>
-    <span class="k">do</span>
+function contineResize(){
+    for((i=0;i&amp;lt;$1;i++));
+    do
         resize
-    <span class="k">done</span>
-<span class="o">}</span>
+    done
+}
 
 
-<span class="c">#拖拽窗口</span>
-<span class="c">#drag   </span>
+#拖拽窗口
+#drag   
 
-<span class="c">#移动窗口</span>
-<span class="c">#contineMove</span>
+#移动窗口
+#contineMove
 
-<span class="c">#改变窗口大小</span>
-<span class="c">#contineResize 10000</span></code></pre></div>
-
+#改变窗口大小
+#contineResize 10000&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+</code></pre>
 
 <h2>官方参考手册</h2>
 
 <p>在有些平台,编译安装xdotool之后,只能使用xdotool --help简单的查看命令,不能使用man xdotool查看手册,这里把上面的内容和官方参考手册一起作成<a href="http://sosohu.github.io/assets/doc/xdotool.pdf">pdf</a>,以供下载使用.</p>
 
 
-    <!--    2520-->
+    <!--    2616-->
     <div class="eof">-&nbsp;EOF&nbsp;-</div>
     <p class="declare">声明:本文采用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="nofollow" title="署名-非商业性使用-相同方式共享">BY-NC-SA</a>协议进行授权.转载请注明: <a href="/tool/2015/03/09/Xdotool%E6%A8%A1%E6%8B%9F%E5%B7%A5%E5%85%B7.html" title="Xdotool工具 " rel="nofollow">Xdotool工具</a></p>
     <hr>
@@ -253,7 +253,7 @@ xdotool windowfocus <span class="nv">$WID</span>
       
         <li><a href="/archive.html">Archive</a></li>
       
-        <li class="next"><a href="/algorithm/2015/04/14/%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F%E7%9A%84%E8%BF%AD%E4%BB%A3%E5%86%99%E6%B3%95.html" title="归并排序的迭代写法">Next &rarr;</a></li>
+        <li class="next"><a href="/2015/05/01/Valid-Number.html" title="Valid Number">Next &rarr;</a></li>
       
       </ul>
     </div>
@@ -305,6 +305,8 @@ xdotool windowfocus <span class="nv">$WID</span>
   <h4>相关文章</h4>
   <ul>
   
+  <li><a href="/job/2016/03/20/%E6%89%BE%E5%B7%A5%E4%BD%9C%E6%80%BB%E7%BB%93.html ">找工作总结</a></li>
+  
   <li><a href="/book/2015/07/31/%E6%88%91%E7%9A%84%E8%AF%BB%E4%B9%A6%E5%8D%95.html ">我的读书单</a></li>
   
   <li><a href="/linux/2015/07/16/Linux%E5%86%85%E6%A0%B8%E6%BA%90%E4%BB%A3%E7%A0%81%E6%83%85%E6%99%AF%E5%88%86%E6%9E%90%E4%B9%8B%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86.html ">Linux内核源代码情景分析之存储管理</a></li>
@@ -313,26 +315,23 @@ xdotool windowfocus <span class="nv">$WID</span>
   
   <li><a href="/c/c++/2015/06/16/%E4%BB%BF%E7%85%A7SGI-STL%E5%AE%9E%E7%8E%B0Hash%E8%A1%A8.html ">仿照SGI-STL实现Hash表</a></li>
   
-  <li><a href="/mips/2015/05/30/Mips%E4%B8%8B%E4%BB%BF%E7%85%A7%E7%BC%96%E8%AF%91%E5%99%A8%E5%AE%9E%E7%8E%B0C%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8.html ">Mips下仿照编译器实现C++成员函数调用</a></li>
+  <li><a href="/mips/2015/05/30/Mips%E4%B8%8B%E4%BB%BF%E7%85%A7%E7%BC%96%E8%AF%91%E5%99%A8%E5%AE%9E%E7%8E%B0C++%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8.html ">Mips下仿照编译器实现C++成员函数调用</a></li>
   
   <li><a href="/c/c++/2015/05/16/%E4%BB%BF%E7%85%A7SGI-STL%E5%AE%9E%E7%8E%B0Vector%E5%AE%B9%E5%99%A8.html ">仿照SGI-STL实现Vector容器</a></li>
-  
-  <li><a href="/c/c++/2015/05/10/%E6%B5%85%E8%B0%88%E5%AF%B9SGI-STL%E8%BF%AD%E4%BB%A3%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3%E7%9A%84%E7%90%86%E8%A7%A3.html ">浅谈对SGI-STL迭代器设计思想的理解</a></li>
   
   </ul>
   </div>
 </div>
-<script type="text/javascript" src="/assets/themes/flying/js/blogscript.js"></script>
+<script type="text/javascript" src="/assets/themes/flying//js/blogscript.js"></script>
 
 
       </div>
 
       <footer>
-        <p>&copy; sosohu 2014 
+        <p>&copy; sosohu 2012 
           with help from <a href="http://jekyllbootstrap.com" target="_blank" title="The Definitive Jekyll Blogging Framework">Jekyll Bootstrap</a>
           and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
-	<!--script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1000067280'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s22.cnzz.com/z_stat.php%3Fid%3D1000067280%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script-->
-	<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_3815131'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s9.cnzz.com/stat.php%3Fid%3D3815131%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+	<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1000067280'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s22.cnzz.com/z_stat.php%3Fid%3D1000067280%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
         </p>
       </footer>
 
@@ -378,7 +377,7 @@ $("a[href^='http://']").each(function(){
 <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
 
-<script type="text/javascript" src="/assets/themes/flying/js/default.js"></script>
+<script type="text/javascript" src="/assets/themes/flying//js/default.js"></script>
  </html>
 
 
