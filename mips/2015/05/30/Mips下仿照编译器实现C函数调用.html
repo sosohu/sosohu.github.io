@@ -1,0 +1,397 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Mips下仿照编译器实现C++成员函数调用 | WordWorth</title>
+    <meta name="description" content="Mips下仿照编译器实现C++成员函数调用">
+    <meta name="author" content="sosohu">
+    <meta name="keywords" content="汇编，ABI">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/themes/flying/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/themes/flying/css/style.css" rel="stylesheet" type="text/css" media="all">
+    <link href="/assets/themes/flying/css/syntax.css" rel="stylesheet" type="text/css" media="all">
+    <script type="text/javascript" src="/assets/themes/flying/js/jquery-1.9.1.min.js"></script>
+   <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+</head>
+
+  <body>
+
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/">WordWorth</a>
+          <ul class="nav">
+		<li><a href="/about.html">About</a></li>
+		<li><a href="/archive.html">Archive</a></li>
+		<li><a href="/categories.html">Categories</a></li>
+		<li><a href="/link.html">Link</a></li>
+		<li><a href="/download.html">Download</a></li>
+<!--		<li><a href="http://wiki.zhouyichu.com">Wiki</a></li>  -->
+		<li class="offset3"><a href="/atom.xml">Subscribe</a></li>
+		<li><a id="random" href="#">Random</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        
+<div class="page-header">
+  <h1>Mips下仿照编译器实现C++成员函数调用 <small class="H1_Date">--30 May 2015</small></h1>
+</div>
+
+<div class="row">
+  <div class="span8">
+    <h2>环境</h2>
+
+<p>32位MIPS平台，采用O32的ABI,linux操作系统，GCC编译器</p>
+
+<h2>需求</h2>
+
+<p>我们准备好C++对象的this指针，对象成员函数指针,对象的参数，然后模拟编译器来填充好参数并调用该对象成员函数. 需要注意，对象不固定，成员函数不固定，成员函数的参数个数以及类型都不固定.</p>
+
+<h2>MIPS的一些约定</h2>
+
+<h3>MIPS寄存器的约定</h3>
+
+<p><img src="http://sosohu.github.io/assets/image/posts/2015-5-30-MIPS/reg_mips.png" alt="Reg_MIPS" /></p>
+
+<h3>MIPS的O32标准ABI函数调用的约定</h3>
+
+<ul>
+<li>输入参数要依次填充寄存器a0, a1, a2, a3,如果还有参数则需要填充到栈上</li>
+<li>调用函数在调用被调用函数时候,需要为被调函数预留16字节的栈上空间以备被调函数存储a0,a1,a2和a3的值,所以a0,a1,a2,a3寄存器放不下的参数需要放在被调函数的栈帧+16字节以上的空间</li>
+<li>输入参数的填充时候要遵守对齐原则,比如参数依次为int, long long那么int放在a0,long long放在a2,a3寄存器而不是a1, a2寄存器</li>
+</ul>
+
+
+<h2>实现</h2>
+
+<p>我们这里的实现机制是，把所有参数按照４字节分割，比如long long需要分割成两个4字节，然后我们把这个一一个分割后的4字节的数据按照MIPS O32的ABI的约定填充到指定寄存器和栈上，然后再调用该函数即可.</p>
+
+<h3>处理对齐</h3>
+
+<p>我们需要分析每种参数类型到底是4字节对齐还是8字节对齐等等，然后根据不同的对齐确定参数寄存器和栈的对齐</p>
+
+<h3>代码实现</h3>
+
+<p>我们以一个<code>VARIANT</code>结构体为例，对于其他类型可以做同样的处理</p>
+
+<div class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="cp">#define DWORD 4</span>
+<span class="cp">#define __ASM_CFI(str) str</span>
+<span class="cp">#define __ASM_DEFINE_FUNC(name,suffix,code) asm(&quot;.text\n\t.align 4\n\t.globl &quot; #name suffix &quot;\n\t.type &quot; #name suffix &quot;,@function\n&quot; #name suffix &quot;:\n\t.cfi_startproc\n\t&quot; code &quot;\n\t.cfi_endproc\n\t.previous&quot;);</span>
+<span class="cp">#define __ASM_GLOBAL_FUNC(name,code) __ASM_DEFINE_FUNC(name,&quot;&quot;,code)</span>
+
+<span class="k">typedef</span> <span class="nf">intptr_t</span> <span class="p">(</span><span class="n">CALLBACK</span> <span class="o">*</span><span class="n">FARPROC</span><span class="p">)();</span>
+
+<span class="k">extern</span> <span class="s">&quot;C&quot;</span> <span class="kt">uintptr_t</span> <span class="n">CDECL</span> <span class="n">call_method</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">func</span><span class="p">,</span> <span class="kt">int</span> <span class="n">nb_args</span><span class="p">,</span> <span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="kt">int</span> <span class="n">nb_fargs</span><span class="p">,</span> <span class="k">const</span> <span class="kt">double</span><span class="o">*</span> <span class="n">fargs</span><span class="p">);</span>
+<span class="n">__ASM_GLOBAL_FUNC</span><span class="p">(</span> <span class="n">call_method</span><span class="p">,</span>
+                    <span class="s">&quot;.set noreorder</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;.set arch=mips3</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;sw $16,-28($29)</span><span class="se">\r\n</span><span class="s">&quot;</span> <span class="c1">// $16压栈</span>
+                    <span class="s">&quot;sw $17,-32($29)</span><span class="se">\r\n</span><span class="s">&quot;</span> <span class="c1">// $16压栈</span>
+                    <span class="s">&quot;move $16, $29</span><span class="se">\r\n</span><span class="s">&quot;</span> <span class="c1">// store $29</span>
+                    <span class="s">&quot;sll $17, $5, 2</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;and $17, $17,0xffffff80</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;addiu $17, $17, 256</span><span class="se">\r\n</span><span class="s">&quot;</span>  <span class="c1">// stack size</span>
+                    <span class="s">&quot;subu $29,$29,$17</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;sw $31,-4($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>   <span class="c1">//将返回地址压入堆栈</span>
+                    <span class="s">&quot;sw $30,-8($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>   <span class="c1">//将fp压入堆栈</span>
+                    <span class="s">&quot;sdc1 $f12,-16($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>  <span class="c1">//将f12到f15寄存器保存到堆栈中</span>
+                    <span class="s">&quot;sdc1 $f14,-24($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;move $30,$29</span><span class="se">\r\n</span><span class="s">&quot;</span>       <span class="c1">//将$29保存到fp</span>
+                    <span class="s">&quot;sw $4,0($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>       <span class="c1">//将参数＊func压栈</span>
+                    <span class="s">&quot;sw $5,4($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>       <span class="c1">//将参数nb_args压栈</span>
+                    <span class="s">&quot;sw $6,8($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>       <span class="c1">//将参数*args压栈</span>
+                    <span class="s">&quot;sw $7,12($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>      <span class="c1">//将参数nb_fargs压栈</span>
+                    <span class="s">&quot;move $11,$7</span><span class="se">\r\n</span><span class="s">&quot;</span>        <span class="c1">//将nb_fargs存入$11</span>
+                    <span class="s">&quot;lw $10,16($29)</span><span class="se">\r\n</span><span class="s">&quot;</span>     <span class="c1">//将*fargs存入$10</span>
+                    <span class="s">&quot;addu $11,$11,-2</span><span class="se">\r\n</span><span class="s">&quot;</span>     <span class="c1">//nb_fargs-2</span>
+                    <span class="s">&quot;bltz $11, 1f</span><span class="se">\r\n</span><span class="s">&quot;</span>       <span class="c1">//如果nb_fargs-2&lt;0,跳转到1</span>
+                    <span class="s">&quot;nop </span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;ldc1 $f14,8($10)</span><span class="se">\r\n</span><span class="s">&quot;</span>   <span class="c1">//将*fargs[1]移入$f14(高位隐含存入$f15)</span>
+                    <span class="s">&quot;1: addu $11,$11,1</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;bltz $11,2f</span><span class="se">\r\n</span><span class="s">&quot;</span>        <span class="c1">//如果nb_fargs-1&lt;0,跳转到2</span>
+                    <span class="s">&quot;nop </span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;ldc1 $f12,0($10)</span><span class="se">\r\n</span><span class="s">&quot;</span>   <span class="c1">//将*fargs[2]移入$f12,$f13</span>
+                    <span class="s">&quot;2: move $8,$5</span><span class="se">\r\n</span><span class="s">&quot;</span>      <span class="c1">//将nb_args 移入$8</span>
+                    <span class="s">&quot;move $9,$6</span><span class="se">\r\n</span><span class="s">&quot;</span>         <span class="c1">//将＊args移入$9</span>
+                    <span class="s">&quot;blez $8, 4f</span><span class="se">\r\n</span><span class="s">&quot;</span>        <span class="c1">//如$8小于等于0调转到call func</span>
+                    <span class="s">&quot;nop</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;lw $4,($9)</span><span class="se">\r\n</span><span class="s">&quot;</span>         <span class="c1">//将args[0]移入$4</span>
+                    <span class="s">&quot;addu $8,$8,-1</span><span class="se">\r\n</span><span class="s">&quot;</span>      <span class="c1">//$8=$8-1</span>
+                    <span class="s">&quot;blez $8,4f</span><span class="se">\r\n</span><span class="s">&quot;</span>         <span class="c1">//如$8小于等于0跳转到call func</span>
+                    <span class="s">&quot;nop</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;lw $5,4($9)</span><span class="se">\r\n</span><span class="s">&quot;</span>        <span class="c1">//将args[1]移入$5</span>
+                    <span class="s">&quot;addu $8,$8,-1</span><span class="se">\r\n</span><span class="s">&quot;</span>      <span class="c1">//$8=$8-1</span>
+                    <span class="s">&quot;blez $8, 4f</span><span class="se">\r\n</span><span class="s">&quot;</span>        <span class="c1">//如$8小于等于0跳转到call func</span>
+                    <span class="s">&quot;nop</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;lw $6,8($9)</span><span class="se">\r\n</span><span class="s">&quot;</span>        <span class="c1">//将args[2]移入$6</span>
+                    <span class="s">&quot;addu $8,$8,-1</span><span class="se">\r\n</span><span class="s">&quot;</span>      <span class="c1">//$8=$8-1</span>
+                    <span class="s">&quot;blez $8,4f</span><span class="se">\r\n</span><span class="s">&quot;</span>         <span class="c1">//如$8小于等于0跳转到call func</span>
+                    <span class="s">&quot;nop </span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;lw $7,12($9)</span><span class="se">\r\n</span><span class="s">&quot;</span>       <span class="c1">//将args[3]移入$7</span>
+                    <span class="s">&quot;addu $9,$9,16</span><span class="se">\r\n</span><span class="s">&quot;</span>      <span class="c1">//将指针移到args[4]</span>
+                    <span class="s">&quot;addu $11,$29,16</span><span class="se">\r\n</span><span class="s">&quot;</span>     <span class="c1">//$11=$29+16</span>
+                    <span class="s">&quot;3: addu $8,$8,-1</span><span class="se">\r\n</span><span class="s">&quot;</span>   <span class="c1">//$8=$8-1</span>
+                    <span class="s">&quot;blez $8,4f</span><span class="se">\r\n</span><span class="s">&quot;</span>         <span class="c1">//如$8小于等于0跳转到call func</span>
+                    <span class="s">&quot;nop</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;lw $10,($9)</span><span class="se">\r\n</span><span class="s">&quot;</span>        <span class="c1">//将args[n]移入$10</span>
+                    <span class="s">&quot;sw $10,($11)</span><span class="se">\r\n</span><span class="s">&quot;</span>        <span class="c1">//将$10存入$29+16+m</span>
+                    <span class="s">&quot;addu $9,$9,4</span><span class="se">\r\n</span><span class="s">&quot;</span>       <span class="c1">//指向args[n+1]</span>
+                    <span class="s">&quot;addu $11,$11,4</span><span class="se">\r\n</span><span class="s">&quot;</span>      <span class="c1">//指向$29+16+m</span>
+                    <span class="s">&quot;b 3b</span><span class="se">\r\n</span><span class="s">&quot;</span>               <span class="c1">//跳转到</span>
+                    <span class="s">&quot;nop</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;4: lw $25,0($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>   <span class="c1">//将*func存入$25</span>
+                    <span class="s">&quot;nop</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;jalr $25</span><span class="se">\r\n</span><span class="s">&quot;</span>             <span class="c1">//call func</span>
+                    <span class="s">&quot;nop</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;ldc1 $f14,-24($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;ldc1 $f12,-16($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;lw $30,-8($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;lw $31,-4($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;lw $16, -28($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;addu  $29,$29,$17</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;lw $17, -32($29)</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;jr $31</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;nop</span><span class="se">\r\n</span><span class="s">&quot;</span>
+                    <span class="s">&quot;.set reorder</span><span class="se">\r\n</span><span class="s">&quot;</span><span class="p">)</span>
+
+<span class="k">struct</span> <span class="n">VARIANT</span>
+<span class="p">{</span>
+    <span class="n">WORD</span> <span class="n">a</span><span class="p">;</span> <span class="c1">//２　字节</span>
+    <span class="n">WORD</span> <span class="n">b</span><span class="p">;</span>
+    <span class="n">WORD</span> <span class="n">c</span><span class="p">;</span>
+    <span class="n">WORD</span> <span class="n">d</span><span class="p">;</span>
+    <span class="n">INT64</span> <span class="n">e</span><span class="p">;</span> <span class="c1">// 8 字节</span>
+
+<span class="p">};</span>
+
+<span class="k">class</span> <span class="nc">A</span><span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="kt">int</span> <span class="n">fun1</span><span class="p">(</span><span class="n">VARIANT</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">c</span><span class="p">,</span> <span class="kt">int</span> <span class="n">d</span><span class="p">){</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">c</span> <span class="o">+</span> <span class="n">d</span><span class="p">;</span>
+        <span class="k">return</span> <span class="mi">12345</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span><span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+        <span class="n">VARIANT</span> <span class="n">var</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">};</span>
+        <span class="n">A</span> <span class="n">a</span><span class="p">;</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">uint32</span><span class="o">&gt;</span> <span class="n">args</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+        <span class="kt">int</span> <span class="n">argspos</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+        <span class="c1">//this指针作为第一个参数</span>
+        <span class="n">args</span><span class="p">[</span><span class="n">argspos</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span><span class="p">)</span><span class="o">&amp;</span><span class="n">a</span><span class="p">;</span>
+        <span class="c1">//准备第二个参数,注意对齐</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">argspos</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>  <span class="n">argspos</span><span class="o">++</span><span class="p">;</span>
+        <span class="n">memcpy</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">args</span><span class="p">[</span><span class="n">argspos</span><span class="p">],</span> <span class="o">&amp;</span><span class="n">var</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="p">);</span>
+        <span class="n">argspos</span> <span class="o">+=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">/</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">DWORD</span><span class="p">);</span>
+        <span class="c1">//准备第三和第四个参数</span>
+        <span class="n">args</span><span class="p">[</span><span class="n">argspos</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3333</span><span class="p">;</span>
+        <span class="n">args</span><span class="p">[</span><span class="n">argspos</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4444</span><span class="p">;</span>
+        
+        <span class="c1">//调用汇编编写的模拟调用</span>
+        <span class="kt">int</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">call_method2</span><span class="p">((</span><span class="kt">void</span><span class="o">*</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">A</span><span class="o">::</span><span class="n">fun1</span><span class="p">),</span> <span class="n">argspos</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="p">}</span></code></pre></div>
+
+
+<p>这个只是简单的以<code>VARIANT</code>举例，为了更加通用的处理各种参数类型，需要对参数类型进行分类讨论然后采用与此类似的操作.</p>
+
+<p>其实，这段实现也可以完全C语言化，那么我们就需要根据参数个数写一个大switch...case针对每种参数个数显示的调用func:</p>
+
+<div class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">switch</span><span class="p">(</span><span class="n">num_args</span><span class="p">){</span>
+    <span class="k">case</span> <span class="mi">1</span><span class="o">:</span>   <span class="n">func</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+    <span class="k">case</span> <span class="mi">2</span><span class="o">:</span>   <span class="n">func</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+    <span class="k">case</span> <span class="mi">3</span><span class="o">:</span>   <span class="n">func</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]);</span>
+    <span class="p">...</span>
+<span class="p">}</span></code></pre></div>
+
+
+<p>这样做很简单清楚，不过就难度太小了...</p>
+
+
+    <!--    6486-->
+    <div class="eof">-&nbsp;EOF&nbsp;-</div>
+    <p class="declare">声明:本文采用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="nofollow" title="署名-非商业性使用-相同方式共享">BY-NC-SA</a>协议进行授权.转载请注明: <a href="/mips/2015/05/30/Mips%E4%B8%8B%E4%BB%BF%E7%85%A7%E7%BC%96%E8%AF%91%E5%99%A8%E5%AE%9E%E7%8E%B0C%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8.html" title="Mips下仿照编译器实现C++成员函数调用 " rel="nofollow">Mips下仿照编译器实现C++成员函数调用</a></p>
+    <hr>
+	<!-- bdshare provider -->	
+	<style>
+		.bdsharebuttonbox{
+			float:right;
+		}
+	</style>
+	<div class="bdsharebuttonbox">
+		<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+		<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+		<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+		<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+		<a href="#" class="bds_more" data-cmd="more"></a>
+	</div>
+	<script>
+		window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+	</script>
+	<!--- end bdshare -->
+	<!--- 
+ -->
+	
+    <div class="pagination">
+      <ul>
+      
+        <li class="prev"><a href="/c/c++/2015/05/16/%E4%BB%BF%E7%85%A7SGI-STL%E5%AE%9E%E7%8E%B0Vector%E5%AE%B9%E5%99%A8.html" title="仿照SGI-STL实现Vector容器">&larr; Previous</a></li>
+      
+        <li><a href="/archive.html">Archive</a></li>
+      
+        <li class="next"><a href="/c/c++/2015/06/16/%E4%BB%BF%E7%85%A7SGI-STL%E5%AE%9E%E7%8E%B0Hash%E8%A1%A8.html" title="仿照SGI-STL实现Hash表">Next &rarr;</a></li>
+      
+      </ul>
+    </div>
+    <hr>
+    
+
+
+      <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'sosohu'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+    
+
+
+
+
+
+  </div>
+  
+  <div class="span4">
+
+  
+    <h4>Tags</h4>
+    <ul class="tag_box">
+    
+    
+
+
+  
+     
+    	<li><a href="/tags.html#ABI,GCC-ref">ABI,GCC <span>1</span></a></li>
+    
+  
+
+
+
+    </ul>
+    
+  <h4>相关文章</h4>
+  <ul>
+  
+  <li><a href="/book/2015/07/31/%E6%88%91%E7%9A%84%E8%AF%BB%E4%B9%A6%E5%8D%95.html ">我的读书单</a></li>
+  
+  <li><a href="/linux/2015/07/16/Linux%E5%86%85%E6%A0%B8%E6%BA%90%E4%BB%A3%E7%A0%81%E6%83%85%E6%99%AF%E5%88%86%E6%9E%90%E4%B9%8B%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86.html ">Linux内核源代码情景分析之存储管理</a></li>
+  
+  <li><a href="/job/2015/07/03/%E7%A0%81%E5%86%9C%E9%9D%A2%E8%AF%95%E5%9F%BA%E7%A1%80%E5%87%86%E5%A4%87%E6%80%BB%E7%BB%93.html ">码农面试基础准备总结</a></li>
+  
+  <li><a href="/c/c++/2015/06/16/%E4%BB%BF%E7%85%A7SGI-STL%E5%AE%9E%E7%8E%B0Hash%E8%A1%A8.html ">仿照SGI-STL实现Hash表</a></li>
+  
+  <li><a href="/c/c++/2015/05/16/%E4%BB%BF%E7%85%A7SGI-STL%E5%AE%9E%E7%8E%B0Vector%E5%AE%B9%E5%99%A8.html ">仿照SGI-STL实现Vector容器</a></li>
+  
+  <li><a href="/c/c++/2015/05/10/%E6%B5%85%E8%B0%88%E5%AF%B9SGI-STL%E8%BF%AD%E4%BB%A3%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3%E7%9A%84%E7%90%86%E8%A7%A3.html ">浅谈对SGI-STL迭代器设计思想的理解</a></li>
+  
+  <li><a href="/leetcode/2015/05/01/LeetCode-Valid_Number.html ">LeetCode --- Valid Number</a></li>
+  
+  </ul>
+  </div>
+</div>
+<script type="text/javascript" src="/assets/themes/flying/js/blogscript.js"></script>
+
+
+      </div>
+
+      <footer>
+        <p>&copy; sosohu 2014 
+          with help from <a href="http://jekyllbootstrap.com" target="_blank" title="The Definitive Jekyll Blogging Framework">Jekyll Bootstrap</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+	<!--script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1000067280'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s22.cnzz.com/z_stat.php%3Fid%3D1000067280%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script-->
+	<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_3815131'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s9.cnzz.com/stat.php%3Fid%3D3815131%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+        </p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    
+    
+  </body>
+
+<script type="text/javascript">
+$("a[href^='http://']").each(function(){
+	this.target="_blank";
+
+});
+</script>
+
+  <!--MathJax-->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+       }
+  });
+</script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        TeX: {equationNumbers: {autoNumber: ["AMS"], useLabelIds: true},extensions: ["autobold.js"]},
+        "HTML-CSS": {linebreaks: {automatic: true}},
+        SVG: {linebreaks: {automatic: true}}
+    });
+</script>
+
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<script type="text/javascript" src="/assets/themes/flying/js/default.js"></script>
+ </html>
+
+
+<!-- hitwebcounter Code START -->
+<a href="http://www.hitwebcounter.com/" target="_blank">
+<img src="http://hitwebcounter.com/counter/counter.php?page=6039789&style=0027&nbdigits=6&type=page&initCount=1122" title="" Alt=""   border="0" >
+</a><br/>
+<!-- hitwebcounter.com --><a href="http://www.hitwebcounter.com/" title="Hitwebcounter.com Free" 
+target="_blank" style="font-family: Arial, Helvetica, sans-serif; 
+font-size: 12px; color: #6B706A; text-decoration: underline ;"><strong>Hitwebcounter.com Free</strong>
+</a>   
