@@ -1,4 +1,3 @@
-
 ---
 layout: post
 time: 2015-5-1
@@ -42,7 +41,7 @@ s为空格 ,d为数字
 
 有了状态转移图之后,我们就可以轻松的编写代码如下:
 
-{% highlight C++ %}
+{% highlight cp %}
 enum lexical{ valid, space, sign, number, dot, e };
 
 int isType(const char c){

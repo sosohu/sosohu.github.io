@@ -67,7 +67,7 @@
 
 <h3>Hash Table类的原型</h3>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;typename Key, typename Value, typename HashFunc = hash_function&lt;Key&gt;,
+<p><figure class="highlight"><pre><code class="language-cp" data-lang="cp">template&lt;typename Key, typename Value, typename HashFunc = hash_function&lt;Key&gt;,
         typename ExtractKey = extract_key_single&lt;Key&gt;,
         typename EqualKey = equal_key&lt;Key&gt;, typename Alloc = alloc&gt;
 class hash_table{
@@ -82,7 +82,7 @@ class hash_table{
 
 <p>这里贴一下链表和槽的数据结构代码实现:</p>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">//链表节点
+<p><figure class="highlight"><pre><code class="language-cp" data-lang="cp">//链表节点
 template&lt;typename Value&gt;
 struct hash_node{
     hash_node <em>next;
@@ -111,7 +111,7 @@ vector&lt;hash_node_type*, Alloc&gt; buckets;
 
 <p>这里贴上迭代器的设计代码:</p>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;typename Key, typename Value, typename HashFunc,
+<p><figure class="highlight"><pre><code class="language-cp" data-lang="cp">template&lt;typename Key, typename Value, typename HashFunc,
             typename ExtractKey, typename EqualKey, typename Alloc = alloc&gt;
 struct hash_table_iterator{
 public:
@@ -172,7 +172,7 @@ bool operator!=(const_iterator &amp;amp;rhs) const{
 
 <p>具体代码如下面所示，其实完整的工程代码请查看我的github上的<a href="https://github.com/sosohu/Tiny-Stl/blob/master/include/hash_table.h">Tiny-STL</a>项目.</p>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">static const int prime_table_size = 28;
+<p><figure class="highlight"><pre><code class="language-cp" data-lang="cp">static const int prime_table_size = 28;
 static const unsigned int prime_table[prime_table_size] = {
         53, 97, 193, 389, 769,
         1543, 3079, 6151, 12289, 24593,
@@ -398,7 +398,7 @@ void hash_table&lt;Key, Value, HashFunc, ExtractKey, Equal, Alloc&gt;::swap(hash
 
 <p>其中由于unordered_set的值就是Key,所以Value的类型就是Key,ExtractKey也很就很简单(extract_key_single),代码如下:</p>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;typename Key&gt;
+<p><figure class="highlight"><pre><code class="language-cp" data-lang="cp">template&lt;typename Key&gt;
 struct extract_key_single{
     Key operator()(const Key key)   const{
         return key;
@@ -475,7 +475,7 @@ void reserve(size_type n){
 
 <p>我们在使用unordered_map时候一般会确定两个类型，比如unordered_map&lt;int,double>,这里int是Key类型而double是Mapped类型，所以传递给Hash Table的Value类型就是pair&lt;Key, Mapped>即pair&lt;int, double>，同样对于ExtractKey(使用extract_key_pair)也需要注意一下.</p>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;typename Key, typename Value&gt;
+<p><figure class="highlight"><pre><code class="language-cp" data-lang="cp">template&lt;typename Key, typename Value&gt;
 struct extract_key_pair{
     Key operator()(const Value value)   const{
         return value.first;
@@ -662,7 +662,7 @@ void reserve(size_type n){
   
   <li><a href="/c/c++/2015/05/16/%E4%BB%BF%E7%85%A7SGI-STL%E5%AE%9E%E7%8E%B0Vector%E5%AE%B9%E5%99%A8.html ">仿照SGI-STL实现Vector容器</a></li>
   
-  <li><a href="/2015/05/01/Valid-Number.html ">Valid Number</a></li>
+  <li><a href="/leetcode/2015/05/01/Valid-Number.html ">Valid Number</a></li>
   
   </ul>
   </div>
@@ -676,7 +676,8 @@ void reserve(size_type n){
         <p>&copy; sosohu 2012 
           with help from <a href="http://jekyllbootstrap.com" target="_blank" title="The Definitive Jekyll Blogging Framework">Jekyll Bootstrap</a>
           and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
-	<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1000067280'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s22.cnzz.com/z_stat.php%3Fid%3D1000067280%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+	<!--script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1000067280'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s22.cnzz.com/z_stat.php%3Fid%3D1000067280%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script-->
+	<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_3815131'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s9.cnzz.com/stat.php%3Fid%3D3815131' type='text/javascript'%3E%3C/script%3E"));</script>
         </p>
       </footer>
 

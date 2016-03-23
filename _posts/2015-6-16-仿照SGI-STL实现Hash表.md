@@ -15,7 +15,7 @@ Hash表的实现主要就是通过将键值key通过hash函数映射成存放位
 
 ##Hash Table设计思路
 ###Hash Table类的原型
-{% highlight C++ %}
+{% highlight cp %}
 template<typename Key, typename Value, typename HashFunc = hash_function<Key>,
 		typename ExtractKey = extract_key_single<Key>,
 		typename EqualKey = equal_key<Key>, typename Alloc = alloc>
@@ -28,7 +28,7 @@ class hash_table{
 由于我们采用开链法，所以我们需要先预申请k个(一般是个素数)顺序存储的槽(bucket),然后每个槽存放一个链表指针用来索引hash到该槽的所有数据.然后每次添加数据时候都是先hash到对应的槽然后加入到该槽链表的尾端；如果是查找某个key也是同样hash到对应的槽然后遍历该槽的链表查看是否存在该key的数据.
 
 这里贴一下链表和槽的数据结构代码实现:
-{% highlight C++ %}
+{% highlight cp %}
 //链表节点
 template<typename Value>
 struct hash_node{
@@ -57,7 +57,7 @@ vector<hash_node_type*, Alloc> buckets;
 根据上面的数据组织形式，我们可以让迭代器关联到槽中链表上的链表节点，然后根据需要后移所在链表中的位置或者转移到下一个槽中的链表头部.所以迭代器类需要两个信息，一个是Hash Table对象指针以便更换槽;另一个是当前所在的链表节点.
 
 这里贴上迭代器的设计代码:
-{% highlight C++ %}
+{% highlight cp %}
 template<typename Key, typename Value, typename HashFunc,
 			typename ExtractKey, typename EqualKey, typename Alloc = alloc>
 struct hash_table_iterator{
@@ -117,7 +117,7 @@ public:
 
 ##Hash Table具体设计
 具体代码如下面所示，其实完整的工程代码请查看我的github上的[Tiny-STL](https://github.com/sosohu/Tiny-Stl/blob/master/include/hash_table.h)项目.
-{% highlight C++ %}
+{% highlight cp %}
 static const int prime_table_size = 28;
 static const unsigned int prime_table[prime_table_size] = {
 		53, 97, 193, 389, 769,
@@ -341,7 +341,7 @@ void hash_table<Key, Value, HashFunc, ExtractKey, Equal, Alloc>::swap(hash_table
 
 ###unordered_set
 其中由于unordered_set的值就是Key,所以Value的类型就是Key,ExtractKey也很就很简单(extract_key_single),代码如下:
-{% highlight C++ %}
+{% highlight cp %}
 template<typename Key>
 struct extract_key_single{
 	Key operator()(const Key key)	const{
@@ -417,7 +417,7 @@ private:
 ###unordered_map
 我们在使用unordered_map时候一般会确定两个类型，比如unordered_map<int,double>,这里int是Key类型而double是Mapped类型，所以传递给Hash Table的Value类型就是pair<Key, Mapped>即pair<int, double>，同样对于ExtractKey(使用extract_key_pair)也需要注意一下.
 
-{% highlight C++ %}
+{% highlight cp %}
 template<typename Key, typename Value>
 struct extract_key_pair{
 	Key operator()(const Value value)	const{
