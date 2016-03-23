@@ -1,0 +1,264 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Linux内核源代码情景分析之存储管理 | WordWorth</title>
+    <meta name="description" content="Linux内核源代码情景分析之存储管理">
+    <meta name="author" content="sosohu">
+    <meta name="keywords" content="Kernel">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/themes/flying//bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/themes/flying//css/style.css" rel="stylesheet" type="text/css" media="all">
+    <link href="/assets/themes/flying//css/syntax.css" rel="stylesheet" type="text/css" media="all">
+    <script type="text/javascript" src="/assets/themes/flying//js/jquery-1.9.1.min.js"></script>
+   <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+</head>
+
+  <body>
+
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/">WordWorth</a>
+          <ul class="nav">
+		<li><a href="/about.html">About</a></li>
+		<li><a href="/archive.html">Archive</a></li>
+		<li><a href="/categories.html">Categories</a></li>
+      	<li><a href="/link.html">Link</a></li>
+      	<li><a href="/download.html">Download</a></li>
+<!--		<li><a href="http://wiki.zhouyichu.com">Wiki</a></li>  -->
+		<li class="offset3"><a href="/atom.xml">Subscribe</a></li>
+		<li><a id="random" href="#">Random</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        
+<div class="page-header">
+  <h1>Linux内核源代码情景分析之存储管理 <small class="H1_Date">--16 July 2015</small></h1>
+</div>
+
+<div class="row">
+  <div class="span8">
+    <p>一直以来对Linux内核的内存管理很是不解，最近在读毛德操老师和胡希明老师的<code>&lt;&lt;Linux内核源代码情景分析&gt;&gt;</code>，有所收获，借此机会写一篇小文权作读书笔记，以供日后不断反思学习之用</p>
+
+<h3 id="linux">Linux虚拟地址空间和物理地址空间</h3>
+<p>在32位的Linux系统里面每个进程都有自己独立的大约3GB的虚拟地址空间,而真实的物理内存是硬件固定的，所以就需要页表建立虚拟地址空间到物理地址空间
+的对应.</p>
+
+<p>在Linux中物理地址空间被划分为大小为4KB的一个个页框，这个页框在内核中通过Page结构体表示.并且物理内存也被划分为ZONE_DMA, ZONE_NORMAL, ZONE_HIGH三个区块，其中ZONE_DMA是为IO提供DMA通道的地址区域，一般进程使用的物理内存是属于ZONE_NORMAL/ZONE_HIGH区域.</p>
+
+<p>可以使用的物理内存被划分成一个个页框后，被放入到11个free_area_strcut链表中，这11个链表分别管理着1, 2, …., 2^10大小的连续的空闲页框链表，并且通过伙伴算法进程管理,具体可以<a href="http://blog.csdn.net/hs794502825/article/details/7887915">戳这里</a>,以后所有的物理页获取与释放都是通过伙伴算法来管理的</p>
+
+<h3 id="section">进程的内存管理</h3>
+
+<p>首先介绍一下几个重要的数据结构: task_struct, mm_struct, vm_area_struct. 这里task_struct可以看做是进程的档案，每个进程内核都会为它维护一个task_struct,在task_struct里面有很多进程的信息，其中就包括虚拟地址空间这块的mm_strcut成员,这这个成员它记录这进程的pgd,以及通过链表和AVL树管理的vm_area_struct节点，这里首先解释pgd的作用: pgd就是指向该进程在页全局目录表的位置，用来MMU地址转换的,一般进程切换时候会把它加载到cr3寄存器用来MMU转换; 其次vm_area_struct是进程虚拟地址空间的一个区间，因为虚拟地址空间很大，所以一般都是分段使用的，比如代码段，数据段，堆栈段，共享段等等，这些都是一个个vm_area_struct记录的，每个段的读写权限不同</p>
+
+<p>我们进程在使用一个虚拟地址时候，一般是先会通过MMU进程地址映射，如果发现存在则验证读写权限，如果不存在则触发缺页异常然后进入到内核态，接着会在mm_strcut里面的vm_area_struct的AVL树里面查找是否存在并验证权限是否正确，比如读写权限不一致，比如找不到一个合法的vm_area_struct区包含该虚拟地址等等，这些都会使得内核将SIGSEGV信号放入到进程的task_struct里面，待进程从内核态切换到用户态时候检查到这个信号就会终止运行出现Segment Fault这个臭名昭著的信息. 当然，进程栈的扩张是这个流程的意外情况，这时候会根据所需修改相应栈的vm_area_struct终止地址，然后申请物理页并且然进程对应页表项上填写映射信息</p>
+
+<p>另外进程在用户空间通常会使用malloc进程内存申请，这个malloc实质上会调用brk或者mmap系统调用,一般来说当malloc的空间小于128K时候调用brk使得堆的虚拟地址空间扩大一下，即通过修改对应vm_area_struct节点，而大于128K时候则调用mmap从进程虚拟地址空间中找出一块出来建立一个vm_area_struct,这时候只是分配的虚拟地址并没有对应物理页框，这是因为申请的不一定会用，之后使用时候才会触发缺页异常然后分配对应物理页</p>
+
+<p>这里需要单独说明一下mmap系统调用，mmap一般来说是将磁盘上一个文件映射到进程虚拟地址空间上，以方便读写文件，这里只是会为该文件建立一个vm_area_struct然后设置好file_ops调用方便在进程读写该文件时候引起缺页异常时候指引找到对应文件，然后将文件内容读入到某个物理页上再在页表上建立好映射关系</p>
+
+<h3 id="section-1">内核的内存管理</h3>
+
+<p>内核也同样需要使用物理内存，内核的内存通常是通过slab分配器获得的，这个slab分配器分为两种，一种是管理专属对象的缓冲，比如task_struct这些常见的对象，另一种则是通用的对象缓冲，根据空间的大小分类管理</p>
+
+<p>kmem_cache结构体可以想象成一个对象缓冲的分配入口，一般它有三个指针指向三种slab,分别是满．部分满和空闲slab,每个slab使用一个或者多个页框并且在里面分配一个个具体对象，我们以task_struct的kmem_cache为例，那么每个slab都可以存放多个task_struct对象，我们当需要申请一个task_struct时候则会从对应kmem_cache里面的部分满slab链表里面找一个task_struct对象返回，如果这是该slab最后一个没使用的task_struct则将此slab移动到满链表中.通用对象的slab也是一样，只不过根据所需空间大小找对应kmem_cache</p>
+
+<p>slab分配器的优点在于可以减少内存空洞，以及缓存对象通过在kmem_cache里面设定的初始化函数一次初始化所有对象，避免不必要的不断的初始化工作,kmalloc就是通过slab分配器获得一个通用的空间大小</p>
+
+<h3 id="section-2">页面调度</h3>
+
+<p>物理内存是有限的，所以就需要不断的换进和换出物理页，内核使用的页框一般来说是背会被换出的，进程的页框则通过LRU调度算法换出, 页面换出时候是将页面换到磁盘的交换区部分，然后原先使用该物理页的进程的页表映射也要改为磁盘的页面</p>
+
+
+    <!--    2244-->
+    <div class="eof">-&nbsp;EOF&nbsp;-</div>
+    <p class="declare">声明:本文采用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="nofollow" title="署名-非商业性使用-相同方式共享">BY-NC-SA</a>协议进行授权.转载请注明: <a href="/linux/2015/07/16/Linux%E5%86%85%E6%A0%B8%E6%BA%90%E4%BB%A3%E7%A0%81%E6%83%85%E6%99%AF%E5%88%86%E6%9E%90%E4%B9%8B%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86.html" title="Linux内核源代码情景分析之存储管理 " rel="nofollow">Linux内核源代码情景分析之存储管理</a></p>
+    <hr>
+	<!-- bdshare provider -->	
+	<style>
+		.bdsharebuttonbox{
+			float:right;
+		}
+	</style>
+	<div class="bdsharebuttonbox">
+		<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+		<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+		<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+		<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+		<a href="#" class="bds_more" data-cmd="more"></a>
+	</div>
+	<script>
+		window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+	</script>
+	<!--- end bdshare -->
+	<!--- 
+ -->
+	
+    <div class="pagination">
+      <ul>
+      
+        <li class="prev"><a href="/job/2015/07/03/%E7%A0%81%E5%86%9C%E9%9D%A2%E8%AF%95%E5%9F%BA%E7%A1%80%E5%87%86%E5%A4%87%E6%80%BB%E7%BB%93.html" title="码农面试基础准备总结">&larr; Previous</a></li>
+      
+        <li><a href="/archive.html">Archive</a></li>
+      
+        <li class="next"><a href="/book/2015/07/31/%E6%88%91%E7%9A%84%E8%AF%BB%E4%B9%A6%E5%8D%95.html" title="我的读书单">Next &rarr;</a></li>
+      
+      </ul>
+    </div>
+    <hr>
+    
+
+
+      <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'sosohu'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+    
+
+
+
+
+
+  </div>
+  
+  <div class="span4">
+
+  
+    <h4>Tags</h4>
+    <ul class="tag_box">
+    
+    
+
+
+  
+     
+    	<li><a href="/tags.html#Linux-ref">Linux <span>1</span></a></li>
+     
+    	<li><a href="/tags.html#Kernel,-ref">Kernel, <span>1</span></a></li>
+     
+    	<li><a href="/tags.html#读书笔记-ref">读书笔记 <span>1</span></a></li>
+    
+  
+
+
+
+    </ul>
+    
+  <h4>相关文章</h4>
+  <ul>
+  
+  <li><a href="/job/2016/03/20/%E6%89%BE%E5%B7%A5%E4%BD%9C%E6%80%BB%E7%BB%93.html ">找工作总结</a></li>
+  
+  <li><a href="/book/2015/07/31/%E6%88%91%E7%9A%84%E8%AF%BB%E4%B9%A6%E5%8D%95.html ">我的读书单</a></li>
+  
+  <li><a href="/job/2015/07/03/%E7%A0%81%E5%86%9C%E9%9D%A2%E8%AF%95%E5%9F%BA%E7%A1%80%E5%87%86%E5%A4%87%E6%80%BB%E7%BB%93.html ">码农面试基础准备总结</a></li>
+  
+  <li><a href="/c/c++/2015/06/16/%E4%BB%BF%E7%85%A7SGI-STL%E5%AE%9E%E7%8E%B0Hash%E8%A1%A8.html ">仿照SGI-STL实现Hash表</a></li>
+  
+  <li><a href="/mips/2015/05/30/Mips%E4%B8%8B%E4%BB%BF%E7%85%A7%E7%BC%96%E8%AF%91%E5%99%A8%E5%AE%9E%E7%8E%B0C++%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8.html ">Mips下仿照编译器实现C++成员函数调用</a></li>
+  
+  <li><a href="/c/c++/2015/05/16/%E4%BB%BF%E7%85%A7SGI-STL%E5%AE%9E%E7%8E%B0Vector%E5%AE%B9%E5%99%A8.html ">仿照SGI-STL实现Vector容器</a></li>
+  
+  <li><a href="/leetcode/2015/05/01/Valid-Number.html ">Valid Number</a></li>
+  
+  </ul>
+  </div>
+</div>
+<script type="text/javascript" src="/assets/themes/flying//js/blogscript.js"></script>
+
+
+      </div>
+
+      <footer>
+        <p>&copy; sosohu 2012 
+          with help from <a href="http://jekyllbootstrap.com" target="_blank" title="The Definitive Jekyll Blogging Framework">Jekyll Bootstrap</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+	<!--script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1000067280'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s22.cnzz.com/z_stat.php%3Fid%3D1000067280%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script-->
+	<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_3815131'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s9.cnzz.com/stat.php%3Fid%3D3815131' type='text/javascript'%3E%3C/script%3E"));</script>
+        </p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    
+    
+  </body>
+
+<script type="text/javascript">
+$("a[href^='http://']").each(function(){
+	this.target="_blank";
+
+});
+</script>
+
+  <!--MathJax-->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+       }
+  });
+</script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        TeX: {equationNumbers: {autoNumber: ["AMS"], useLabelIds: true},extensions: ["autobold.js"]},
+        "HTML-CSS": {linebreaks: {automatic: true}},
+        SVG: {linebreaks: {automatic: true}}
+    });
+</script>
+
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<script type="text/javascript" src="/assets/themes/flying//js/default.js"></script>
+ </html>
+
+
+<!-- hitwebcounter Code START -->
+<a href="http://www.hitwebcounter.com/" target="_blank">
+<img src="http://hitwebcounter.com/counter/counter.php?page=6039789&style=0027&nbdigits=6&type=page&initCount=1122" title="" Alt=""   border="0" >
+</a><br/>
+<!-- hitwebcounter.com --><a href="http://www.hitwebcounter.com/" title="Hitwebcounter.com Free" 
+target="_blank" style="font-family: Arial, Helvetica, sans-serif; 
+font-size: 12px; color: #6B706A; text-decoration: underline ;"><strong>Hitwebcounter.com Free</strong>
+</a>   
