@@ -57,237 +57,232 @@
 
 <div class="row">
   <div class="span8">
-    <p>写这篇文章的目的,主要是想总结一下我看完<code>SGI-STL</code>的迭代器部分代码之后的感悟,说一说自己的理解,这里还是要感谢<strong>侯捷</strong>老师的<strong>&lt;&lt;STL源码剖析>></strong>一书对我带来的启蒙和引发.另外,需要注明的是本篇涉及到的代码都是笔者自己实现的一套代码,和原生SGI代码相比在类命名等问题上有一些不同.</p>
+    <p>写这篇文章的目的,主要是想总结一下我看完<code>SGI-STL</code>的迭代器部分代码之后的感悟,说一说自己的理解,这里还是要感谢<strong>侯捷</strong>老师的<strong>«STL源码剖析»</strong>一书对我带来的启蒙和引发.另外,需要注明的是本篇涉及到的代码都是笔者自己实现的一套代码,和原生SGI代码相比在类命名等问题上有一些不同.</p>
 
-<h2>迭代器需要哪些特征?</h2>
-
+<h2 id="section">迭代器需要哪些特征?</h2>
 <p>我们要设计一个迭代器,那么我们先从迭代器的使用需求上来看迭代器需要哪些<strong>特征</strong>? 什么是特征?我们看一个例子就知道了.</p>
 
-<h4>STL的distance算法</h4>
+<h4 id="stldistance">STL的distance算法</h4>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;class InputIterator&gt;
-  typename iterator_traits&lt;InputIterator&gt;::difference_type
-    distance (InputIterator first, InputIterator last);</code></pre></figure></p>
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">InputIterator</span><span class="o">&gt;</span>
+  <span class="k">typename</span> <span class="n">iterator_traits</span><span class="o">&lt;</span><span class="n">InputIterator</span><span class="o">&gt;::</span><span class="n">difference_type</span>
+    <span class="n">distance</span> <span class="p">(</span><span class="n">InputIterator</span> <span class="n">first</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">last</span><span class="p">);</span></code></pre></figure>
 
 <p>我们知道,distance算法是求两个迭代器的距离,那么我们可以想一下,由于这个是通用函数模板,输入的迭代器可以是vector容器的迭代器,也可以是list容器的迭代器,而我们根据vector和list的数据组织应该可以意识到这两个容器的迭代器的访问能力是不同的,一个是可以随机访问,即随便向前向后移动任意步数,但是另外一个只能每次向前移动一步(<code>pos = pos-&gt;next</code>). 基于这个不同,我们的distance算法实现就应该有所不同.那么怎么告知distance函数这个问题呢? 就需要迭代器具有某个特征来说明这点.</p>
 
 <p>通过上面的例子,我们可以看到迭代器确实需要一些特征来作为区别,SGI-STL中的迭代器有五大特征,我们可以通过SGI的标准Iterator基类可以一看究竟,这里需要说一下,SGI中所有的迭代器都继承与这个基类.</p>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;typename Category, typename T,
-        typename Pointer = T*, typename Reference = T&amp;,
-        typename Difference = ptrdiff_t&gt;
-struct iterator{
-    typedef Category iterator_category;
-    typedef T value_type;
-    typedef Pointer pointer_type;
-    typedef Reference reference_type;
-    typedef Difference difference_type;
-};</code></pre></figure></p>
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Category</span><span class="p">,</span> <span class="k">typename</span> <span class="n">T</span><span class="p">,</span>
+		<span class="k">typename</span> <span class="n">Pointer</span> <span class="o">=</span> <span class="n">T</span><span class="o">*</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Reference</span> <span class="o">=</span> <span class="n">T</span><span class="o">&amp;</span><span class="p">,</span>
+		<span class="k">typename</span> <span class="n">Difference</span> <span class="o">=</span> <span class="kt">ptrdiff_t</span><span class="o">&gt;</span>
+<span class="k">struct</span> <span class="n">iterator</span><span class="p">{</span>
+	<span class="k">typedef</span> <span class="n">Category</span> <span class="n">iterator_category</span><span class="p">;</span>
+	<span class="k">typedef</span> <span class="n">T</span> <span class="n">value_type</span><span class="p">;</span>
+	<span class="k">typedef</span> <span class="n">Pointer</span> <span class="n">pointer_type</span><span class="p">;</span>
+	<span class="k">typedef</span> <span class="n">Reference</span> <span class="n">reference_type</span><span class="p">;</span>
+	<span class="k">typedef</span> <span class="n">Difference</span> <span class="n">difference_type</span><span class="p">;</span>
+<span class="p">};</span></code></pre></figure>
 
 <p>这里面唯一眼生的就是Category,这是标记迭代器的访问能力的一个特征,具体有五种类型分别定义如下:</p>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">//声明五种迭代器型别
-struct input_iterator_tag{};//只读
-struct output_iterator_tag{}; //只写
-//可读写, 只能++移动
-struct forward_iterator_tag : public input_iterator_tag{};
-//可读写,能++, --移动
-struct bidirectional_iterator_tag : public forward_iterator_tag{};
-//可读写,能随机移动
-struct random_access_iterator_tag : public bidirectional_iterator_tag{};</code></pre></figure></p>
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="c1">//声明五种迭代器型别</span>
+<span class="k">struct</span> <span class="n">input_iterator_tag</span><span class="p">{};</span><span class="c1">//只读</span>
+<span class="k">struct</span> <span class="n">output_iterator_tag</span><span class="p">{};</span> <span class="c1">//只写</span>
+<span class="c1">//可读写, 只能++移动</span>
+<span class="k">struct</span> <span class="nl">forward_iterator_tag</span> <span class="p">:</span> <span class="k">public</span> <span class="n">input_iterator_tag</span><span class="p">{};</span> 
+<span class="c1">//可读写,能++, --移动</span>
+<span class="k">struct</span> <span class="nl">bidirectional_iterator_tag</span> <span class="p">:</span> <span class="k">public</span> <span class="n">forward_iterator_tag</span><span class="p">{};</span> 
+<span class="c1">//可读写,能随机移动</span>
+<span class="k">struct</span> <span class="nl">random_access_iterator_tag</span> <span class="p">:</span> <span class="k">public</span> <span class="n">bidirectional_iterator_tag</span><span class="p">{};</span></code></pre></figure>
 
-<h2>迭代器萃取器</h2>
-
+<h2 id="section-1">迭代器萃取器</h2>
 <p>有了上面的介绍,我们知道迭代器有着五大特征,给你一个迭代器,如何判断其某个特征呢? 我们还是以distance为例.</p>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;class InputIterator&gt;
-  typename iterator_traits&lt;InputIterator&gt;::difference_type
-    distance (InputIterator first, InputIterator last){
-    ...
-}</code></pre></figure></p>
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">InputIterator</span><span class="o">&gt;</span>
+  <span class="k">typename</span> <span class="n">iterator_traits</span><span class="o">&lt;</span><span class="n">InputIterator</span><span class="o">&gt;::</span><span class="n">difference_type</span>
+    <span class="n">distance</span> <span class="p">(</span><span class="n">InputIterator</span> <span class="n">first</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">last</span><span class="p">){</span>
+	<span class="p">...</span>
+<span class="p">}</span></code></pre></figure>
 
 <p>那么我们怎么根据InputIterator来判断其Category呢? 这里就不得不提到Traits技术.</p>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">//迭代器萃取器
-template&lt;typename T&gt;
-class traits_iterator{
-    typedef typename T::value_type value_type;
-    typedef typename T::pointer_type pointer_type;
-    typedef typename T::reference_type reference_type;
-    typedef typename T::difference_type difference_type;
-    typedef typename T::iterator_category iterator_category;
-};</p>
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="c1">//迭代器萃取器</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">traits_iterator</span><span class="p">{</span>
+	<span class="k">typedef</span> <span class="k">typename</span> <span class="n">T</span><span class="o">::</span><span class="n">value_type</span> <span class="n">value_type</span><span class="p">;</span>
+	<span class="k">typedef</span> <span class="k">typename</span> <span class="n">T</span><span class="o">::</span><span class="n">pointer_type</span> <span class="n">pointer_type</span><span class="p">;</span>
+	<span class="k">typedef</span> <span class="k">typename</span> <span class="n">T</span><span class="o">::</span><span class="n">reference_type</span> <span class="n">reference_type</span><span class="p">;</span>
+	<span class="k">typedef</span> <span class="k">typename</span> <span class="n">T</span><span class="o">::</span><span class="n">difference_type</span> <span class="n">difference_type</span><span class="p">;</span>
+	<span class="k">typedef</span> <span class="k">typename</span> <span class="n">T</span><span class="o">::</span><span class="n">iterator_category</span> <span class="n">iterator_category</span><span class="p">;</span>
+<span class="p">};</span>
 
-<p>//偏特化普通指针T<em>
-template&lt;typename T&gt;
-struct traits_iterator&lt;T</em>&gt;{
-    typedef T value_type;
-    typedef T* pointer_type;
-    typedef T&amp; reference_type;
-    typedef ptrdiff_t difference_type;
-    typedef random_access_iterator_tag iterator_category;
-};</p>
+<span class="c1">//偏特化普通指针T*</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="k">struct</span> <span class="n">traits_iterator</span><span class="o">&lt;</span><span class="n">T</span><span class="o">*&gt;</span><span class="p">{</span>
+	<span class="k">typedef</span> <span class="n">T</span> <span class="n">value_type</span><span class="p">;</span>
+	<span class="k">typedef</span> <span class="n">T</span><span class="o">*</span> <span class="n">pointer_type</span><span class="p">;</span>
+	<span class="k">typedef</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">reference_type</span><span class="p">;</span>
+	<span class="k">typedef</span> <span class="kt">ptrdiff_t</span> <span class="n">difference_type</span><span class="p">;</span>
+	<span class="k">typedef</span> <span class="n">random_access_iterator_tag</span> <span class="n">iterator_category</span><span class="p">;</span>
+<span class="p">};</span>
 
-<p>//偏特化普通const指针 const T<em>
-template&lt;typename T&gt;
-class traits_iterator&lt;const T</em>&gt;{
-    typedef const T value_type;
-    typedef const T* pointer_type;
-    typedef T&amp; reference_type;
-    typedef ptrdiff_t difference_type;
-    typedef random_access_iterator_tag iterator_category;
-};</code></pre></figure></p>
+<span class="c1">//偏特化普通const指针 const T*</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">traits_iterator</span><span class="o">&lt;</span><span class="k">const</span> <span class="n">T</span><span class="o">*&gt;</span><span class="p">{</span>
+	<span class="k">typedef</span> <span class="k">const</span> <span class="n">T</span> <span class="n">value_type</span><span class="p">;</span>
+	<span class="k">typedef</span> <span class="k">const</span> <span class="n">T</span><span class="o">*</span> <span class="n">pointer_type</span><span class="p">;</span>
+	<span class="k">typedef</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">reference_type</span><span class="p">;</span>
+	<span class="k">typedef</span> <span class="kt">ptrdiff_t</span> <span class="n">difference_type</span><span class="p">;</span>
+	<span class="k">typedef</span> <span class="n">random_access_iterator_tag</span> <span class="n">iterator_category</span><span class="p">;</span>
+<span class="p">};</span></code></pre></figure>
 
 <p>所以你只需要简单的<code>traits_iterator&lt;InputIterator&gt;::iterator_category</code>就得到了其特征了,然后根据这个特征生成一个对象,根据这个iterator_category就找到具体的重载函数,就达到了不同iterator_category不同处理方式的目的了.</p>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;typename InputIterator&gt;
-typename traits_iterator&lt;InputIterator&gt;::difference_type
-distance(InputIterator iter1, InputIterator iter2){
-    typedef typename traits_iterator&lt;InputIterator&gt;::iterator_category category;
-    return _distance(iter1, iter2, category());
-}</p>
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
+<span class="k">typename</span> <span class="n">traits_iterator</span><span class="o">&lt;</span><span class="n">InputIterator</span><span class="o">&gt;::</span><span class="n">difference_type</span>
+<span class="n">distance</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">iter1</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">iter2</span><span class="p">){</span>
+	<span class="k">typedef</span> <span class="k">typename</span> <span class="n">traits_iterator</span><span class="o">&lt;</span><span class="n">InputIterator</span><span class="o">&gt;::</span><span class="n">iterator_category</span> <span class="n">category</span><span class="p">;</span>
+	<span class="k">return</span> <span class="nf">_distance</span><span class="p">(</span><span class="n">iter1</span><span class="p">,</span> <span class="n">iter2</span><span class="p">,</span> <span class="n">category</span><span class="p">());</span>
+<span class="p">}</span>
 
-<p>template&lt;typename InputIterator&gt;
-typename traits_iterator&lt;InputIterator&gt;::difference_type
-_distance(InputIterator iter1, InputIterator iter2,
-        input_iterator_tag category){
-    typedef typename traits_iterator&lt;InputIterator&gt;::difference_type difference_type;
-    difference_type d = 0;
-    while(iter1++ != iter2){
-        d++;
-    }
-    return d;
-}</p>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
+<span class="k">typename</span> <span class="n">traits_iterator</span><span class="o">&lt;</span><span class="n">InputIterator</span><span class="o">&gt;::</span><span class="n">difference_type</span>
+<span class="n">_distance</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">iter1</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">iter2</span><span class="p">,</span>
+		<span class="n">input_iterator_tag</span> <span class="n">category</span><span class="p">){</span>
+	<span class="k">typedef</span> <span class="k">typename</span> <span class="n">traits_iterator</span><span class="o">&lt;</span><span class="n">InputIterator</span><span class="o">&gt;::</span><span class="n">difference_type</span> <span class="n">difference_type</span><span class="p">;</span>
+	<span class="n">difference_type</span> <span class="n">d</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">while</span><span class="p">(</span><span class="n">iter1</span><span class="o">++</span> <span class="o">!=</span> <span class="n">iter2</span><span class="p">){</span>
+		<span class="n">d</span><span class="o">++</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">d</span><span class="p">;</span>
+<span class="p">}</span>
 
-<p>template&lt;typename InputIterator&gt;
-typename traits_iterator&lt;InputIterator&gt;::difference_type
-_distance(InputIterator iter1, InputIterator iter2,
-        random_access_iterator_tag category){
-    return iter2 - iter1;
-}</code></pre></figure></p>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="o">&gt;</span>
+<span class="k">typename</span> <span class="n">traits_iterator</span><span class="o">&lt;</span><span class="n">InputIterator</span><span class="o">&gt;::</span><span class="n">difference_type</span>
+<span class="n">_distance</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">iter1</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">iter2</span><span class="p">,</span>
+		<span class="n">random_access_iterator_tag</span> <span class="n">category</span><span class="p">){</span>
+	<span class="k">return</span> <span class="n">iter2</span> <span class="o">-</span> <span class="n">iter1</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
 
 <p>see? 这就把迭代器的特征,traits_iterator萃取技术和重载函数联系到一起了.</p>
 
-<h2>类型萃取器</h2>
+<h2 id="section-2">类型萃取器</h2>
+<p>我们现在已经有了traits_iterator,那么似乎一切都已足够了,但是我们考虑uninitialized_copy函数这个问题.
+#### STL的uninitialized_copy函数</p>
 
-<p>我们现在已经有了traits_iterator,那么似乎一切都已足够了,但是我们考虑uninitialized_copy函数这个问题.</p>
-
-<h4>STL的uninitialized_copy函数</h4>
-
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;typename InputIterator, typename ForwardIterator&gt;
-ForwardIterator uninitialized_copy(InputIterator begin, InputIterator end,
-                    ForwardIterator result);</code></pre></figure></p>
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="p">,</span> <span class="k">typename</span> <span class="n">ForwardIterator</span><span class="o">&gt;</span>
+<span class="n">ForwardIterator</span> <span class="n">uninitialized_copy</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">end</span><span class="p">,</span>
+					<span class="n">ForwardIterator</span> <span class="n">result</span><span class="p">);</span></code></pre></figure>
 
 <p>uninitialized_copy函数是将[result, end - begin)区间的值一一赋值给[begin, end)区间.这个函数需要根据迭代器指向的类型来做判断,而不是迭代器类型做判断. 因为我们想一下,同样是指向vector的迭代器,但是一个是指向<code>vector&lt;A&gt;</code>,而另外一个是指向<code>vector&lt;B&gt;</code>, A不需要深拷贝而B需要深拷贝,所以这种情形下处理<code>vector&lt;B&gt;</code>就无法像处理<code>vector&lt;A&gt;</code>一样了.</p>
 
 <p>所以,我们需要类型萃取器.类型萃取器和迭代器萃取器如出一辙,具体实现如下:</p>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">//特征标记是否可以进行高效拷贝操作等
-struct true_POD{};
-struct false_POD{};</p>
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="c1">//特征标记是否可以进行高效拷贝操作等</span>
+<span class="k">struct</span> <span class="n">true_POD</span><span class="p">{};</span> 
+<span class="k">struct</span> <span class="n">false_POD</span><span class="p">{};</span>
 
-<p>//默认所有类型都是false_POD
-template&lt;typename T&gt;
-struct  traits_type{
-    typedef false_POD is_POD;
-};</p>
+<span class="c1">//默认所有类型都是false_POD</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="k">struct</span>	<span class="n">traits_type</span><span class="p">{</span>
+	<span class="k">typedef</span> <span class="n">false_POD</span> <span class="n">is_POD</span><span class="p">;</span>
+<span class="p">};</span>
 
-<p>//偏特化版本
-template&lt;typename T&gt;
-struct  traits_type&lt;T*&gt;{
-    typedef true_POD is_POD;
-};</p>
+<span class="c1">//偏特化版本</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="k">struct</span>	<span class="n">traits_type</span><span class="o">&lt;</span><span class="n">T</span><span class="o">*&gt;</span><span class="p">{</span>
+	<span class="k">typedef</span> <span class="n">true_POD</span> <span class="n">is_POD</span><span class="p">;</span>
+<span class="p">};</span>
 
-<p>template&lt;&gt;
-struct traits_type&lt;char&gt;{
-    typedef true_POD is_POD;
-};</p>
+<span class="k">template</span><span class="o">&lt;&gt;</span>
+<span class="k">struct</span> <span class="n">traits_type</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;</span><span class="p">{</span>
+	<span class="k">typedef</span> <span class="n">true_POD</span> <span class="n">is_POD</span><span class="p">;</span>
+<span class="p">};</span>
 
-<p>template&lt;&gt;
-struct traits_type&lt;bool&gt;{
-    typedef true_POD is_POD;
-};</p>
+<span class="k">template</span><span class="o">&lt;&gt;</span>
+<span class="k">struct</span> <span class="n">traits_type</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="p">{</span>
+	<span class="k">typedef</span> <span class="n">true_POD</span> <span class="n">is_POD</span><span class="p">;</span>
+<span class="p">};</span>
 
-<p>template&lt;&gt;
-struct traits_type&lt;int&gt;{
-    typedef true_POD is_POD;
-};</p>
+<span class="k">template</span><span class="o">&lt;&gt;</span>
+<span class="k">struct</span> <span class="n">traits_type</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span>
+	<span class="k">typedef</span> <span class="n">true_POD</span> <span class="n">is_POD</span><span class="p">;</span>
+<span class="p">};</span>
 
-<p>template&lt;&gt;
-struct traits_type&lt;long&gt;{
-    typedef true_POD is_POD;
-};</p>
+<span class="k">template</span><span class="o">&lt;&gt;</span>
+<span class="k">struct</span> <span class="n">traits_type</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;</span><span class="p">{</span>
+	<span class="k">typedef</span> <span class="n">true_POD</span> <span class="n">is_POD</span><span class="p">;</span>
+<span class="p">};</span>
 
-<p>template&lt;&gt;
-struct traits_type&lt;float&gt;{
-    typedef true_POD is_POD;
-};</p>
+<span class="k">template</span><span class="o">&lt;&gt;</span>
+<span class="k">struct</span> <span class="n">traits_type</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">{</span>
+	<span class="k">typedef</span> <span class="n">true_POD</span> <span class="n">is_POD</span><span class="p">;</span>
+<span class="p">};</span>
 
-<p>template&lt;&gt;
-struct traits_type&lt;double&gt;{
-    typedef true_POD is_POD;
-};</p>
+<span class="k">template</span><span class="o">&lt;&gt;</span>
+<span class="k">struct</span> <span class="n">traits_type</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">{</span>
+	<span class="k">typedef</span> <span class="n">true_POD</span> <span class="n">is_POD</span><span class="p">;</span>
+<span class="p">};</span>
 
-<p>/<em>TODO
- * unsigned int, unsigned char, ......
- </em>/</code></pre></figure></p>
+<span class="cm">/*TODO</span>
+<span class="cm"> * unsigned int, unsigned char, ......</span>
+<span class="cm"> */</span></code></pre></figure>
 
 <p>准备好了类型萃取后,我们就可以这样实现uninitialized_copy了:</p>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">/<em>
- * [begin, end) 内容拷贝到[result, result + end - begin)中
- * result保持不变，返回result + end - begin
- </em>/
-template&lt;typename InputIterator, typename ForwardIterator&gt;
-ForwardIterator uninitialized_copy(InputIterator begin, InputIterator end,
-                    ForwardIterator result){
-    return _uninitialized_copy(begin, end, result, value_type(result));
-}</p>
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="cm">/*</span>
+<span class="cm"> * [begin, end) 内容拷贝到[result, result + end - begin)中</span>
+<span class="cm"> * result保持不变，返回result + end - begin</span>
+<span class="cm"> */</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="p">,</span> <span class="k">typename</span> <span class="n">ForwardIterator</span><span class="o">&gt;</span>
+<span class="n">ForwardIterator</span> <span class="n">uninitialized_copy</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">end</span><span class="p">,</span>
+					<span class="n">ForwardIterator</span> <span class="n">result</span><span class="p">){</span>
+	<span class="k">return</span> <span class="n">_uninitialized_copy</span><span class="p">(</span><span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">value_type</span><span class="p">(</span><span class="n">result</span><span class="p">));</span>
+<span class="p">}</span>
 
-<p>//char<em> 偏特化
-template&lt;&gt;
-char</em> uninitialized_copy(const char<em> begin, const char</em> end, char* result){
-    //memmove当位置重叠时候保证拷贝正确，memcpy不保证
-    memmove(result, begin, end - begin);
-    return result + (end - begin);
-}</p>
+<span class="c1">//char* 偏特化</span>
+<span class="k">template</span><span class="o">&lt;&gt;</span>
+<span class="kt">char</span><span class="o">*</span> <span class="n">uninitialized_copy</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">begin</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">end</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">result</span><span class="p">){</span>
+	<span class="c1">//memmove当位置重叠时候保证拷贝正确，memcpy不保证</span>
+	<span class="n">memmove</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">begin</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">begin</span><span class="p">);</span>
+	<span class="k">return</span> <span class="n">result</span> <span class="o">+</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">begin</span><span class="p">);</span>
+<span class="p">}</span>
 
-<p>//T<em>仅仅用来萃取T的POD特性，根据是否是POD类型做出处理
-template&lt;typename InputIterator, typename ForwardIterator, typename T&gt;
-ForwardIterator _uninitialized_copy(InputIterator begin, InputIterator end,
-                    ForwardIterator result,T</em>){
-    typedef typename traits_type&lt;T&gt;::is_POD isPOD;
-    _uninitialized_copy_aux(begin, end, result, isPOD());
-}</p>
+<span class="c1">//T*仅仅用来萃取T的POD特性，根据是否是POD类型做出处理</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="p">,</span> <span class="k">typename</span> <span class="n">ForwardIterator</span><span class="p">,</span> <span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="n">ForwardIterator</span> <span class="n">_uninitialized_copy</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">end</span><span class="p">,</span>
+					<span class="n">ForwardIterator</span> <span class="n">result</span><span class="p">,</span><span class="n">T</span><span class="o">*</span><span class="p">){</span>
+	<span class="k">typedef</span> <span class="k">typename</span> <span class="n">traits_type</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">is_POD</span> <span class="n">isPOD</span><span class="p">;</span>
+	<span class="n">_uninitialized_copy_aux</span><span class="p">(</span><span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">isPOD</span><span class="p">());</span>
+<span class="p">}</span>
 
-<p>//true_POD
-template&lt;typename InputIterator, typename ForwardIterator&gt;
-ForwardIterator _uninitialized_copy_aux(InputIterator begin,
-                InputIterator end, ForwardIterator result, true_POD){
-    //快速拷贝 TODO
-    std::copy(begin, end, result);
-}</p>
+<span class="c1">//true_POD</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="p">,</span> <span class="k">typename</span> <span class="n">ForwardIterator</span><span class="o">&gt;</span>
+<span class="n">ForwardIterator</span> <span class="n">_uninitialized_copy_aux</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span>
+				<span class="n">InputIterator</span> <span class="n">end</span><span class="p">,</span> <span class="n">ForwardIterator</span> <span class="n">result</span><span class="p">,</span> <span class="n">true_POD</span><span class="p">){</span>
+	<span class="c1">//快速拷贝 TODO</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">copy</span><span class="p">(</span><span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">result</span><span class="p">);</span>
+<span class="p">}</span>
 
-<p>//false_POD
-template&lt;typename InputIterator, typename ForwardIterator&gt;
-ForwardIterator <em>uninitialized_copy_aux(InputIterator begin,
-                InputIterator end, ForwardIterator result, false_POD){
-    //result保持不变
-    ForwardIterator cur = result;
-    while(begin != end){
-        </em>construct(&amp;<em>cur, </em>begin);
-        ++begin;
-        ++cur;
-    }
-    return cur;
-}</code></pre></figure></p>
+<span class="c1">//false_POD</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">InputIterator</span><span class="p">,</span> <span class="k">typename</span> <span class="n">ForwardIterator</span><span class="o">&gt;</span>
+<span class="n">ForwardIterator</span> <span class="n">_uninitialized_copy_aux</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">begin</span><span class="p">,</span>
+				<span class="n">InputIterator</span> <span class="n">end</span><span class="p">,</span> <span class="n">ForwardIterator</span> <span class="n">result</span><span class="p">,</span> <span class="n">false_POD</span><span class="p">){</span>
+	<span class="c1">//result保持不变</span>
+	<span class="n">ForwardIterator</span> <span class="n">cur</span> <span class="o">=</span> <span class="n">result</span><span class="p">;</span>
+	<span class="k">while</span><span class="p">(</span><span class="n">begin</span> <span class="o">!=</span> <span class="n">end</span><span class="p">){</span>
+		<span class="n">_construct</span><span class="p">(</span><span class="o">&amp;*</span><span class="n">cur</span><span class="p">,</span> <span class="o">*</span><span class="n">begin</span><span class="p">);</span>
+		<span class="o">++</span><span class="n">begin</span><span class="p">;</span>
+		<span class="o">++</span><span class="n">cur</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">cur</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
 
-<h2>总结</h2>
-
+<h2 id="section-3">总结</h2>
 <p>SGI的迭代器设计思想就是所有的迭代器都有五大特征,然后通过traits_iterator来萃取出任一特征,再根据不同的特征调用不同的重载函数,以达到不同情况做不同处理的目的.我想这就是迭代器的设计精髓.</p>
 
 
-    <!--    6618-->
+    <!--    6367-->
     <div class="eof">-&nbsp;EOF&nbsp;-</div>
     <p class="declare">声明:本文采用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="nofollow" title="署名-非商业性使用-相同方式共享">BY-NC-SA</a>协议进行授权.转载请注明: <a href="/c/c++/2014/05/10/%E6%B5%85%E8%B0%88%E5%AF%B9SGI-STL%E8%BF%AD%E4%BB%A3%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3%E7%9A%84%E7%90%86%E8%A7%A3.html" title="浅谈对SGI-STL迭代器设计思想的理解 " rel="nofollow">浅谈对SGI-STL迭代器设计思想的理解</a></p>
     <hr>

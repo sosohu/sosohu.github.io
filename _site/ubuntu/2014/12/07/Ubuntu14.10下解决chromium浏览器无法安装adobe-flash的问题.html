@@ -60,28 +60,24 @@
     <p>本文参考了一下资源和博客，在此提出表示感谢：</p>
 
 <ul>
-<li>http://my.oschina.net/u/209016/blog/290067</li>
-<li>http://ubuntuhandbook.org/index.php/2014/10/enable-flash-chromium-browser-ubuntu-14-10/</li>
+  <li>http://my.oschina.net/u/209016/blog/290067</li>
+  <li>http://ubuntuhandbook.org/index.php/2014/10/enable-flash-chromium-browser-ubuntu-14-10/</li>
 </ul>
 
+<h2 id="section">问题描述</h2>
+<p>前段时间装了Ubuntu14.10的32位版本，然后不记得是随系统带的还是自己装的chromium浏览器，可是自从用了chromium浏览器后，问题来了，网页观看视频的时候检测到没有flash支持，然后一般会有个链接然后让你点击安装，可是安装时候发现选择linux-&gt;apt-get安装时候在软件中心又无法找到该软件……</p>
 
-<h2>问题描述</h2>
-
-<p>前段时间装了Ubuntu14.10的32位版本，然后不记得是随系统带的还是自己装的chromium浏览器，可是自从用了chromium浏览器后，问题来了，网页观看视频的时候检测到没有flash支持，然后一般会有个链接然后让你点击安装，可是安装时候发现选择linux->apt-get安装时候在软件中心又无法找到该软件......</p>
-
-<h2>解决办法</h2>
-
+<h2 id="section-1">解决办法</h2>
 <p>那么该怎么办呢？解决办法很简单：</p>
 
-<p><figure class="highlight"><pre><code class="language-sh" data-lang="sh">sudo apt-get install pepperflashplugin-nonfree
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh">sudo apt-get install pepperflashplugin-nonfree
 sudo update-pepperflashplugin-nonfree --install</code></pre></figure>
-　　
+<p>　　
 不过，第一句<code>sudo apt-get install pepperflashplugin-nonfree</code>时候你可能还是会搜不到这个软件，那么推荐你直接下载<a href="http://packages.ubuntu.com/trusty/pepperflashplugin-nonfree">deb</a>安装</p>
 
 <p>之后就是重启一下浏览器，就可以发现Chromium可以看flash视频啦</p>
 
-<h2>原因解释</h2>
-
+<h2 id="section-2">原因解释</h2>
 <p>If you’re using a Chromium based web browser in Ubuntu, you may find that the Adobe Flash Player installed from Ubuntu Software Center does not work all the time.</p>
 
 <p>Because ‘Aura’ for Linux, which replaces GTK+, lacks coded support for NPAPI plugins, the “old” Adobe plugin in Ubuntu repositories does no longer play Flash content in Chromium based web browser.</p>
@@ -89,7 +85,7 @@ sudo update-pepperflashplugin-nonfree --install</code></pre></figure>
 <p>As a workaround, you can use the ‘Pepper Flash’ which is bundled with Google Chrome that provides the latest Adobe Flash Player for Linux.</p>
 
 
-    <!--    1052-->
+    <!--    1055-->
     <div class="eof">-&nbsp;EOF&nbsp;-</div>
     <p class="declare">声明:本文采用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="nofollow" title="署名-非商业性使用-相同方式共享">BY-NC-SA</a>协议进行授权.转载请注明: <a href="/ubuntu/2014/12/07/Ubuntu14.10%E4%B8%8B%E8%A7%A3%E5%86%B3chromium%E6%B5%8F%E8%A7%88%E5%99%A8%E6%97%A0%E6%B3%95%E5%AE%89%E8%A3%85adobe-flash%E7%9A%84%E9%97%AE%E9%A2%98.html" title="Ubuntu14.10下解决chromium浏览器无法安装adobe flash的问题 " rel="nofollow">Ubuntu14.10下解决chromium浏览器无法安装adobe flash的问题</a></p>
     <hr>

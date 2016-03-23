@@ -5,11 +5,11 @@ permalink: /:categories/:year/:month/:day/:title.html
 exclude: [".rvmrc", ".rbenv-version", "README.md", "Rakefile", "changelog.md"]
 #auto: true
 watch: true
-#pygments: true
-highlighter: true
+pygments: true
+#highlighter: pygments
 #markdown: redcarpet
-markdown: rdiscount
-#markdown: kramdown
+#markdown: rdiscount
+markdown: kramdown
 #markdown: Pandoc
 
 rdiscount:

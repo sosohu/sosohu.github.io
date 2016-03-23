@@ -8,14 +8,14 @@ tags: X11
 description: 使用Xdotool模拟X11图形系统上的操作
 ---
 
-##什么是Xdotool
+## 什么是Xdotool
 Xdotool lets you simulate keyboard input and mouse activity, move and resize windows, etc. It does this using X11's XTEST extension and other Xlib functions.
 
 Additionally, you can search for windows and move, resize, hide, and modify window properties like the title. If your window manager supports it, you can use xdotool to switch desktops, move windows between desktops, and change the number of desktops.
 
 For more information, please click [Xdotool Website](http://www.semicomplete.com/projects/xdotool/)
 
-##Xdotool安装方法
+## Xdotool安装方法
 
 *	ubuntu系统下可以直接的使用`sudo apt-get install xdotool`安装.
 *	除了第一种情况外可以使用直接[下载](http://semicomplete.googlecode.com/files/xdotool-2.20110530.1.tar.gz)xdotool源码包,再编译安装.
@@ -27,8 +27,9 @@ For more information, please click [Xdotool Website](http://www.semicomplete.com
 		*	export PREFIX=/usr(设置安装目录,默认在/usr/local)
 		*	make install
 
-##Xdotool的使用
-###鼠标操作
+## Xdotool的使用
+
+### 鼠标操作
 xdotool支持很多鼠标操作,包括鼠标的移动,左击,右击,滚轮等
 
 *	鼠标移动到x,y处: xdotool mousemove x y
@@ -37,7 +38,7 @@ xdotool支持很多鼠标操作,包括鼠标的移动,左击,右击,滚轮等
 *	获取鼠标位置: xdotool getmouselocation
 *	...
 
-###键盘操作
+### 键盘操作
 xdotool支持很多键盘操作,常用的使用如下:
 
 *	按下p键: xdotool key p
@@ -45,7 +46,7 @@ xdotool支持很多键盘操作,常用的使用如下:
 *	按下p键持续1000ms: xdotool key --delay 1000  p
 *	...
 
-###窗口操作
+### 窗口操作
 xdotool支持很多窗口操作,包括窗口的移动,最小化等等
 
 *	查询主文件夹窗口id: xdotool search --name "主文件夹"
@@ -55,7 +56,7 @@ xdotool支持很多窗口操作,包括窗口的移动,最小化等等
 *	最小化id为WID的窗口: xdotool windowminimize WID
 *	...
 
-###简单示例
+### 简单示例
 {% highlight sh %}
 	#!/bin/bash
 
@@ -139,5 +140,5 @@ xdotool支持很多窗口操作,包括窗口的移动,最小化等等
 	#contineResize 10000
 {% endhighlight %}
 
-##官方参考手册
+## 官方参考手册
 在有些平台,编译安装xdotool之后,只能使用xdotool --help简单的查看命令,不能使用man xdotool查看手册,这里把上面的内容和官方参考手册一起作成[pdf](http://sosohu.github.io/assets/doc/xdotool.pdf),以供下载使用.

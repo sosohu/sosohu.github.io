@@ -57,241 +57,228 @@
 
 <div class="row">
   <div class="span8">
-    <p>STL里面的Allocator是用来管理空间分配的，这里的空间基本上指的就是内存，管理内存是影响到很多STL的容器性能的主要因素之一，所以对Allocator的了解需要非常深入而不是仅仅知道如何调用．笔者前段时间大致的看了<strong>侯捷</strong>老师的那本<strong>&lt;&lt;STL源码剖析>></strong>，对SGI版本的STL算是有点简略的认识，可是这种走马观花的认识也只能帮助我理解其大致机理，当遇到真正让你实现一个简单的Allocator时候就会显得束手无策，所以有必要通过编码，简单临摹一下SGI的Allocator.</p>
+    <p>STL里面的Allocator是用来管理空间分配的，这里的空间基本上指的就是内存，管理内存是影响到很多STL的容器性能的主要因素之一，所以对Allocator的了解需要非常深入而不是仅仅知道如何调用．笔者前段时间大致的看了<strong>侯捷</strong>老师的那本<strong>«STL源码剖析»</strong>，对SGI版本的STL算是有点简略的认识，可是这种走马观花的认识也只能帮助我理解其大致机理，当遇到真正让你实现一个简单的Allocator时候就会显得束手无策，所以有必要通过编码，简单临摹一下SGI的Allocator.</p>
 
-<h2>简单粗暴Naive方式实现Allocator</h2>
-
+<h2 id="naiveallocator">简单粗暴Naive方式实现Allocator</h2>
 <p>我们可以编写一个最简单的符合STL规范的Naive版本的Allocator,它起码需要allocate/deallocate函数用来申请/释放空间，construct/destroy函数用来在内存空间上构造和析构对象, 还有rebind成员模板以及一些类型别名等.</p>
 
 <p>这个Allocator只是简单的申请/释放空间，没有任何特别之处.</p>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;typename T&gt;
-class allocator{</p>
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">allocator</span><span class="p">{</span>
 
-<p>public:
-//常用类型别名,符合STL规范
-    typedef T value_type;
-    typedef T<em> pointer;
-    typedef const T</em> const_pointer;
-    typedef T&amp; reference;
-    typedef const T&amp; const_reference;
-    typedef unsigned int size_type;
-    typedef int difference_type;</p>
+<span class="k">public</span><span class="o">:</span>
+<span class="c1">//常用类型别名,符合STL规范</span>
+	<span class="k">typedef</span> <span class="n">T</span> <span class="n">value_type</span><span class="p">;</span>
+	<span class="k">typedef</span> <span class="n">T</span><span class="o">*</span> <span class="n">pointer</span><span class="p">;</span>
+	<span class="k">typedef</span> <span class="k">const</span> <span class="n">T</span><span class="o">*</span> <span class="n">const_pointer</span><span class="p">;</span>
+	<span class="k">typedef</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">reference</span><span class="p">;</span>
+	<span class="k">typedef</span> <span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">const_reference</span><span class="p">;</span>
+	<span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">size_type</span><span class="p">;</span>
+	<span class="k">typedef</span> <span class="kt">int</span> <span class="n">difference_type</span><span class="p">;</span>
 
-<pre><code>template&amp;lt;typename U&amp;gt;
-struct rebind{
-    typedef allocator&amp;lt;U&amp;gt; other;
-};
+	<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="o">&gt;</span>
+	<span class="k">struct</span> <span class="n">rebind</span><span class="p">{</span>
+		<span class="k">typedef</span> <span class="n">allocator</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;</span> <span class="n">other</span><span class="p">;</span>
+	<span class="p">};</span>
 
-allocator() = default;
-allocator(const allocator &amp;amp;rhs) = default;
-~allocator() = default;
-</code></pre>
+	<span class="n">allocator</span><span class="p">()</span> <span class="o">=</span> <span class="k">default</span><span class="p">;</span>
+	<span class="n">allocator</span><span class="p">(</span><span class="k">const</span> <span class="n">allocator</span> <span class="o">&amp;</span><span class="n">rhs</span><span class="p">)</span> <span class="o">=</span> <span class="k">default</span><span class="p">;</span>
+	<span class="o">~</span><span class="n">allocator</span><span class="p">()</span> <span class="o">=</span> <span class="k">default</span><span class="p">;</span>
 
-<p>//常用函数, 符合STL规范
-    pointer allocate(size_type n, const void* hint= 0);
-    void deallocate(pointer p, size_type n);</p>
+<span class="c1">//常用函数, 符合STL规范</span>
+	<span class="n">pointer</span> <span class="nf">allocate</span><span class="p">(</span><span class="n">size_type</span> <span class="n">n</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">hint</span><span class="o">=</span> <span class="mi">0</span><span class="p">);</span>
+	<span class="kt">void</span> <span class="nf">deallocate</span><span class="p">(</span><span class="n">pointer</span> <span class="n">p</span><span class="p">,</span> <span class="n">size_type</span> <span class="n">n</span><span class="p">);</span>
 
-<pre><code>size_type max_size() const;
+	<span class="n">size_type</span> <span class="n">max_size</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
 
-void construct(pointer p, const T&amp;amp; x);
-void destroy(pointer p);
+	<span class="kt">void</span> <span class="nf">construct</span><span class="p">(</span><span class="n">pointer</span> <span class="n">p</span><span class="p">,</span> <span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">);</span>
+	<span class="kt">void</span> <span class="nf">destroy</span><span class="p">(</span><span class="n">pointer</span> <span class="n">p</span><span class="p">);</span>
 
-pointer address(const_reference x) const;
-</code></pre>
+	<span class="n">pointer</span> <span class="n">address</span><span class="p">(</span><span class="n">const_reference</span> <span class="n">x</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
 
-<p>};</p>
+<span class="p">};</span>
 
-<p>template&lt;typename T&gt;
-typename allocator&lt;T&gt;::pointer allocator&lt;T&gt;::allocate(size_type n, const void* hint){
-    return _allocate(n, (pointer)NULL);
-}</p>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="k">typename</span> <span class="n">allocator</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">pointer</span> <span class="n">allocator</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">allocate</span><span class="p">(</span><span class="n">size_type</span> <span class="n">n</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">hint</span><span class="p">){</span>
+	<span class="k">return</span> <span class="n">_allocate</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="n">pointer</span><span class="p">)</span><span class="nb">NULL</span><span class="p">);</span>
+<span class="p">}</span>
 
-<p>template&lt;typename T&gt;
-void allocator&lt;T&gt;::deallocate(pointer p, size_type n){
-    _deallocate(p);
-}</p>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="kt">void</span> <span class="n">allocator</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">deallocate</span><span class="p">(</span><span class="n">pointer</span> <span class="n">p</span><span class="p">,</span> <span class="n">size_type</span> <span class="n">n</span><span class="p">){</span>
+	<span class="n">_deallocate</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+<span class="p">}</span>
 
-<p>template&lt;typename T&gt;
-typename allocator&lt;T&gt;::size_type allocator&lt;T&gt;::max_size() const{
-    return UINT_MAX/sizeof(T);
-}</p>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="k">typename</span> <span class="n">allocator</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">size_type</span> <span class="n">allocator</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">max_size</span><span class="p">()</span> <span class="k">const</span><span class="p">{</span>
+	<span class="k">return</span> <span class="n">UINT_MAX</span><span class="o">/</span><span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">);</span>
+<span class="p">}</span>
 
-<p>template&lt;typename T&gt;
-void allocator&lt;T&gt;::construct(pointer ptr, const T&amp; value){
-    _construct(ptr, value);
-}</p>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="kt">void</span> <span class="n">allocator</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">construct</span><span class="p">(</span><span class="n">pointer</span> <span class="n">ptr</span><span class="p">,</span> <span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">){</span>
+	<span class="n">_construct</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
+<span class="p">}</span>
 
-<p>template&lt;typename T&gt;
-void allocator&lt;T&gt;::destroy(pointer ptr){
-    _destroy(ptr);
-}</p>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="kt">void</span> <span class="n">allocator</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">destroy</span><span class="p">(</span><span class="n">pointer</span> <span class="n">ptr</span><span class="p">){</span>
+	<span class="n">_destroy</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span>
+<span class="p">}</span>
 
-<p>template&lt;typename T&gt;
-typename allocator&lt;T&gt;::pointer allocator&lt;T&gt;::address(const_reference x) const{
-    return (pointer)&amp;x;
-}</code></pre></figure></p>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="k">typename</span> <span class="n">allocator</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">pointer</span> <span class="n">allocator</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">address</span><span class="p">(</span><span class="n">const_reference</span> <span class="n">x</span><span class="p">)</span> <span class="k">const</span><span class="p">{</span>
+	<span class="k">return</span> <span class="p">(</span><span class="n">pointer</span><span class="p">)</span><span class="o">&amp;</span><span class="n">x</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
 
-<p>上面用到的<em>allocate, </em>deallocate, <em>construct和</em>destroy函数定义如下:</p>
+<p>上面用到的_allocate, _deallocate, _construct和_destroy函数定义如下:</p>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;typename T&gt;
-inline T<em> _allocate(ptrdiff_t size, T</em>){
-    T<em> tmp = (T</em>)(::operator new((size_t)(size*sizeof(T))));
-    // ::operator new 最底层的内存分配，类似malloc
-    if(tmp == 0){
-        qError(&quot;out of memory, allocate failed.&quot;);
-    }
-    qDebug(&quot;_allocate&quot;);
-    return tmp;
-}</p>
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="kr">inline</span> <span class="n">T</span><span class="o">*</span> <span class="n">_allocate</span><span class="p">(</span><span class="kt">ptrdiff_t</span> <span class="n">size</span><span class="p">,</span> <span class="n">T</span><span class="o">*</span><span class="p">){</span>
+	<span class="n">T</span><span class="o">*</span> <span class="n">tmp</span> <span class="o">=</span> <span class="p">(</span><span class="n">T</span><span class="o">*</span><span class="p">)(</span><span class="o">::</span><span class="k">operator</span> <span class="k">new</span><span class="p">((</span><span class="kt">size_t</span><span class="p">)(</span><span class="n">size</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">))));</span>
+	<span class="c1">// ::operator new 最底层的内存分配，类似malloc</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">tmp</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+		<span class="n">qError</span><span class="p">(</span><span class="s">&quot;out of memory, allocate failed.&quot;</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="n">qDebug</span><span class="p">(</span><span class="s">&quot;_allocate&quot;</span><span class="p">);</span>
+	<span class="k">return</span> <span class="n">tmp</span><span class="p">;</span>
+<span class="p">}</span>
 
-<p>template&lt;typename T&gt;
-inline void <em>deallocate(T* p){
-    ::operator delete(p);
-    qDebug(&quot;</em>deallocate&quot;);
-}</p>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="kr">inline</span> <span class="kt">void</span> <span class="n">_deallocate</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">p</span><span class="p">){</span>
+	<span class="o">::</span><span class="k">operator</span> <span class="k">delete</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+	<span class="n">qDebug</span><span class="p">(</span><span class="s">&quot;_deallocate&quot;</span><span class="p">);</span>
+<span class="p">}</span>
 
-<p>template&lt;typename T1, typename T2&gt;
-inline void <em>construct(T1* p, const T2&amp; value){
-    new(p) T1(value); //new 指定内存位置的用法
-    qDebug(&quot;</em>construct&quot;);
-}</p>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T1</span><span class="p">,</span> <span class="k">typename</span> <span class="n">T2</span><span class="o">&gt;</span>
+<span class="kr">inline</span> <span class="kt">void</span> <span class="n">_construct</span><span class="p">(</span><span class="n">T1</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span> <span class="k">const</span> <span class="n">T2</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">){</span>
+	<span class="k">new</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="n">T1</span><span class="p">(</span><span class="n">value</span><span class="p">);</span> <span class="c1">//new 指定内存位置的用法</span>
+	<span class="n">qDebug</span><span class="p">(</span><span class="s">&quot;_construct&quot;</span><span class="p">);</span>
+<span class="p">}</span>
 
-<p>template&lt;typename T&gt;
-inline void <em>destroy(T* p){
-    p-&gt;~T();
-    qDebug(&quot;</em>destroy&quot;);
-}</code></pre></figure></p>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="kr">inline</span> <span class="kt">void</span> <span class="n">_destroy</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">p</span><span class="p">){</span>
+	<span class="n">p</span><span class="o">-&gt;~</span><span class="n">T</span><span class="p">();</span>
+	<span class="n">qDebug</span><span class="p">(</span><span class="s">&quot;_destroy&quot;</span><span class="p">);</span>
+<span class="p">}</span></code></pre></figure>
 
-<h2>SGI版本的两级Allocator实现</h2>
-
+<h2 id="sgiallocator">SGI版本的两级Allocator实现</h2>
 <p>SGI的Allocator有两个版本，一个是类似上面提到的Naive版本，它是为了兼容通用的STL标准，但是这个版本SGI从来不用，而是使用两级的Allocator，这个Allocator与STL标准不兼容，只能被SGI-STL的容器使用,这里就简单介绍一下SGI两级Allocator的设计思路.</p>
 
-<p><strong>两级Allocator</strong></p>
+<p><strong>两级Allocator</strong>
+&gt;	SGI的Allocator分为一级和二级Allocator,其中一级Allocator负责管理大于128字节的内存请求，而二级Allocator负责小于等于128字节的内存请求．</p>
 
-<blockquote><p>  SGI的Allocator分为一级和二级Allocator,其中一级Allocator负责管理大于128字节的内存请求，而二级Allocator负责小于等于128字节的内存请求．</p></blockquote>
-
-<h3>一级Allocator</h3>
-
+<h3 id="allocator">一级Allocator</h3>
 <p>这里我实现的一级Allocator名字叫做superior_allocator,它的成员函数解释如下:</p>
 
 <ul>
-<li>allocate函数负责分配指定大小内存</li>
-<li>deallocate函数负责释放指定指针的内存</li>
-<li>reallocate函数负责再次申请扩充内存</li>
-<li>set_allocate_failed_handler函数用来接受使用者定义的内存不足处理函数，在遇到内存不足时候可以调用此函数期望释放部分内存</li>
-<li>oom_allocate函数用来处理allocate函数分配内存时候由于内存不足而失败这种情况</li>
-<li>oom_reallocate函数用来处理reallocate函数分配内存时候由于内存不足而失败这种情况</li>
+  <li>allocate函数负责分配指定大小内存</li>
+  <li>deallocate函数负责释放指定指针的内存</li>
+  <li>reallocate函数负责再次申请扩充内存</li>
+  <li>set_allocate_failed_handler函数用来接受使用者定义的内存不足处理函数，在遇到内存不足时候可以调用此函数期望释放部分内存</li>
+  <li>oom_allocate函数用来处理allocate函数分配内存时候由于内存不足而失败这种情况</li>
+  <li>oom_reallocate函数用来处理reallocate函数分配内存时候由于内存不足而失败这种情况</li>
 </ul>
 
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">template</span><span class="o">&lt;</span><span class="kt">int</span> <span class="n">inst</span><span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">superior_allocator</span><span class="p">{</span>
+<span class="k">private</span><span class="o">:</span>
+	<span class="c1">//allocate when out of memory</span>
+	<span class="k">static</span> <span class="kt">void</span><span class="o">*</span> <span class="n">oom_allocate</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+	<span class="k">static</span> <span class="kt">void</span><span class="o">*</span> <span class="nf">oom_reallocate</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">old_sz</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">new_sz</span><span class="p">);</span>
+	<span class="c1">// use defined handler when out of memory</span>
+	<span class="k">static</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="n">allocate_failed_handler</span><span class="p">)();</span>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;int inst&gt;
-class superior_allocator{
-private:
-    //allocate when out of memory
-    static void<em> oom_allocate(size_t n);
-    static void</em> oom_reallocate(void<em> ptr, size_t old_sz, size_t new_sz);
-    // use defined handler when out of memory
-    static void (</em>allocate_failed_handler)();</p>
+<span class="k">public</span><span class="o">:</span>
+	<span class="k">static</span> <span class="kt">void</span><span class="o">*</span> <span class="n">allocate</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+	<span class="k">static</span> <span class="kt">void</span> <span class="nf">deallocate</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="kt">size_t</span><span class="p">);</span>
+	<span class="k">static</span> <span class="kt">void</span><span class="o">*</span> <span class="nf">reallocate</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">ptr</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">old_sz</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">new_sz</span><span class="p">);</span>
 
-<p>public:
-    static void<em> allocate(size_t n);
-    static void deallocate(void</em> ptr, size_t);
-    static void<em> reallocate(void </em>ptr, size_t old_sz, size_t new_sz);</p>
-
-<pre><code>static void set_allocate_failed_handler(void (*f)());
-</code></pre>
-
-<p>};</code></pre></figure></p>
+	<span class="k">static</span> <span class="kt">void</span> <span class="nf">set_allocate_failed_handler</span><span class="p">(</span><span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">f</span><span class="p">)());</span>
+<span class="p">};</span></code></pre></figure>
 
 <p>其中具体函数实现如下:</p>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">//初始化内存不足处理函数指针
-template&lt;int inst&gt;
-void (* superior_allocator&lt;inst&gt;::allocate_failed_handler)() = 0;</p>
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="c1">//初始化内存不足处理函数指针</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="kt">int</span> <span class="n">inst</span><span class="o">&gt;</span>
+<span class="kt">void</span> <span class="p">(</span><span class="o">*</span> <span class="n">superior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">allocate_failed_handler</span><span class="p">)()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 
-<p>template&lt;int inst&gt;
-void<em> superior_allocator&lt;inst&gt;::allocate(size_t n){
-    void</em> result = malloc(n);
-    if(result == NULL){
-        return oom_allocate(n);
-    }
-    return result;
-}</p>
+<span class="k">template</span><span class="o">&lt;</span><span class="kt">int</span> <span class="n">inst</span><span class="o">&gt;</span>
+<span class="kt">void</span><span class="o">*</span> <span class="n">superior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">allocate</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">n</span><span class="p">){</span>
+	<span class="kt">void</span><span class="o">*</span> <span class="n">result</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">){</span>
+		<span class="k">return</span> <span class="n">oom_allocate</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
 
-<p>template&lt;int inst&gt;
-void<em> superior_allocator&lt;inst&gt;::oom_allocate(size_t n){
-    if(allocate_failed_handler == 0)
-        throw hu::THROW_BAD_ALLOC;
-    void</em> result = 0;
-    //一直在不断的循环尝试
-    while(result == 0){
-        //调用处理例程，试图释放一些内存
-        allocate_failed_handler();
-        result = malloc(n);
-    }
-    return result;
-}</p>
+<span class="k">template</span><span class="o">&lt;</span><span class="kt">int</span> <span class="n">inst</span><span class="o">&gt;</span>
+<span class="kt">void</span><span class="o">*</span> <span class="n">superior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">oom_allocate</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">n</span><span class="p">){</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">allocate_failed_handler</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+		<span class="k">throw</span> <span class="n">hu</span><span class="o">::</span><span class="n">THROW_BAD_ALLOC</span><span class="p">;</span>
+	<span class="kt">void</span><span class="o">*</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="c1">//一直在不断的循环尝试</span>
+	<span class="k">while</span><span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+		<span class="c1">//调用处理例程，试图释放一些内存</span>
+		<span class="n">allocate_failed_handler</span><span class="p">();</span> 
+		<span class="n">result</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
 
-<p>template&lt;int inst&gt;
-void superior_allocator&lt;inst&gt;::deallocate(void* ptr, size_t){
-    free(ptr);
-}</p>
+<span class="k">template</span><span class="o">&lt;</span><span class="kt">int</span> <span class="n">inst</span><span class="o">&gt;</span>
+<span class="kt">void</span> <span class="n">superior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">deallocate</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="kt">size_t</span><span class="p">){</span>
+	<span class="n">free</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span>
+<span class="p">}</span>
 
-<p>template&lt;int inst&gt;
-void<em> superior_allocator&lt;inst&gt;::reallocate(void </em>ptr,
-                                size_t old_sz, size_t new_sz){
-    void* result = realloc(ptr, new_sz);
-    if(result == 0){
-        return oom_reallocate(ptr, old_sz, new_sz);
-    }
-    return result;
-}</p>
+<span class="k">template</span><span class="o">&lt;</span><span class="kt">int</span> <span class="n">inst</span><span class="o">&gt;</span>
+<span class="kt">void</span><span class="o">*</span> <span class="n">superior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">reallocate</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">ptr</span><span class="p">,</span>
+								<span class="kt">size_t</span> <span class="n">old_sz</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">new_sz</span><span class="p">){</span>
+	<span class="kt">void</span><span class="o">*</span> <span class="n">result</span> <span class="o">=</span> <span class="n">realloc</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">new_sz</span><span class="p">);</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+		<span class="k">return</span> <span class="n">oom_reallocate</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">old_sz</span><span class="p">,</span> <span class="n">new_sz</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
 
-<p>template&lt;int inst&gt;
-void<em> superior_allocator&lt;inst&gt;::oom_reallocate(void</em> ptr,
-                                size_t old_sz, size_t new_sz){
-    if(allocate_failed_handler == 0)
-        throw THROW_BAD_ALLOC;
-    void *result = 0;
-    while(result == 0){
-        allocate_failed_handler();
-        result = realloc(ptr, new_sz);
-    }
-    return result;
-}</code></pre></figure></p>
+<span class="k">template</span><span class="o">&lt;</span><span class="kt">int</span> <span class="n">inst</span><span class="o">&gt;</span>
+<span class="kt">void</span><span class="o">*</span> <span class="n">superior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">oom_reallocate</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span>
+								<span class="kt">size_t</span> <span class="n">old_sz</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">new_sz</span><span class="p">){</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">allocate_failed_handler</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+		<span class="k">throw</span> <span class="n">THROW_BAD_ALLOC</span><span class="p">;</span>
+	<span class="kt">void</span> <span class="o">*</span><span class="n">result</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">while</span><span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+		<span class="n">allocate_failed_handler</span><span class="p">();</span>
+		<span class="n">result</span> <span class="o">=</span> <span class="n">realloc</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">new_sz</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
 
 <p>从实现代码可以看出来，一级Allocator其实也很简单，和上面提到的Naive方式几乎差不多，就是malloc/free/realloc, 遇到malloc/realloc失败的话不断的调用用户处理函数以释放部分内存.之所以这么简单，是因为一级Allocator一般只处理较大内存块的分配管理，所以可以不用像二级Allocator那么斤斤计较，管理严密.</p>
 
-<h3>二级Allocator</h3>
-
+<h3 id="allocator-1">二级Allocator</h3>
 <p>这里我编写的二级Allocator名字叫做junior_allocator,它是完全按照SGI的设计思路实现的，负责较小内存块的管理.</p>
 
-<h4>free_list指针数组</h4>
-
+<h4 id="freelist">free_list指针数组</h4>
 <p>要了解SGI二级Allocator的原理就必须先了解free_list指针数组，free_list指针数组的原型如下:</p>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">static obj* free_list[FREE_COUNT];</code></pre></figure></p>
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">static</span> <span class="n">obj</span><span class="o">*</span> <span class="n">free_list</span><span class="p">[</span><span class="n">FREE_COUNT</span><span class="p">];</span></code></pre></figure>
 
 <p>这里势必要介绍一下obj的原型:</p>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">union obj{
-    obj* next;
-    char data[];
-};</code></pre></figure></p>
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">union</span> <span class="n">obj</span><span class="p">{</span>
+	<span class="n">obj</span><span class="o">*</span> <span class="n">next</span><span class="p">;</span>
+	<span class="kt">char</span> <span class="n">data</span><span class="p">[];</span>
+<span class="p">};</span></code></pre></figure>
 
 <p>这个obj的设计非常巧妙，是一个union,这样设计有以下几点好处:</p>
 
 <ul>
-<li>一个obj的地址也就是其data指针值，这样方便通过obj的data值读出其内存地址.
-
-<blockquote><p>  例如, 我们有obj o那么o.data其实就是&amp;o, 也就执行o的具体位置</p></blockquote></li>
-<li>一个obj的next字段用来存储指向下个节点的位置,这样能形成类似链表一样的结构.</li>
-<li>通过union结合就可以避免单独开辟空间存储指针的空间浪费</li>
+  <li>一个obj的地址也就是其data指针值，这样方便通过obj的data值读出其内存地址.
+&gt;	例如, 我们有obj o那么o.data其实就是&amp;o, 也就执行o的具体位置</li>
+  <li>一个obj的next字段用来存储指向下个节点的位置,这样能形成类似链表一样的结构.</li>
+  <li>通过union结合就可以避免单独开辟空间存储指针的空间浪费</li>
 </ul>
 
-
-<p>结合obj的原型我们再来看free_list指针数组，我们这里free_list指针数组的大小FREE_COUNT = 128 / 8 = 16, 于是有16个obj指针，这16个obj指针分别指向第一个空闲的8字节,16字节,...,128字节内存块的位置</p>
+<p>结合obj的原型我们再来看free_list指针数组，我们这里free_list指针数组的大小FREE_COUNT = 128 / 8 = 16, 于是有16个obj指针，这16个obj指针分别指向第一个空闲的8字节,16字节,…,128字节内存块的位置</p>
 
 <p>我们可以初始化时候为每个free_list[i]申请连续20个相应块空间，作为备用，初始化之后的内存使用情形如下图:</p>
 
@@ -301,212 +288,201 @@ void<em> superior_allocator&lt;inst&gt;::oom_reallocate(void</em> ptr,
 
 <p>另外，对于上图需要解释的就是start_free到end_free这块空间就是junior_allocator分配的还未被使用的空闲内存池.</p>
 
-<h4>allocate和deallocate的实现</h4>
-
-<p>reallocate基本上就是调用allocate和deallocate,这里就不作表述.</p>
-
-<h5>allocate过程</h5>
-
-<p>我们试图从junior_allocator申请大小为n字节的内存,如果n > 128，那么交给superior_allocator完成,否则先根据n的大小算出相应内存块大小，比如n = 7那么内存块大小就是8.接着从free_list中找出相应的内存块第一个空闲内存地址free_list[i]，如果此时有空闲块，那么返回此块地址，并且<code>free_list[i] = free_list[i]-&gt;next</code>即指向下一个空闲块;如果不存在空闲块，那么试图从空闲的内存池中申请一块连续的内存，然后切分成free_list[i]对应内存块大小的小块,然后更新free_list[i].</p>
+<h4 id="allocatedeallocate">allocate和deallocate的实现</h4>
+<p>reallocate基本上就是调用allocate和deallocate,这里就不作表述.
+##### allocate过程
+我们试图从junior_allocator申请大小为n字节的内存,如果n &gt; 128，那么交给superior_allocator完成,否则先根据n的大小算出相应内存块大小，比如n = 7那么内存块大小就是8.接着从free_list中找出相应的内存块第一个空闲内存地址free_list[i]，如果此时有空闲块，那么返回此块地址，并且<code>free_list[i] = free_list[i]-&gt;next</code>即指向下一个空闲块;如果不存在空闲块，那么试图从空闲的内存池中申请一块连续的内存，然后切分成free_list[i]对应内存块大小的小块,然后更新free_list[i].</p>
 
 <p>这里我们可以看到，每次某个内存块不够用时候就从内存池取出新的加入，总有内存池用完的时候，当内存池用完了该怎么办呢？这里有两个解决办法:</p>
 
 <ul>
-<li>通过malloc再申请一快大内存池</li>
-<li>如果系统所有内存都不够了，那只能从其他free_list中扣除一些内存过来了，因为每个free_list[i]都分配了一定数量的内存块，而有些free_list[i]可能用的很少，所以尚存空闲块，那就把它们的抢占过来.</li>
+  <li>通过malloc再申请一快大内存池</li>
+  <li>如果系统所有内存都不够了，那只能从其他free_list中扣除一些内存过来了，因为每个free_list[i]都分配了一定数量的内存块，而有些free_list[i]可能用的很少，所以尚存空闲块，那就把它们的抢占过来.</li>
 </ul>
 
-
-<h5>deallocate</h5>
-
+<h5 id="deallocate">deallocate</h5>
 <p>deallocate实现非常简单，如果释放的空间大于128字节，那么就交给一级allocator处理；如果不是,则把内存块加到对应free_list[i]中，通常做法就是直接插入大free_list[i]对应链表的表头.</p>
 
-<h4>代码实现</h4>
+<h4 id="section">代码实现</h4>
 
-<h5>junior_allocator类定义</h5>
+<h5 id="juniorallocator">junior_allocator类定义</h5>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">const size_t LARGE_SIZE = 128; //超过128B就由superior_allocator分配
-const size_t SLICE_SIZE = 8; //递增片大小
-const size_t FREE_COUNT = LARGE_SIZE/SLICE_SIZE; //free list个数，8,16,...128
-const size_t CHUNK_NUM = 20; //默认每个尺寸的chunk一次分配的个数</p>
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">const</span> <span class="kt">size_t</span> <span class="n">LARGE_SIZE</span> <span class="o">=</span> <span class="mi">128</span><span class="p">;</span> <span class="c1">//超过128B就由superior_allocator分配</span>
+<span class="k">const</span> <span class="kt">size_t</span> <span class="n">SLICE_SIZE</span> <span class="o">=</span> <span class="mi">8</span><span class="p">;</span> <span class="c1">//递增片大小</span>
+<span class="k">const</span> <span class="kt">size_t</span> <span class="n">FREE_COUNT</span> <span class="o">=</span> <span class="n">LARGE_SIZE</span><span class="o">/</span><span class="n">SLICE_SIZE</span><span class="p">;</span> <span class="c1">//free list个数，8,16,...128</span>
+<span class="k">const</span> <span class="kt">size_t</span> <span class="n">CHUNK_NUM</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span> <span class="c1">//默认每个尺寸的chunk一次分配的个数</span>
 
-<p>template&lt;int inst&gt;
-class junior_allocator{
-private:
-    union obj{
-        obj<em> next;
-        char data[];
-    };
-    //free_list指针数组
-    static obj</em> free_list[FREE_COUNT];
-    static char<em> start; //当前可分配内存池的开始位置
-    static char</em> finish; //内存池结束位置
-    static size_t heap_size; //当前堆大小</p>
+<span class="k">template</span><span class="o">&lt;</span><span class="kt">int</span> <span class="n">inst</span><span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">junior_allocator</span><span class="p">{</span>
+<span class="k">private</span><span class="o">:</span>
+	<span class="k">union</span> <span class="n">obj</span><span class="p">{</span>
+		<span class="n">obj</span><span class="o">*</span> <span class="n">next</span><span class="p">;</span>
+		<span class="kt">char</span> <span class="n">data</span><span class="p">[];</span>
+	<span class="p">};</span>
+	<span class="c1">//free_list指针数组</span>
+	<span class="k">static</span> <span class="n">obj</span><span class="o">*</span> <span class="n">free_list</span><span class="p">[</span><span class="n">FREE_COUNT</span><span class="p">];</span>
+	<span class="k">static</span> <span class="kt">char</span><span class="o">*</span> <span class="n">start</span><span class="p">;</span> <span class="c1">//当前可分配内存池的开始位置</span>
+	<span class="k">static</span> <span class="kt">char</span><span class="o">*</span> <span class="n">finish</span><span class="p">;</span> <span class="c1">//内存池结束位置</span>
+	<span class="k">static</span> <span class="kt">size_t</span> <span class="n">heap_size</span><span class="p">;</span> <span class="c1">//当前堆大小</span>
 
-<pre><code>//计算size应该分配的内存块的编号
-//8字节内存块对应0号,16字节内存块对应1号...
-static size_t march_node(size_t size);
-//计算第node_id号内存块的大小
-static size_t node_size(size_t node_id);
+	<span class="c1">//计算size应该分配的内存块的编号</span>
+	<span class="c1">//8字节内存块对应0号,16字节内存块对应1号...</span>
+	<span class="k">static</span> <span class="kt">size_t</span> <span class="nf">march_node</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">size</span><span class="p">);</span>
+	<span class="c1">//计算第node_id号内存块的大小</span>
+	<span class="k">static</span> <span class="kt">size_t</span> <span class="nf">node_size</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">node_id</span><span class="p">);</span>
 
-//从内存池申请n个node_id号内存块大小的连续内存
-static char* chunk_alloc(size_t node_id, size_t&amp;amp; n);
-//通过从内存池取新的内存将free_list[node_id]重新填充
-static void* refill(size_t node_id);
-</code></pre>
+	<span class="c1">//从内存池申请n个node_id号内存块大小的连续内存</span>
+	<span class="k">static</span> <span class="kt">char</span><span class="o">*</span> <span class="nf">chunk_alloc</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">node_id</span><span class="p">,</span> <span class="kt">size_t</span><span class="o">&amp;</span> <span class="n">n</span><span class="p">);</span>
+	<span class="c1">//通过从内存池取新的内存将free_list[node_id]重新填充</span>
+	<span class="k">static</span> <span class="kt">void</span><span class="o">*</span> <span class="nf">refill</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">node_id</span><span class="p">);</span>
+<span class="k">public</span><span class="o">:</span>
 
-<p>public:</p>
+	<span class="k">static</span> <span class="kt">void</span><span class="o">*</span> <span class="n">allocate</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+	<span class="k">static</span> <span class="kt">void</span><span class="o">*</span> <span class="nf">reallocte</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">old_zs</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">new_sz</span><span class="p">);</span>
+	<span class="k">static</span> <span class="kt">void</span> <span class="nf">deallocate</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="kt">size_t</span><span class="p">);</span>
 
-<pre><code>static void* allocate(size_t n);
-static void* reallocte(void* ptr, size_t old_zs, size_t new_sz);
-static void deallocate(void* ptr, size_t);
-</code></pre>
+<span class="p">};</span></code></pre></figure>
 
-<p>};</code></pre></figure></p>
+<h5 id="superiorallocator">superior_allocator成员函数具体实现</h5>
 
-<h5>superior_allocator成员函数具体实现</h5>
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">template</span><span class="o">&lt;</span><span class="kt">int</span> <span class="n">inst</span><span class="o">&gt;</span>
+<span class="kt">char</span><span class="o">*</span> <span class="n">junior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">start</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">template&lt;int inst&gt;
-char* junior_allocator&lt;inst&gt;::start = 0;</p>
+<span class="k">template</span><span class="o">&lt;</span><span class="kt">int</span> <span class="n">inst</span><span class="o">&gt;</span>
+<span class="kt">char</span><span class="o">*</span> <span class="n">junior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">finish</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 
-<p>template&lt;int inst&gt;
-char* junior_allocator&lt;inst&gt;::finish = 0;</p>
+<span class="k">template</span><span class="o">&lt;</span><span class="kt">int</span> <span class="n">inst</span><span class="o">&gt;</span>
+<span class="kt">size_t</span> <span class="n">junior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">heap_size</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 
-<p>template&lt;int inst&gt;
-size_t junior_allocator&lt;inst&gt;::heap_size = 0;</p>
+<span class="k">template</span><span class="o">&lt;</span><span class="kt">int</span> <span class="n">inst</span><span class="o">&gt;</span>
+<span class="k">typename</span> <span class="n">junior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">obj</span><span class="o">*</span> <span class="n">junior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">free_list</span><span class="p">[</span><span class="n">FREE_COUNT</span><span class="p">]</span>
+					<span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">};</span>
 
-<p>template&lt;int inst&gt;
-typename junior_allocator&lt;inst&gt;::obj* junior_allocator&lt;inst&gt;::free_list[FREE_COUNT]
-                    = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};</p>
+<span class="k">template</span><span class="o">&lt;</span><span class="kt">int</span> <span class="n">inst</span><span class="o">&gt;</span>
+<span class="kt">size_t</span> <span class="n">junior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">march_node</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">size</span><span class="p">){</span>
+	<span class="k">return</span> <span class="p">(</span><span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">SLICE_SIZE</span><span class="p">;</span>
+<span class="p">}</span>
 
-<p>template&lt;int inst&gt;
-size_t junior_allocator&lt;inst&gt;::march_node(size_t size){
-    return (size-1) / SLICE_SIZE;
-}</p>
+<span class="k">template</span><span class="o">&lt;</span><span class="kt">int</span> <span class="n">inst</span><span class="o">&gt;</span>
+<span class="kt">size_t</span> <span class="n">junior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">node_size</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">node_id</span><span class="p">){</span>
+	<span class="k">return</span> <span class="p">(</span><span class="n">node_id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">SLICE_SIZE</span><span class="p">;</span>
+<span class="p">}</span>
 
-<p>template&lt;int inst&gt;
-size_t junior_allocator&lt;inst&gt;::node_size(size_t node_id){
-    return (node_id + 1) * SLICE_SIZE;
-}</p>
+<span class="k">template</span><span class="o">&lt;</span><span class="kt">int</span> <span class="n">inst</span><span class="o">&gt;</span>
+<span class="kt">char</span><span class="o">*</span> <span class="n">junior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">chunk_alloc</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">node_id</span><span class="p">,</span> <span class="kt">size_t</span> <span class="o">&amp;</span><span class="n">n</span><span class="p">){</span>
+	<span class="kt">size_t</span> <span class="n">requre</span> <span class="o">=</span> <span class="n">n</span><span class="o">*</span><span class="n">node_size</span><span class="p">(</span><span class="n">node_id</span><span class="p">);</span>
+	<span class="kt">size_t</span> <span class="n">size_left</span> <span class="o">=</span> <span class="n">finish</span> <span class="o">-</span> <span class="n">start</span><span class="p">;</span>
+	<span class="kt">char</span><span class="o">*</span> <span class="n">result</span><span class="p">;</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">size_left</span> <span class="o">&lt;</span> <span class="n">requre</span><span class="p">){</span><span class="c1">//剩余空间不够</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">node_size</span><span class="p">(</span><span class="n">node_id</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">size_left</span><span class="p">){</span>
+			<span class="c1">//还够分配一个node</span>
+			<span class="n">n</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+			<span class="n">result</span> <span class="o">=</span> <span class="n">start</span><span class="p">;</span>
+			<span class="n">start</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">node_size</span><span class="p">(</span><span class="n">node_id</span><span class="p">);</span>
+			<span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+		<span class="p">}</span><span class="k">else</span><span class="p">{</span><span class="c1">//一个都不够分配了</span>
+			<span class="k">if</span><span class="p">(</span><span class="n">size_left</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">){</span>
+				<span class="c1">//把剩余空间分配给相应free_list</span>
+				<span class="cm">/*</span>
+<span class="cm">				 * 由于每次分配堆大小都是８的整数倍</span>
+<span class="cm">				 * 所以剩余的肯定属于8,16,24,...必然</span>
+<span class="cm">				 * 有一个与它完全适配,不会发生内存碎片</span>
+<span class="cm">				 */</span>
+				<span class="kt">size_t</span> <span class="n">node_march</span> <span class="o">=</span> <span class="n">march_node</span><span class="p">(</span><span class="n">size_left</span><span class="p">);</span>
+				<span class="n">assert</span><span class="p">(</span><span class="n">size_left</span> <span class="o">==</span> <span class="n">node_size</span><span class="p">(</span><span class="n">node_march</span><span class="p">));</span>
+				<span class="n">obj</span><span class="o">*</span> <span class="n">cur</span> <span class="o">=</span> <span class="p">(</span><span class="n">obj</span><span class="o">*</span><span class="p">)</span><span class="n">start</span><span class="p">;</span>
+				<span class="n">cur</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">free_list</span><span class="p">[</span><span class="n">node_march</span><span class="p">];</span>
+				<span class="n">free_list</span><span class="p">[</span><span class="n">node_march</span><span class="p">]</span> <span class="o">=</span> <span class="n">cur</span><span class="p">;</span>
+				<span class="n">start</span> <span class="o">=</span> <span class="n">finish</span><span class="p">;</span>
+			<span class="p">}</span>
+			<span class="kt">size_t</span> <span class="n">add_size</span> <span class="o">=</span> <span class="n">requre</span> <span class="o">+</span> <span class="p">(</span><span class="n">heap_size</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span><span class="p">);</span>
+			<span class="n">start</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="p">)(</span><span class="o">::</span><span class="k">operator</span> <span class="k">new</span><span class="p">(</span><span class="n">add_size</span><span class="p">));</span>
+			<span class="k">if</span><span class="p">(</span><span class="n">start</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+				<span class="c1">//分配内存失败</span>
+				<span class="c1">//应该从合适的free_list中回收一定的内存</span>
+				<span class="k">for</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="n">node_id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">FREE_COUNT</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+					<span class="k">if</span><span class="p">(</span><span class="n">free_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">){</span>
+						<span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="p">)(</span><span class="n">free_list</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+						<span class="n">free_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span> <span class="n">free_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+						<span class="n">start</span> <span class="o">=</span> <span class="n">result</span><span class="p">;</span>
+						<span class="n">finish</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">node_size</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+						<span class="k">return</span> <span class="nf">chunk_alloc</span><span class="p">(</span><span class="n">node_id</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span><span class="c1">//再次尝试分配</span>
+					<span class="p">}</span>
+				<span class="p">}</span>
 
-<p>template&lt;int inst&gt;
-char<em> junior_allocator&lt;inst&gt;::chunk_alloc(size_t node_id, size_t &amp;n){
-    size_t requre = n</em>node_size(node_id);
-    size_t size_left = finish - start;
-    char<em> result;
-    if(size_left &lt; requre){//剩余空间不够
-        if(node_size(node_id) &lt; size_left){
-            //还够分配一个node
-            n = 1;
-            result = start;
-            start = start + node_size(node_id);
-            return result;
-        }else{//一个都不够分配了
-            if(size_left &gt; 0){
-                //把剩余空间分配给相应free_list
-                /</em>
-                 * 由于每次分配堆大小都是８的整数倍
-                 * 所以剩余的肯定属于8,16,24,...必然
-                 * 有一个与它完全适配,不会发生内存碎片
-                 <em>/
-                size_t node_march = march_node(size_left);
-                assert(size_left == node_size(node_march));
-                obj</em> cur = (obj<em>)start;
-                cur-&gt;next = free_list[node_march];
-                free_list[node_march] = cur;
-                start = finish;
-            }
-            size_t add_size = requre + (heap_size &gt;&gt; 4);
-            start = (char</em>)(::operator new(add_size));
-            if(start == 0){
-                //分配内存失败
-                //应该从合适的free_list中回收一定的内存
-                for(size_t i = node_id + 1; i &lt; FREE_COUNT; i++){
-                    if(free_list[i] != 0){
-                        result = (char*)(free_list[i]);
-                        free_list[i]= free_list[i]-&gt;next;
-                        start = result;
-                        finish = start + node_size(i);
-                        return chunk_alloc(node_id, n);//再次尝试分配
-                    }
-                }</p>
+				<span class="c1">//实在不行调用一级空间适配器以调用用户定义的处理历程</span>
+				<span class="n">start</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="p">)(</span><span class="n">superior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">allocate</span><span class="p">(</span><span class="n">add_size</span><span class="p">));</span>
+			<span class="p">}</span>
+			<span class="n">finish</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">add_size</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="n">result</span> <span class="o">=</span> <span class="n">start</span><span class="p">;</span>
+	<span class="n">start</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">requre</span><span class="p">;</span>
+	<span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
 
-<pre><code>            //实在不行调用一级空间适配器以调用用户定义的处理历程
-            start = (char*)(superior_allocator&amp;lt;inst&amp;gt;::allocate(add_size));
-        }
-        finish = start + add_size;
-    }
-}
-result = start;
-start = start + requre;
-return result;
-</code></pre>
+<span class="k">template</span><span class="o">&lt;</span><span class="kt">int</span> <span class="n">inst</span><span class="o">&gt;</span>
+<span class="kt">void</span><span class="o">*</span> <span class="n">junior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">refill</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">node_id</span><span class="p">){</span>
+	 <span class="kt">size_t</span> <span class="n">chunk_num</span> <span class="o">=</span> <span class="n">CHUNK_NUM</span><span class="p">;</span>
+	 <span class="kt">void</span><span class="o">*</span> <span class="n">result</span><span class="p">;</span>
+	 <span class="n">result</span> <span class="o">=</span> <span class="n">chunk_alloc</span><span class="p">(</span><span class="n">node_id</span><span class="p">,</span> <span class="n">chunk_num</span><span class="p">);</span>
+	 <span class="c1">//chunk_num的值为实际分配到的块数目</span>
+	 <span class="n">obj</span><span class="o">*</span> <span class="n">pos</span> <span class="o">=</span> <span class="p">(</span><span class="n">obj</span><span class="o">*</span><span class="p">)</span><span class="n">result</span><span class="p">;</span>
+	 <span class="c1">//把chunk_num个内存块建立链表索引</span>
+	 <span class="k">for</span><span class="p">(</span><span class="k">auto</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">chunk_num</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+		 <span class="n">obj</span><span class="o">*</span> <span class="n">next</span> <span class="o">=</span> <span class="p">(</span><span class="n">obj</span><span class="o">*</span><span class="p">)((</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">pos</span> <span class="o">+</span> <span class="n">node_size</span><span class="p">(</span><span class="n">node_id</span><span class="p">));</span>
+		 <span class="n">pos</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">next</span><span class="p">;</span>
+		 <span class="n">pos</span> <span class="o">=</span> <span class="n">pos</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+	 <span class="p">}</span>
+	 <span class="n">pos</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	 <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
 
-<p>}</p>
+<span class="k">template</span><span class="o">&lt;</span><span class="kt">int</span> <span class="n">inst</span><span class="o">&gt;</span>
+<span class="kt">void</span><span class="o">*</span> <span class="n">junior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">allocate</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">n</span><span class="p">){</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="n">LARGE_SIZE</span><span class="p">){</span>
+		<span class="c1">//超过LARGE_SIZE交给superior_allocator分配</span>
+		<span class="k">return</span> <span class="n">superior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">allocate</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+	<span class="p">}</span><span class="k">else</span><span class="p">{</span>
+		<span class="kt">size_t</span> <span class="n">node_id</span> <span class="o">=</span> <span class="n">march_node</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">free_list</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+			<span class="c1">//已经没有资源了</span>
+			<span class="n">free_list</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">obj</span><span class="o">*</span><span class="p">)</span><span class="n">refill</span><span class="p">(</span><span class="n">node_id</span><span class="p">);</span>
+		<span class="p">}</span>
+		<span class="kt">void</span><span class="o">*</span> <span class="n">result</span> <span class="o">=</span> <span class="n">free_list</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
+		<span class="n">free_list</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">free_list</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+		<span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
 
-<p>template&lt;int inst&gt;
-void<em> junior_allocator&lt;inst&gt;::refill(size_t node_id){
-     size_t chunk_num = CHUNK_NUM;
-     void</em> result;
-     result = chunk_alloc(node_id, chunk_num);
-     //chunk_num的值为实际分配到的块数目
-     obj<em> pos = (obj</em>)result;
-     //把chunk_num个内存块建立链表索引
-     for(auto i = 1; i &lt; chunk_num; i++){
-         obj<em> next = (obj</em>)((char*)pos + node_size(node_id));
-         pos-&gt;next = next;
-         pos = pos-&gt;next;
-     }
-     pos-&gt;next = 0;
-     return result;
-}</p>
+<span class="k">template</span><span class="o">&lt;</span><span class="kt">int</span> <span class="n">inst</span><span class="o">&gt;</span>
+<span class="kt">void</span><span class="o">*</span> <span class="n">junior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">reallocte</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">old_sz</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">new_sz</span><span class="p">){</span>
+	<span class="kt">void</span><span class="o">*</span> <span class="n">new_ptr</span> <span class="o">=</span> <span class="n">allocate</span><span class="p">(</span><span class="n">new_sz</span><span class="p">);</span>
+	<span class="kt">size_t</span> <span class="n">copy_sz</span> <span class="o">=</span> <span class="n">old_sz</span> <span class="o">&lt;</span> <span class="n">new_sz</span><span class="o">?</span> <span class="nl">old_sz</span> <span class="p">:</span> <span class="n">new_sz</span><span class="p">;</span>
+	<span class="n">memcpy</span><span class="p">(</span><span class="n">new_ptr</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">copy_sz</span><span class="p">);</span>
+	<span class="n">deallocate</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">old_sz</span><span class="p">);</span>
+	<span class="k">return</span> <span class="n">new_ptr</span><span class="p">;</span>
+<span class="p">}</span>
 
-<p>template&lt;int inst&gt;
-void<em> junior_allocator&lt;inst&gt;::allocate(size_t n){
-    if(n &gt; LARGE_SIZE){
-        //超过LARGE_SIZE交给superior_allocator分配
-        return superior_allocator&lt;inst&gt;::allocate(n);
-    }else{
-        size_t node_id = march_node(n);
-        if(free_list[node_id] == 0){
-            //已经没有资源了
-            free_list[node_id] = (obj</em>)refill(node_id);
-        }
-        void* result = free_list[node_id]-&gt;data;
-        free_list[node_id] = free_list[node_id]-&gt;next;
-        return result;
-    }
-}</p>
+<span class="k">template</span><span class="o">&lt;</span><span class="kt">int</span> <span class="n">inst</span><span class="o">&gt;</span>
+<span class="kt">void</span> <span class="n">junior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">deallocate</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">sz</span><span class="p">){</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">sz</span> <span class="o">&gt;</span> <span class="n">LARGE_SIZE</span><span class="p">){</span>
+		<span class="n">superior_allocator</span><span class="o">&lt;</span><span class="n">inst</span><span class="o">&gt;::</span><span class="n">deallocate</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">sz</span><span class="p">);</span>
+		<span class="k">return</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="kt">size_t</span> <span class="n">node_march</span> <span class="o">=</span> <span class="n">march_node</span><span class="p">(</span><span class="n">sz</span><span class="p">);</span>
+	<span class="n">obj</span><span class="o">*</span> <span class="n">pos</span> <span class="o">=</span> <span class="p">(</span><span class="n">obj</span><span class="o">*</span><span class="p">)</span><span class="n">ptr</span><span class="p">;</span>
+	<span class="n">pos</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">free_list</span><span class="p">[</span><span class="n">node_march</span><span class="p">];</span>
+	<span class="n">free_list</span><span class="p">[</span><span class="n">node_march</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
 
-<p>template&lt;int inst&gt;
-void<em> junior_allocator&lt;inst&gt;::reallocte(void</em> ptr, size_t old_sz, size_t new_sz){
-    void* new_ptr = allocate(new_sz);
-    size_t copy_sz = old_sz &lt; new_sz? old_sz : new_sz;
-    memcpy(new_ptr, ptr, copy_sz);
-    deallocate(ptr, old_sz);
-    return new_ptr;
-}</p>
-
-<p>template&lt;int inst&gt;
-void junior_allocator&lt;inst&gt;::deallocate(void<em> ptr, size_t sz){
-    if(sz &gt; LARGE_SIZE){
-        superior_allocator&lt;inst&gt;::deallocate(ptr, sz);
-        return;
-    }
-    size_t node_march = march_node(sz);
-    obj</em> pos = (obj*)ptr;
-    pos-&gt;next = free_list[node_march];
-    free_list[node_march] = pos;
-}</code></pre></figure></p>
-
-<h2>后记</h2>
-
+<h2 id="section-1">后记</h2>
 <p>SGI的两级Allocator实现非常优美，特别是junior_allocator的实现，通过严密的管理策略使得几乎不会产生内存碎片.</p>
 
 <p>另外，上面的代码只是笔者简单的模仿实现，SGI的源码则是更加的完整和健壮，并且对多线程情况也做出处理.</p>
 
 
-    <!--    11891-->
+    <!--    11009-->
     <div class="eof">-&nbsp;EOF&nbsp;-</div>
     <p class="declare">声明:本文采用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="nofollow" title="署名-非商业性使用-相同方式共享">BY-NC-SA</a>协议进行授权.转载请注明: <a href="/c/c++/2014/04/15/%E4%BB%BF%E7%85%A7%E5%AE%9E%E7%8E%B0SGI-STL%E7%A9%BA%E9%97%B4%E9%85%8D%E7%BD%AE%E5%99%A8.html" title="仿照实现SGI-STL空间配置器 " rel="nofollow">仿照实现SGI-STL空间配置器</a></p>
     <hr>
