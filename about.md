@@ -4,11 +4,11 @@ title: About sosohu
 group: navigation
 ---
 
-#关于作者/About Me#
+**关于作者/About Me**
 
 Hi,我是sosohu.
 
-#联系作者/Contact Me#
+**联系作者/Contact Me**
 
 Email:<ustc.sosohu@gmail.com>
 
