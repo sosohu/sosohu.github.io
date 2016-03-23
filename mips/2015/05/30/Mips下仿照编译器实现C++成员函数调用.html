@@ -57,180 +57,168 @@
 
 <div class="row">
   <div class="span8">
-    <h2>环境</h2>
-
+    <h2 id="section">环境</h2>
 <p>32位MIPS平台，采用O32的ABI,linux操作系统，GCC编译器</p>
 
-<h2>需求</h2>
-
+<h2 id="section-1">需求</h2>
 <p>我们准备好C++对象的this指针，对象成员函数指针,对象的参数，然后模拟编译器来填充好参数并调用该对象成员函数. 需要注意，对象不固定，成员函数不固定，成员函数的参数个数以及类型都不固定.</p>
 
-<h2>MIPS的一些约定</h2>
+<h2 id="mips">MIPS的一些约定</h2>
 
-<h3>MIPS寄存器的约定</h3>
+<h3 id="mips-1">MIPS寄存器的约定</h3>
 
 <p><img src="http://sosohu.github.io/assets/image/posts/2015-5-30-MIPS/reg_mips.png" alt="Reg_MIPS" /></p>
 
-<h3>MIPS的O32标准ABI函数调用的约定</h3>
-
+<h3 id="mipso32abi">MIPS的O32标准ABI函数调用的约定</h3>
 <ul>
-<li>输入参数要依次填充寄存器a0, a1, a2, a3,如果还有参数则需要填充到栈上</li>
-<li>调用函数在调用被调用函数时候,需要为被调函数预留16字节的栈上空间以备被调函数存储a0,a1,a2和a3的值,所以a0,a1,a2,a3寄存器放不下的参数需要放在被调函数的栈帧+16字节以上的空间</li>
-<li>输入参数的填充时候要遵守对齐原则,比如参数依次为int, long long那么int放在a0,long long放在a2,a3寄存器而不是a1, a2寄存器</li>
+  <li>输入参数要依次填充寄存器a0, a1, a2, a3,如果还有参数则需要填充到栈上</li>
+  <li>调用函数在调用被调用函数时候,需要为被调函数预留16字节的栈上空间以备被调函数存储a0,a1,a2和a3的值,所以a0,a1,a2,a3寄存器放不下的参数需要放在被调函数的栈帧+16字节以上的空间</li>
+  <li>输入参数的填充时候要遵守对齐原则,比如参数依次为int, long long那么int放在a0,long long放在a2,a3寄存器而不是a1, a2寄存器</li>
 </ul>
 
-
-<h2>实现</h2>
-
+<h2 id="section-2">实现</h2>
 <p>我们这里的实现机制是，把所有参数按照４字节分割，比如long long需要分割成两个4字节，然后我们把这个一一个分割后的4字节的数据按照MIPS O32的ABI的约定填充到指定寄存器和栈上，然后再调用该函数即可.</p>
 
-<h3>处理对齐</h3>
-
+<h3 id="section-3">处理对齐</h3>
 <p>我们需要分析每种参数类型到底是4字节对齐还是8字节对齐等等，然后根据不同的对齐确定参数寄存器和栈的对齐</p>
 
-<h3>代码实现</h3>
-
+<h3 id="section-4">代码实现</h3>
 <p>我们以一个<code>VARIANT</code>结构体为例，对于其他类型可以做同样的处理</p>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">#define DWORD 4</p>
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="cp">#define DWORD 4</span>
+<span class="cp">#define __ASM_CFI(str) str</span>
+<span class="cp">#define __ASM_DEFINE_FUNC(name,suffix,code) asm(&quot;.text\n\t.align 4\n\t.globl &quot; #name suffix &quot;\n\t.type &quot; #name suffix &quot;,@function\n&quot; #name suffix &quot;:\n\t.cfi_startproc\n\t&quot; code &quot;\n\t.cfi_endproc\n\t.previous&quot;);</span>
+<span class="cp">#define __ASM_GLOBAL_FUNC(name,code) __ASM_DEFINE_FUNC(name,&quot;&quot;,code)</span>
 
-<h1>define __ASM_CFI(str) str</h1>
+<span class="k">typedef</span> <span class="nf">intptr_t</span> <span class="p">(</span><span class="n">CALLBACK</span> <span class="o">*</span><span class="n">FARPROC</span><span class="p">)();</span>
 
-<h1>define __ASM_DEFINE_FUNC(name,suffix,code) asm(&quot;.text\n\t.align 4\n\t.globl &quot; #name suffix &quot;\n\t.type &quot; #name suffix &quot;,@function\n&quot; #name suffix &quot;:\n\t.cfi_startproc\n\t&quot; code &quot;\n\t.cfi_endproc\n\t.previous&quot;);</h1>
+<span class="k">extern</span> <span class="s">&quot;C&quot;</span> <span class="kt">uintptr_t</span> <span class="n">CDECL</span> <span class="n">call_method</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">func</span><span class="p">,</span> <span class="kt">int</span> <span class="n">nb_args</span><span class="p">,</span> <span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="kt">int</span> <span class="n">nb_fargs</span><span class="p">,</span> <span class="k">const</span> <span class="kt">double</span><span class="o">*</span> <span class="n">fargs</span><span class="p">);</span>
+<span class="n">__ASM_GLOBAL_FUNC</span><span class="p">(</span> <span class="n">call_method</span><span class="p">,</span>
+					<span class="s">&quot;.set noreorder</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;.set arch=mips3</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;sw $16,-28($29)</span><span class="se">\r\n</span><span class="s">&quot;</span> <span class="c1">// $16压栈</span>
+					<span class="s">&quot;sw $17,-32($29)</span><span class="se">\r\n</span><span class="s">&quot;</span> <span class="c1">// $16压栈</span>
+					<span class="s">&quot;move $16, $29</span><span class="se">\r\n</span><span class="s">&quot;</span> <span class="c1">// store $29</span>
+					<span class="s">&quot;sll $17, $5, 2</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;and $17, $17,0xffffff80</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;addiu $17, $17, 256</span><span class="se">\r\n</span><span class="s">&quot;</span>  <span class="c1">// stack size</span>
+					<span class="s">&quot;subu $29,$29,$17</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;sw $31,-4($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>   <span class="c1">//将返回地址压入堆栈</span>
+					<span class="s">&quot;sw $30,-8($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>   <span class="c1">//将fp压入堆栈</span>
+					<span class="s">&quot;sdc1 $f12,-16($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>  <span class="c1">//将f12到f15寄存器保存到堆栈中</span>
+					<span class="s">&quot;sdc1 $f14,-24($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;move $30,$29</span><span class="se">\r\n</span><span class="s">&quot;</span>       <span class="c1">//将$29保存到fp</span>
+					<span class="s">&quot;sw $4,0($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>       <span class="c1">//将参数＊func压栈</span>
+					<span class="s">&quot;sw $5,4($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>       <span class="c1">//将参数nb_args压栈</span>
+					<span class="s">&quot;sw $6,8($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>       <span class="c1">//将参数*args压栈</span>
+					<span class="s">&quot;sw $7,12($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>      <span class="c1">//将参数nb_fargs压栈</span>
+					<span class="s">&quot;move $11,$7</span><span class="se">\r\n</span><span class="s">&quot;</span>        <span class="c1">//将nb_fargs存入$11</span>
+					<span class="s">&quot;lw $10,16($29)</span><span class="se">\r\n</span><span class="s">&quot;</span>     <span class="c1">//将*fargs存入$10</span>
+					<span class="s">&quot;addu $11,$11,-2</span><span class="se">\r\n</span><span class="s">&quot;</span>     <span class="c1">//nb_fargs-2</span>
+					<span class="s">&quot;bltz $11, 1f</span><span class="se">\r\n</span><span class="s">&quot;</span>       <span class="c1">//如果nb_fargs-2&lt;0,跳转到1</span>
+					<span class="s">&quot;nop </span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;ldc1 $f14,8($10)</span><span class="se">\r\n</span><span class="s">&quot;</span>   <span class="c1">//将*fargs[1]移入$f14(高位隐含存入$f15)</span>
+					<span class="s">&quot;1: addu $11,$11,1</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;bltz $11,2f</span><span class="se">\r\n</span><span class="s">&quot;</span>        <span class="c1">//如果nb_fargs-1&lt;0,跳转到2</span>
+					<span class="s">&quot;nop </span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;ldc1 $f12,0($10)</span><span class="se">\r\n</span><span class="s">&quot;</span>   <span class="c1">//将*fargs[2]移入$f12,$f13</span>
+					<span class="s">&quot;2: move $8,$5</span><span class="se">\r\n</span><span class="s">&quot;</span>      <span class="c1">//将nb_args 移入$8</span>
+					<span class="s">&quot;move $9,$6</span><span class="se">\r\n</span><span class="s">&quot;</span>         <span class="c1">//将＊args移入$9</span>
+					<span class="s">&quot;blez $8, 4f</span><span class="se">\r\n</span><span class="s">&quot;</span>        <span class="c1">//如$8小于等于0调转到call func</span>
+					<span class="s">&quot;nop</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;lw $4,($9)</span><span class="se">\r\n</span><span class="s">&quot;</span>         <span class="c1">//将args[0]移入$4</span>
+					<span class="s">&quot;addu $8,$8,-1</span><span class="se">\r\n</span><span class="s">&quot;</span>      <span class="c1">//$8=$8-1</span>
+					<span class="s">&quot;blez $8,4f</span><span class="se">\r\n</span><span class="s">&quot;</span>         <span class="c1">//如$8小于等于0跳转到call func</span>
+					<span class="s">&quot;nop</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;lw $5,4($9)</span><span class="se">\r\n</span><span class="s">&quot;</span>        <span class="c1">//将args[1]移入$5</span>
+					<span class="s">&quot;addu $8,$8,-1</span><span class="se">\r\n</span><span class="s">&quot;</span>      <span class="c1">//$8=$8-1</span>
+					<span class="s">&quot;blez $8, 4f</span><span class="se">\r\n</span><span class="s">&quot;</span>        <span class="c1">//如$8小于等于0跳转到call func</span>
+					<span class="s">&quot;nop</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;lw $6,8($9)</span><span class="se">\r\n</span><span class="s">&quot;</span>        <span class="c1">//将args[2]移入$6</span>
+					<span class="s">&quot;addu $8,$8,-1</span><span class="se">\r\n</span><span class="s">&quot;</span>      <span class="c1">//$8=$8-1</span>
+					<span class="s">&quot;blez $8,4f</span><span class="se">\r\n</span><span class="s">&quot;</span>         <span class="c1">//如$8小于等于0跳转到call func</span>
+					<span class="s">&quot;nop </span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;lw $7,12($9)</span><span class="se">\r\n</span><span class="s">&quot;</span>       <span class="c1">//将args[3]移入$7</span>
+					<span class="s">&quot;addu $9,$9,16</span><span class="se">\r\n</span><span class="s">&quot;</span>      <span class="c1">//将指针移到args[4]</span>
+					<span class="s">&quot;addu $11,$29,16</span><span class="se">\r\n</span><span class="s">&quot;</span>     <span class="c1">//$11=$29+16</span>
+					<span class="s">&quot;3: addu $8,$8,-1</span><span class="se">\r\n</span><span class="s">&quot;</span>   <span class="c1">//$8=$8-1</span>
+					<span class="s">&quot;blez $8,4f</span><span class="se">\r\n</span><span class="s">&quot;</span>         <span class="c1">//如$8小于等于0跳转到call func</span>
+					<span class="s">&quot;nop</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;lw $10,($9)</span><span class="se">\r\n</span><span class="s">&quot;</span>        <span class="c1">//将args[n]移入$10</span>
+					<span class="s">&quot;sw $10,($11)</span><span class="se">\r\n</span><span class="s">&quot;</span>        <span class="c1">//将$10存入$29+16+m</span>
+					<span class="s">&quot;addu $9,$9,4</span><span class="se">\r\n</span><span class="s">&quot;</span>       <span class="c1">//指向args[n+1]</span>
+					<span class="s">&quot;addu $11,$11,4</span><span class="se">\r\n</span><span class="s">&quot;</span>      <span class="c1">//指向$29+16+m</span>
+					<span class="s">&quot;b 3b</span><span class="se">\r\n</span><span class="s">&quot;</span>  	         <span class="c1">//跳转到</span>
+					<span class="s">&quot;nop</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;4: lw $25,0($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>   <span class="c1">//将*func存入$25</span>
+					<span class="s">&quot;nop</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;jalr $25</span><span class="se">\r\n</span><span class="s">&quot;</span>             <span class="c1">//call func</span>
+					<span class="s">&quot;nop</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;ldc1 $f14,-24($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;ldc1 $f12,-16($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;lw $30,-8($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;lw $31,-4($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;lw $16, -28($16)</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;addu  $29,$29,$17</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;lw $17, -32($29)</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;jr $31</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;nop</span><span class="se">\r\n</span><span class="s">&quot;</span>
+					<span class="s">&quot;.set reorder</span><span class="se">\r\n</span><span class="s">&quot;</span><span class="p">)</span>
 
-<h1>define <strong>ASM_GLOBAL_FUNC(name,code) </strong>ASM_DEFINE_FUNC(name,&quot;&quot;,code)</h1>
+<span class="k">struct</span> <span class="n">VARIANT</span>
+<span class="p">{</span>
+	<span class="n">WORD</span> <span class="n">a</span><span class="p">;</span> <span class="c1">//２　字节</span>
+	<span class="n">WORD</span> <span class="n">b</span><span class="p">;</span>
+	<span class="n">WORD</span> <span class="n">c</span><span class="p">;</span>
+	<span class="n">WORD</span> <span class="n">d</span><span class="p">;</span>
+	<span class="n">INT64</span> <span class="n">e</span><span class="p">;</span> <span class="c1">// 8 字节</span>
 
-<p>typedef intptr_t (CALLBACK *FARPROC)();</p>
+<span class="p">};</span>
 
-<p>extern &quot;C&quot; uintptr_t CDECL call_method(void <em>func, int nb_args, const unsigned int </em>args, int nb_fargs, const double<em> fargs);
-__ASM_GLOBAL_FUNC( call_method,
-                    &quot;.set noreorder\r\n&quot;
-                    &quot;.set arch=mips3\r\n&quot;
-                    &quot;sw $16,-28($29)\r\n&quot; // $16压栈
-                    &quot;sw $17,-32($29)\r\n&quot; // $16压栈
-                    &quot;move $16, $29\r\n&quot; // store $29
-                    &quot;sll $17, $5, 2\r\n&quot;
-                    &quot;and $17, $17,0xffffff80\r\n&quot;
-                    &quot;addiu $17, $17, 256\r\n&quot;  // stack size
-                    &quot;subu $29,$29,$17\r\n&quot;
-                    &quot;sw $31,-4($16)\r\n&quot;   //将返回地址压入堆栈
-                    &quot;sw $30,-8($16)\r\n&quot;   //将fp压入堆栈
-                    &quot;sdc1 $f12,-16($16)\r\n&quot;  //将f12到f15寄存器保存到堆栈中
-                    &quot;sdc1 $f14,-24($16)\r\n&quot;
-                    &quot;move $30,$29\r\n&quot;       //将$29保存到fp
-                    &quot;sw $4,0($16)\r\n&quot;       //将参数＊func压栈
-                    &quot;sw $5,4($16)\r\n&quot;       //将参数nb_args压栈
-                    &quot;sw $6,8($16)\r\n&quot;       //将参数</em>args压栈
-                    &quot;sw $7,12($16)\r\n&quot;      //将参数nb_fargs压栈
-                    &quot;move $11,$7\r\n&quot;        //将nb_fargs存入$11
-                    &quot;lw $10,16($29)\r\n&quot;     //将<em>fargs存入$10
-                    &quot;addu $11,$11,-2\r\n&quot;     //nb_fargs-2
-                    &quot;bltz $11, 1f\r\n&quot;       //如果nb_fargs-2&lt;0,跳转到1
-                    &quot;nop \r\n&quot;
-                    &quot;ldc1 $f14,8($10)\r\n&quot;   //将</em>fargs[1]移入$f14(高位隐含存入$f15)
-                    &quot;1: addu $11,$11,1\r\n&quot;
-                    &quot;bltz $11,2f\r\n&quot;        //如果nb_fargs-1&lt;0,跳转到2
-                    &quot;nop \r\n&quot;
-                    &quot;ldc1 $f12,0($10)\r\n&quot;   //将<em>fargs[2]移入$f12,$f13
-                    &quot;2: move $8,$5\r\n&quot;      //将nb_args 移入$8
-                    &quot;move $9,$6\r\n&quot;         //将＊args移入$9
-                    &quot;blez $8, 4f\r\n&quot;        //如$8小于等于0调转到call func
-                    &quot;nop\r\n&quot;
-                    &quot;lw $4,($9)\r\n&quot;         //将args[0]移入$4
-                    &quot;addu $8,$8,-1\r\n&quot;      //$8=$8-1
-                    &quot;blez $8,4f\r\n&quot;         //如$8小于等于0跳转到call func
-                    &quot;nop\r\n&quot;
-                    &quot;lw $5,4($9)\r\n&quot;        //将args[1]移入$5
-                    &quot;addu $8,$8,-1\r\n&quot;      //$8=$8-1
-                    &quot;blez $8, 4f\r\n&quot;        //如$8小于等于0跳转到call func
-                    &quot;nop\r\n&quot;
-                    &quot;lw $6,8($9)\r\n&quot;        //将args[2]移入$6
-                    &quot;addu $8,$8,-1\r\n&quot;      //$8=$8-1
-                    &quot;blez $8,4f\r\n&quot;         //如$8小于等于0跳转到call func
-                    &quot;nop \r\n&quot;
-                    &quot;lw $7,12($9)\r\n&quot;       //将args[3]移入$7
-                    &quot;addu $9,$9,16\r\n&quot;      //将指针移到args[4]
-                    &quot;addu $11,$29,16\r\n&quot;     //$11=$29+16
-                    &quot;3: addu $8,$8,-1\r\n&quot;   //$8=$8-1
-                    &quot;blez $8,4f\r\n&quot;         //如$8小于等于0跳转到call func
-                    &quot;nop\r\n&quot;
-                    &quot;lw $10,($9)\r\n&quot;        //将args[n]移入$10
-                    &quot;sw $10,($11)\r\n&quot;        //将$10存入$29+16+m
-                    &quot;addu $9,$9,4\r\n&quot;       //指向args[n+1]
-                    &quot;addu $11,$11,4\r\n&quot;      //指向$29+16+m
-                    &quot;b 3b\r\n&quot;             //跳转到
-                    &quot;nop\r\n&quot;
-                    &quot;4: lw $25,0($16)\r\n&quot;   //将</em>func存入$25
-                    &quot;nop\r\n&quot;
-                    &quot;jalr $25\r\n&quot;             //call func
-                    &quot;nop\r\n&quot;
-                    &quot;ldc1 $f14,-24($16)\r\n&quot;
-                    &quot;ldc1 $f12,-16($16)\r\n&quot;
-                    &quot;lw $30,-8($16)\r\n&quot;
-                    &quot;lw $31,-4($16)\r\n&quot;
-                    &quot;lw $16, -28($16)\r\n&quot;
-                    &quot;addu  $29,$29,$17\r\n&quot;
-                    &quot;lw $17, -32($29)\r\n&quot;
-                    &quot;jr $31\r\n&quot;
-                    &quot;nop\r\n&quot;
-                    &quot;.set reorder\r\n&quot;)</p>
+<span class="k">class</span> <span class="nc">A</span><span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+	<span class="kt">int</span> <span class="n">fun1</span><span class="p">(</span><span class="n">VARIANT</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">c</span><span class="p">,</span> <span class="kt">int</span> <span class="n">d</span><span class="p">){</span>
+		<span class="n">c</span> <span class="o">=</span> <span class="n">c</span> <span class="o">+</span> <span class="n">d</span><span class="p">;</span>
+		<span class="k">return</span> <span class="mi">12345</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">};</span>
 
-<p>struct VARIANT
-{
-    WORD a; //２　字节
-    WORD b;
-    WORD c;
-    WORD d;
-    INT64 e; // 8 字节</p>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span><span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+		<span class="n">VARIANT</span> <span class="n">var</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">};</span>
+		<span class="n">A</span> <span class="n">a</span><span class="p">;</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">uint32</span><span class="o">&gt;</span> <span class="n">args</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+		<span class="kt">int</span> <span class="n">argspos</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 
-<p>};</p>
-
-<p>class A{
-public:
-    int fun1(VARIANT a, int c, int d){
-        c = c + d;
-        return 12345;
-    }
-};</p>
-
-<p>int main(int argc,char *argv[])
-{
-        VARIANT var = {0,1,2,3,4};
-        A a;
-        std::vector&lt;uint32&gt; args(100);
-        int argspos = 0;</p>
-
-<pre><code>    //this指针作为第一个参数
-    args[argspos++] = (unsigned int)&amp;amp;a;
-    //准备第二个参数,注意对齐
-    if(argspos % 2 == 1)    argspos++;
-    memcpy( &amp;amp;args[argspos], &amp;amp;var, sizeof(var) );
-    argspos += sizeof(var) / sizeof(DWORD);
-    //准备第三和第四个参数
-    args[argspos++] = 3333;
-    args[argspos++] = 4444;
-
-    //调用汇编编写的模拟调用
-    int ret = call_method2((void*)(&amp;amp;A::fun1), argspos, &amp;amp;args[0], 0, NULL);
-</code></pre>
-
-<p>}</code></pre></figure></p>
+		<span class="c1">//this指针作为第一个参数</span>
+		<span class="n">args</span><span class="p">[</span><span class="n">argspos</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span><span class="p">)</span><span class="o">&amp;</span><span class="n">a</span><span class="p">;</span>
+		<span class="c1">//准备第二个参数,注意对齐</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">argspos</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>	<span class="n">argspos</span><span class="o">++</span><span class="p">;</span>
+		<span class="n">memcpy</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">args</span><span class="p">[</span><span class="n">argspos</span><span class="p">],</span> <span class="o">&amp;</span><span class="n">var</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="p">);</span>
+		<span class="n">argspos</span> <span class="o">+=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">/</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">DWORD</span><span class="p">);</span>
+		<span class="c1">//准备第三和第四个参数</span>
+		<span class="n">args</span><span class="p">[</span><span class="n">argspos</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3333</span><span class="p">;</span>
+		<span class="n">args</span><span class="p">[</span><span class="n">argspos</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4444</span><span class="p">;</span>
+		
+		<span class="c1">//调用汇编编写的模拟调用</span>
+		<span class="kt">int</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">call_method2</span><span class="p">((</span><span class="kt">void</span><span class="o">*</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">A</span><span class="o">::</span><span class="n">fun1</span><span class="p">),</span> <span class="n">argspos</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="p">}</span></code></pre></figure>
 
 <p>这个只是简单的以<code>VARIANT</code>举例，为了更加通用的处理各种参数类型，需要对参数类型进行分类讨论然后采用与此类似的操作.</p>
 
-<p>其实，这段实现也可以完全C语言化，那么我们就需要根据参数个数写一个大switch...case针对每种参数个数显示的调用func:</p>
+<p>其实，这段实现也可以完全C语言化，那么我们就需要根据参数个数写一个大switch…case针对每种参数个数显示的调用func:</p>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">switch(num_args){
-    case 1: func(this, args[0]);
-    case 2: func(this, args[0], args[1]);
-    case 3: func(this, args[0], args[1], args[2]);
-    ...
-}</code></pre></figure></p>
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">switch</span><span class="p">(</span><span class="n">num_args</span><span class="p">){</span>
+	<span class="k">case</span> <span class="mi">1</span><span class="o">:</span>	<span class="n">func</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+	<span class="k">case</span> <span class="mi">2</span><span class="o">:</span>	<span class="n">func</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+	<span class="k">case</span> <span class="mi">3</span><span class="o">:</span>	<span class="n">func</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]);</span>
+	<span class="p">...</span>
+<span class="p">}</span></code></pre></figure>
 
-<p>这样做很简单清楚，不过就难度太小了...</p>
+<p>这样做很简单清楚，不过就难度太小了…</p>
 
 
-    <!--    6433-->
+    <!--    5287-->
     <div class="eof">-&nbsp;EOF&nbsp;-</div>
     <p class="declare">声明:本文采用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="nofollow" title="署名-非商业性使用-相同方式共享">BY-NC-SA</a>协议进行授权.转载请注明: <a href="/mips/2015/05/30/Mips%E4%B8%8B%E4%BB%BF%E7%85%A7%E7%BC%96%E8%AF%91%E5%99%A8%E5%AE%9E%E7%8E%B0C++%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8.html" title="Mips下仿照编译器实现C++成员函数调用 " rel="nofollow">Mips下仿照编译器实现C++成员函数调用</a></p>
     <hr>

@@ -59,50 +59,46 @@
   <div class="span8">
     <p>归并排序是一种司空见惯的排序方法，而大多数实现方式都是采用递归的方法，这里介绍一下笔者从<code>SGI-STL</code>里面学习到的迭代实现归并排序的方法．</p>
 
-<h2>算法实现</h2>
-
+<h2 id="section">算法实现</h2>
 <p>这里选取排序一个链表为例子，这是因为这种迭代实现对排序链表显得更加优美，当然排序一个<code>vector</code>类似的容器也可以，但是需要多次申请的空间，代码显得很臃肿，这里为了阐述算法的思想，就以链表排序为例.</p>
 
-<p><figure class="highlight"><pre><code class="language-c--" data-lang="c++">//仿照SGI STL里面的List容器的sort函数，实现迭代版的归并排序
-ListNode <em>ListSort(ListNode </em>pHead){
-    if(!pHead || !pHead-&gt;next)  return pHead;
-    vector&lt;ListNode<em>&gt; counter(64, NULL);
-    ListNode </em>carry;
-    ListNode *pos = pHead;
-    int fill = 0;
-    while(pos){
-        carry = new ListNode(pos-&gt;val);
-        pos = pos-&gt;next;
-        int i = 0;
-        for(i = 0; i &lt; fill &amp;&amp; counter[i]; i++){
-            //合并两个已排序的链表
-            carry = MergeSortedList(carry, counter[i]);
-            counter[i] = NULL;
-        }
-        counter[i] = carry;
-        if(i == fill) fill++;
-    }
-    for(int i = 1; i &lt; fill; i++){
-        counter[i] = MergeSortedList(counter[i-1], counter[i]);
-    }
-    return counter[fill-1];
-}</code></pre></figure></p>
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="c1">//仿照SGI STL里面的List容器的sort函数，实现迭代版的归并排序</span>
+<span class="n">ListNode</span> <span class="o">*</span><span class="nf">ListSort</span><span class="p">(</span><span class="n">ListNode</span> <span class="o">*</span><span class="n">pHead</span><span class="p">){</span>
+    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">pHead</span> <span class="o">||</span> <span class="o">!</span><span class="n">pHead</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">)</span>  <span class="k">return</span> <span class="n">pHead</span><span class="p">;</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">ListNode</span><span class="o">*&gt;</span> <span class="n">counter</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="n">ListNode</span> <span class="o">*</span><span class="n">carry</span><span class="p">;</span>
+    <span class="n">ListNode</span> <span class="o">*</span><span class="n">pos</span> <span class="o">=</span> <span class="n">pHead</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">fill</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">pos</span><span class="p">){</span>
+        <span class="n">carry</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ListNode</span><span class="p">(</span><span class="n">pos</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">);</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">pos</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="k">for</span><span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">fill</span> <span class="o">&amp;&amp;</span> <span class="n">counter</span><span class="p">[</span><span class="n">i</span><span class="p">];</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+			<span class="c1">//合并两个已排序的链表</span>
+            <span class="n">carry</span> <span class="o">=</span> <span class="n">MergeSortedList</span><span class="p">(</span><span class="n">carry</span><span class="p">,</span> <span class="n">counter</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span> 
+            <span class="n">counter</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">counter</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">carry</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="n">fill</span><span class="p">)</span> <span class="n">fill</span><span class="o">++</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">fill</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+        <span class="n">counter</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">MergeSortedList</span><span class="p">(</span><span class="n">counter</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">counter</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">counter</span><span class="p">[</span><span class="n">fill</span><span class="o">-</span><span class="mi">1</span><span class="p">];</span>
+<span class="p">}</span></code></pre></figure>
 
-<h2>算法解释</h2>
-
-<p>总体上来说，算法的思想就是准备64个槽(<code>counter[i]</code>)，编号为0,1,...,63,分别表示已经排序长为1,2,...,2<sup>63</sup>的链表．一开始这64个槽为空.</p>
+<h2 id="section-1">算法解释</h2>
+<p>总体上来说，算法的思想就是准备64个槽(<code>counter[i]</code>)，编号为0,1,…,63,分别表示已经排序长为1,2,…,2^63的链表．一开始这64个槽为空.</p>
 
 <ol>
-<li>如果待排序链表还有未被取出的元素则取出下一个元素，否则转到3</li>
-<li>将这个元素先和0号槽合并，如果此时0号槽为空则，将合并后结果放入0号槽;如果不为空那么合并后长度变为2,则清空0号槽，继续和1号槽合并，依次类推一直合并到i号槽，且i号槽为空，则将合并结果放入i号槽．转到1.</li>
-<li>将这64个槽从低到高依次合并，得到最终的结果.</li>
+  <li>如果待排序链表还有未被取出的元素则取出下一个元素，否则转到3</li>
+  <li>将这个元素先和0号槽合并，如果此时0号槽为空则，将合并后结果放入0号槽;如果不为空那么合并后长度变为2,则清空0号槽，继续和1号槽合并，依次类推一直合并到i号槽，且i号槽为空，则将合并结果放入i号槽．转到1.</li>
+  <li>将这64个槽从低到高依次合并，得到最终的结果.</li>
 </ol>
 
+<p><strong>Note</strong>: 上面是算法的主体思想，但是可以看到上面的代码在实现的时候做出了一定的优化,就是设置了fill变量以避免步骤3合并所有的槽，而是合并0,1,…fill-1这些槽就可以了.</p>
 
-<p><strong>Note</strong>: 上面是算法的主体思想，但是可以看到上面的代码在实现的时候做出了一定的优化,就是设置了fill变量以避免步骤3合并所有的槽，而是合并0,1,...fill-1这些槽就可以了.</p>
-
-<h2>举例说明</h2>
-
+<h2 id="section-2">举例说明</h2>
 <p>下面以链表数据4，2，1，5，6，9，7，8，10为例分析这个迭代版的代码过程</p>
 
 <p><img src="https://github.com/sosohu/sosohu.github.io/assets/image/posts/2015-4-14-Merge/example.png" alt="example" /></p>
@@ -113,14 +109,13 @@ ListNode <em>ListSort(ListNode </em>pHead){
 
 <p>这里其实也就是形成了一颗归并树，时间复杂度依然是O(nlgn)</p>
 
-<h2>复杂度分析</h2>
-
+<h2 id="section-3">复杂度分析</h2>
 <p>时间复杂度<strong>O(nlgn)</strong>,空间复杂度<strong>O(1)</strong></p>
 
 <p><strong>Note</strong>: 因为是链表所以空间复杂度才会是O(1),换成连续存储的容器就不行了.</p>
 
 
-    <!--    1817-->
+    <!--    1814-->
     <div class="eof">-&nbsp;EOF&nbsp;-</div>
     <p class="declare">声明:本文采用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="nofollow" title="署名-非商业性使用-相同方式共享">BY-NC-SA</a>协议进行授权.转载请注明: <a href="/algorithm/2014/04/14/%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F%E7%9A%84%E8%BF%AD%E4%BB%A3%E5%86%99%E6%B3%95.html" title="归并排序的迭代写法 " rel="nofollow">归并排序的迭代写法</a></p>
     <hr>

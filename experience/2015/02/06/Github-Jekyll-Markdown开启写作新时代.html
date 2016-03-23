@@ -57,68 +57,60 @@
 
 <div class="row">
   <div class="span8">
-    <h2>为什么想到用这几个东西来写博客</h2>
-
+    <h2 id="section">为什么想到用这几个东西来写博客</h2>
 <p>首先markdown用来写作已经是非常流行的了,确实非常方便高效,虽然表达能力没有latex丰富,但是已经算是即轻量级又比较美观的一种方式了,特别是github风格的markdown文章还是比较好看的.其次,我之前的博客要么在博客园这类网站上写,要么是在github的项目仓库中写:sweat:, 但是感觉还是很不方便,而且觉得作为码农还是应该搭建一个自己的博客基地比较geek:smile:, 可是我又想能够快速搭建起来,而且不要太麻烦,几经调研,发现github.io作为搭建平台非常的适合,结果也是很让我满意,大概仅仅只用一天时间,就基本搭建成功一个我觉得还比较满意的博客.</p>
 
-<h2>怎么搭建的</h2>
-
+<h2 id="section-1">怎么搭建的</h2>
 <p>前面废话那么多,感觉的是在给你心灵鸡汤一样,但是我不会只给鸡汤不给汤勺的:satisfied:, 下面就来介绍一下我搭建过程中的一些经验总结.</p>
 
-<h3>准备工作</h3>
+<h3 id="section-2">准备工作</h3>
 
-<h4>github账号:</h4>
-
+<h4 id="github">github账号:</h4>
 <p>这个不用多说了,很简单,去申请一个就行了.</p>
 
-<h4>在gitbub上建立一个usename.github.io的仓库:</h4>
+<h4 id="gitbubusenamegithubio">在gitbub上建立一个usename.github.io的仓库:</h4>
+<p>usename是你的github账号名,貌似不一定非要叫这个名字,反正我是起的这个名字</p>
 
-<p>  usename是你的github账号名,貌似不一定非要叫这个名字,反正我是起的这个名字</p>
-
-<h4>clone一个你喜欢的代码:</h4>
-
+<h4 id="clone">clone一个你喜欢的代码:</h4>
 <p>github上jeklly做出来的各种主题都有很多代码,我这里使用的是<a href="https://github.com/PinkingS/pinkings.github.com">PinkingS</a>的jekyll-bootstrap风格的主题,jekyll还有很多其他主题,你可以到它的官网看一看,然后找相应github上的样例代码.</p>
 
-<h4>修改仓库变为自己的博客</h4>
+<h4 id="section-3">修改仓库变为自己的博客</h4>
 
 <p>你需要修改一下内容:</p>
 
 <ul>
-<li>_config.yml:  凡是别人的都改成自己的.</li>
-<li>_posts:   改为自己的博客,注意命名方法要遵循它的规则.</li>
-<li>about.md:   自我介绍.</li>
+  <li>_config.yml:  凡是别人的都改成自己的.</li>
+  <li>_posts:   改为自己的博客,注意命名方法要遵循它的规则.</li>
+  <li>about.md:   自我介绍.</li>
 </ul>
-
 
 <p>修改完之后,上传到github对应仓库之后,打开usename.github.io网站就可以看到效果啦.</p>
 
-<h5>评论插件</h5>
+<h5 id="section-4">评论插件</h5>
+<p>评论插件很简单,你只需要去<a href="http://disqus.com/">DISQUS</a>注册一个用户名,然后在_config.yml中disqus改为你的用户名，然后_includes/JB/comments-providers/disqus文件也做对应修改.</p>
 
-<p>评论插件很简单,你只需要去<a href="http://disqus.com/">DISQUS</a>注册一个用户名,然后在<em>config.yml中disqus改为你的用户名，然后</em>includes/JB/comments-providers/disqus文件也做对应修改.</p>
-
-<h4>本地搭建jekyll环境:</h4>
-
+<h4 id="jekyll">本地搭建jekyll环境:</h4>
 <p>你可以不用搭建,然后每次提交代码到github上再看效果,搭建这个本地环境是为了让你能在本地实时的查看博客效果.</p>
 
 <p>先是安装ruby(最好是1.9.2版本之后的)和rake,然后安装jekyll和rdiscount</p>
 
-<p><figure class="highlight"><pre><code class="language-sh" data-lang="sh">sudo apt-get install ruby rake
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh">sudo apt-get install ruby rake
 sudo gem install jekyll
-sudo gem install rdiscount</code></pre></figure></p>
+sudo gem install rdiscount</code></pre></figure>
 
 <p>如果安装不了合适的ruby,可以自己到ruby官网下载最新版本,<code>configure &amp;&amp; make &amp;&amp; make install</code>安装,另外,你有可能无法<code>gem install jekyll</code>,那么因为GFW的原因,可以更换source mirror:</p>
 
-<p><figure class="highlight"><pre><code class="language-sh" data-lang="sh">gem sources --remove https://rubygems.org/
-gem sources -a http://ruby.taobao.org/</code></pre></figure></p>
+<figure class="highlight"><pre><code class="language-sh" data-lang="sh">gem sources --remove https://rubygems.org/
+gem sources -a http://ruby.taobao.org/</code></pre></figure>
 
 <p>其他的,你还需要安装nodejs</p>
 
-<h4>使用jekyll本地产生文件</h4>
-
+<h4 id="jekyll-1">使用jekyll本地产生文件</h4>
 <p>在项目代码根目录,执行<code>jekyll build . &amp;&amp; jekyll serve</code>然后打开网址<strong>http://127.0.0.1:4000</strong>即可查看效果</p>
 
 
-    <!--    1403-->
+
+    <!--    1409-->
     <div class="eof">-&nbsp;EOF&nbsp;-</div>
     <p class="declare">声明:本文采用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="nofollow" title="署名-非商业性使用-相同方式共享">BY-NC-SA</a>协议进行授权.转载请注明: <a href="/experience/2015/02/06/Github-Jekyll-Markdown%E5%BC%80%E5%90%AF%E5%86%99%E4%BD%9C%E6%96%B0%E6%97%B6%E4%BB%A3.html" title="Github-Jekyll-Markdown开启写作新时代 " rel="nofollow">Github-Jekyll-Markdown开启写作新时代</a></p>
     <hr>
