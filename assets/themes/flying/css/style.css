@@ -170,9 +170,12 @@ img:hover{
 	opacity:0.8;
 }
 
-.highlight code{
- 	font-size:13px;
+.highlight{
+ 	font-size:10px;
 	color:#D0D0D0;
+	width:100%;
+  	margin:0 auto;
+  	padding:10px 0;
 }
 .H1_Date{
 	font-size:15px;
